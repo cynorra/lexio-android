@@ -1,0 +1,129 @@
+.backBtn {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: var(--ink3);
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+.backBtn:hover { color: var(--ink); }
+
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+.caseDisplay {
+  border: 1px solid var(--border);
+  padding: 1.75rem;
+  background: var(--paper2);
+  margin-bottom: 2.5rem;
+}
+
+.caseLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 0.75rem;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: 1px solid var(--paper3);
+  padding: 3px 8px;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: var(--ink3);
+}
+.tag.ceza { color: #8b2020; border-color: #f0d0d0; background: #fdf5f5; }
+
+.caseTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.caseText {
+  font-size: 0.88rem;
+  color: var(--ink2);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+
+.evidenceList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.evidencePill {
+  font-size: 0.73rem;
+  background: var(--paper3);
+  padding: 4px 10px;
+  color: var(--ink2);
+}
+
+.caseMeta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.72rem;
+  color: var(--ink3);
+  flex-wrap: wrap;
+}
+
+.roleQuestion {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.roleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.roleCard {
+  border: 1.5px solid var(--border);
+  padding: 1.75rem 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+  background: var(--paper);
+}
+.roleCard:hover { border-color: var(--gold); background: var(--paper2); }
+.roleCard.selected { border-color: var(--gold); background: var(--paper2); }
+
+.roleIcon { font-size: 2rem; margin-bottom: 0.75rem; }
+
+.roleName {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.roleDesc {
+  font-size: 0.8rem;
+  color: var(--ink3);
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .roleGrid { grid-template-columns: 1fr; }
+  .container { padding: 2rem 1rem 3rem; }
+}
