@@ -75,8 +75,8 @@
             android:textSize="12sp"
             android:textColor="@color/text_primary"
             android:backgroundTint="@color/transparent"
-            android:strokeColor="@color/card_border"
-            android:strokeWidth="1dp"
+            app:strokeColor="@color/card_border"
+            app:strokeWidth="1dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             app:cornerRadius="6dp" />
@@ -91,8 +91,8 @@
             android:textSize="12sp"
             android:textColor="@color/text_primary"
             android:backgroundTint="@color/transparent"
-            android:strokeColor="@color/card_border"
-            android:strokeWidth="1dp"
+            app:strokeColor="@color/card_border"
+            app:strokeWidth="1dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             app:cornerRadius="6dp" />

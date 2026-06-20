@@ -24,6 +24,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 
 import com.lexio.app.model.Case;
 import com.lexio.app.model.CasesData;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private GoogleSignInClient googleSignInClient;
     private ContentSyncService syncService;
     private AppState.Screen activeScreen = null;
+    private ChatAdapter chatAdapter;
 
     private int userScore = 0;
 
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         // Configure Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("644546865365-0nac1q45eumek8drpfq9fi3vlccee6d3.apps.googleusercontent.com")
                 .requestEmail()
                 .requestProfile()
                 .build();
@@ -315,9 +318,9 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         Button btnWeekly = findViewById(R.id.btnTabWeekly);
         Button btnMonthly = findViewById(R.id.btnTabMonthly);
 
-        btnDaily.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.SET_LEADERBOARD_INTERVAL, "daily", false)));
-        btnWeekly.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.SET_LEADERBOARD_INTERVAL, "weekly", false)));
-        btnMonthly.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.SET_LEADERBOARD_INTERVAL, "monthly", false)));
+        btnDaily.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.SET_LEADERBOARD_INTERVAL, "daily")));
+        btnWeekly.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.SET_LEADERBOARD_INTERVAL, "weekly")));
+        btnMonthly.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.SET_LEADERBOARD_INTERVAL, "monthly")));
         
         loadLeaderboardData(activeInterval);
     }
@@ -426,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                     List<Case.Choice> choices = isDefense ? currentTrialStep.getDefenseChoices() : currentTrialStep.getProsecutionChoices();
 
                     for (Case.Choice choice : choices) {
-                        Button choiceBtn = new Button(this);
+                        MaterialButton choiceBtn = new MaterialButton(this);
                         choiceBtn.setText(choice.getText());
                         choiceBtn.setAllCaps(false);
                         choiceBtn.setTextSize(13);
@@ -463,9 +466,9 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             }
         } else if (screen == AppState.Screen.LEADERBOARD) {
             String interval = state.getLeaderboardInterval();
-            Button btnDaily = findViewById(R.id.btnTabDaily);
-            Button btnWeekly = findViewById(R.id.btnTabWeekly);
-            Button btnMonthly = findViewById(R.id.btnTabMonthly);
+            MaterialButton btnDaily = findViewById(R.id.btnTabDaily);
+            MaterialButton btnWeekly = findViewById(R.id.btnTabWeekly);
+            MaterialButton btnMonthly = findViewById(R.id.btnTabMonthly);
 
             if (btnDaily != null && btnWeekly != null && btnMonthly != null) {
                 btnDaily.setBackgroundTintList(ContextCompat.getColorStateList(this, "daily".equals(interval) ? R.color.text_primary : R.color.transparent));

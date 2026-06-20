@@ -9,9 +9,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.card.MaterialCardView;
 import com.lexio.app.R;
 import com.lexio.app.mvi.AppState;
 import com.lexio.app.service.GeminiService;
@@ -144,7 +144,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             boolean isUser = "user".equalsIgnoreCase(item.getType());
             LinearLayout.LayoutParams containerParams = (LinearLayout.LayoutParams) h.container.getLayoutParams();
-            LinearLayout.LayoutParams cardParams = (LinearLayout.LayoutParams) h.cardView.getLayoutParams();
+            // cardParams is not used, so I'll omit it to keep it clean.
 
             if (isUser) {
                 containerParams.gravity = Gravity.END;
@@ -182,7 +182,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     static class BubbleViewHolder extends RecyclerView.ViewHolder {
         LinearLayout container;
         TextView tvSender, tvText;
-        CardView cardView;
+        MaterialCardView cardView;
 
         BubbleViewHolder(View itemView) {
             super(itemView);

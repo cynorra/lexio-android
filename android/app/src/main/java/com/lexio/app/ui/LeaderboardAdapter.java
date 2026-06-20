@@ -5,9 +5,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.card.MaterialCardView;
 import com.lexio.app.R;
 import com.lexio.app.model.LeaderboardEntry;
 import java.util.List;
@@ -62,7 +62,7 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        CardView cardView;
+        MaterialCardView cardView;
         TextView tvRank, tvUser, tvYou, tvScore;
 
         ViewHolder(View itemView) {
