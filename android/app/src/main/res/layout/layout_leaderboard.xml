@@ -114,7 +114,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         app:adSize="BANNER"
-        app:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+        app:adUnitId="ca-app-pub-4674211063760769/4886149685" />
 
     <!-- Bottom Navigation Bar -->
     <LinearLayout
