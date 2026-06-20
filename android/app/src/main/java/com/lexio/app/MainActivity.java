@@ -1,5 +1,6 @@
 package com.lexio.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -7,11 +8,22 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 
 import com.lexio.app.model.Case;
 import com.lexio.app.model.CasesData;
@@ -21,6 +33,7 @@ import com.lexio.app.model.StudyTopic;
 import com.lexio.app.mvi.AppEvent;
 import com.lexio.app.mvi.AppState;
 import com.lexio.app.mvi.AppStore;
+import com.lexio.app.service.ContentSyncService;
 import com.lexio.app.ui.CasesAdapter;
 import com.lexio.app.ui.ChatAdapter;
 import com.lexio.app.ui.LeaderboardAdapter;
@@ -30,10 +43,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AppStore.Observer {
+    private static final int RC_SIGN_IN = 9001;
+
     private AppStore store;
+    private GoogleSignInClient googleSignInClient;
+    private ContentSyncService syncService;
     private AppState.Screen activeScreen = null;
-    
-    // Track user's overall game score
+
     private int userScore = 0;
 
     @Override
@@ -41,6 +57,23 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         super.onCreate(savedInstanceState);
         
         store = new AppStore();
+        syncService = new ContentSyncService();
+
+        // Configure Google Sign-In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestProfile()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        // Start dynamic content syncing
+        syncService.syncContent(success -> {
+            if (success) {
+                Toast.makeText(MainActivity.this, "İçerikler güncellendi!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, "Çevrimdışı mod aktif.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Subscribe to state updates
         store.subscribe(this);
@@ -63,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     private void setupScreenLayout(AppState.Screen screen, AppState state) {
         switch (screen) {
+            case LOGIN:
+                setContentView(R.layout.layout_login);
+                setupLoginViews();
+                break;
             case LANDING:
                 setContentView(R.layout.layout_landing);
                 setupLandingViews();
@@ -71,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 setContentView(R.layout.layout_case_list);
                 setupCaseListViews();
                 setupBottomNavigation();
+                loadBannerAd();
                 break;
             case CASE_DETAIL:
                 setContentView(R.layout.layout_case_detail);
@@ -84,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 setContentView(R.layout.layout_study_portal);
                 setupStudyPortalViews();
                 setupBottomNavigation();
+                loadBannerAd();
                 break;
             case STUDY_DETAIL:
                 setContentView(R.layout.layout_study_detail);
@@ -93,11 +132,43 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 setContentView(R.layout.layout_leaderboard);
                 setupLeaderboardViews(state.getLeaderboardInterval());
                 setupBottomNavigation();
+                loadBannerAd();
                 break;
         }
     }
 
-    // BOTTOM NAVIGATION BINDINGS (Shares across Case List, Study, and Leaderboard)
+    // Google Sign-In callback
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
+        }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            if (account != null) {
+                String name = account.getDisplayName();
+                store.dispatch(new AppEvent(AppEvent.Type.LOGIN_SUCCESS, name));
+            }
+        } catch (ApiException e) {
+            Toast.makeText(this, "Giriş başarısız: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void setupLoginViews() {
+        View btnSignIn = findViewById(R.id.btnGoogleSignIn);
+        if (btnSignIn != null) {
+            btnSignIn.setOnClickListener(v -> {
+                Intent signInIntent = googleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, RC_SIGN_IN);
+            });
+        }
+    }
+
     private void setupBottomNavigation() {
         View navCases = findViewById(R.id.navCases);
         View navStudy = findViewById(R.id.navStudy);
@@ -114,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
     }
 
-    // LANDING SCREEN SETUP
     private void setupLandingViews() {
         Button btnStart = findViewById(R.id.btnStart);
         Button btnBrowse = findViewById(R.id.btnBrowse);
@@ -123,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         btnBrowse.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
     }
 
-    // CASE LIST SCREEN SETUP
     private void setupCaseListViews() {
         RecyclerView rvCases = findViewById(R.id.rvCases);
         rvCases.setLayoutManager(new LinearLayoutManager(this));
@@ -134,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         rvCases.setAdapter(adapter);
     }
 
-    // CASE DETAIL SCREEN SETUP
     private void setupCaseDetailViews(Case c) {
         if (c == null) return;
 
@@ -173,9 +241,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         });
     }
 
-    // SIMULATION SCREEN SETUP
-    private ChatAdapter chatAdapter;
-
     private void setupSimulationViews(AppState state) {
         Case c = state.getSelectedCase();
         if (c == null) return;
@@ -195,12 +260,10 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         btnExit.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
 
-        // Setup Chat List
         rvChat.setLayoutManager(new LinearLayoutManager(this));
         chatAdapter = new ChatAdapter();
         rvChat.setAdapter(chatAdapter);
 
-        // Render steps
         llSteps.removeAllViews();
         List<Case.TrialStep> steps = c.getTrialSteps();
         for (int i = 0; i < steps.size() + 1; i++) {
@@ -222,7 +285,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
     }
 
-    // STUDY PORTAL SCREEN SETUP
     private void setupStudyPortalViews() {
         RecyclerView rvStudy = findViewById(R.id.rvStudyTopics);
         rvStudy.setLayoutManager(new LinearLayoutManager(this));
@@ -233,7 +295,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         rvStudy.setAdapter(adapter);
     }
 
-    // STUDY DETAIL SCREEN SETUP
     private void setupStudyDetailViews(StudyTopic topic) {
         if (topic == null) return;
 
@@ -249,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         btnBack.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_STUDY_PORTAL)));
     }
 
-    // LEADERBOARD SCREEN SETUP
     private void setupLeaderboardViews(String activeInterval) {
         Button btnDaily = findViewById(R.id.btnTabDaily);
         Button btnWeekly = findViewById(R.id.btnTabWeekly);
@@ -269,31 +329,30 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         rvLeaderboard.setLayoutManager(new LinearLayoutManager(this));
 
         List<LeaderboardEntry> list = new ArrayList<>();
+        String currentUserName = store.getState().getUserDisplayName();
         
         if ("daily".equals(interval)) {
             list.add(new LeaderboardEntry(1, "Av. Burak Yılmaz", 280, false));
             list.add(new LeaderboardEntry(2, "Av. Aslı Kaya", 255, false));
             list.add(new LeaderboardEntry(3, "Av. Canan Demir", 220, false));
-            list.add(new LeaderboardEntry(4, "Av. Eren Şahin (Sen)", userScore, true));
+            list.add(new LeaderboardEntry(4, currentUserName + " (Sen)", userScore, true));
             list.add(new LeaderboardEntry(5, "Av. Mehmet Taş", 60, false));
         } else if ("weekly".equals(interval)) {
             list.add(new LeaderboardEntry(1, "Av. Aslı Kaya", 1250, false));
             list.add(new LeaderboardEntry(2, "Av. Burak Yılmaz", 1100, false));
             list.add(new LeaderboardEntry(3, "Av. Mehmet Taş", 950, false));
-            list.add(new LeaderboardEntry(4, "Av. Eren Şahin (Sen)", userScore + 300, true)); // Add offset for mock past week
+            list.add(new LeaderboardEntry(4, currentUserName + " (Sen)", userScore + 300, true));
             list.add(new LeaderboardEntry(5, "Av. Canan Demir", 720, false));
         } else {
             list.add(new LeaderboardEntry(1, "Av. Mehmet Taş", 4200, false));
             list.add(new LeaderboardEntry(2, "Av. Aslı Kaya", 3800, false));
             list.add(new LeaderboardEntry(3, "Av. Burak Yılmaz", 3600, false));
-            list.add(new LeaderboardEntry(4, "Av. Eren Şahin (Sen)", userScore + 1200, true)); // Mock monthly score
+            list.add(new LeaderboardEntry(4, currentUserName + " (Sen)", userScore + 1200, true));
             list.add(new LeaderboardEntry(5, "Av. Canan Demir", 2900, false));
         }
 
-        // Sort entries by score descending
         list.sort((e1, e2) -> Integer.compare(e2.getScore(), e1.getScore()));
 
-        // Recalculate rank numbers based on sorting
         List<LeaderboardEntry> sortedList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             LeaderboardEntry old = list.get(i);
@@ -304,23 +363,28 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         rvLeaderboard.setAdapter(adapter);
     }
 
+    private void loadBannerAd() {
+        AdView adView = findViewById(R.id.adView);
+        if (adView != null) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            adView.loadAd(adRequest);
+        }
+    }
+
     private void updateScreenState(AppState.Screen screen, AppState state) {
         if (screen == AppState.Screen.SIMULATION) {
             Case c = state.getSelectedCase();
             if (c == null) return;
 
-            // Update Chat list items
             if (chatAdapter != null) {
                 chatAdapter.setItems(state.getChatMessages(), state.getSelectedRole());
 
-                // Scroll to bottom
                 RecyclerView rvChat = findViewById(R.id.rvChat);
                 if (rvChat != null && chatAdapter.getItemCount() > 0) {
                     rvChat.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
                 }
             }
 
-            // Update step indicator selection
             LinearLayout llSteps = findViewById(R.id.llStepsIndicatorContainer);
             if (llSteps != null) {
                 int activeIndex = state.getCurrentStepIndex();
@@ -346,7 +410,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 }
             }
 
-            // Update choices container dynamically
             LinearLayout llChoices = findViewById(R.id.llChoicesContainer);
             TextView tvInputLabel = findViewById(R.id.tvInputLabel);
 
@@ -395,7 +458,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                     completedText.setPadding(0, 12, 0, 12);
                     llChoices.addView(completedText);
                     
-                    // Accumulate score locally upon case completion
                     userScore = state.getAccumulatedScore();
                 }
             }
@@ -406,7 +468,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             Button btnMonthly = findViewById(R.id.btnTabMonthly);
 
             if (btnDaily != null && btnWeekly != null && btnMonthly != null) {
-                // Update tab styles
                 btnDaily.setBackgroundTintList(ContextCompat.getColorStateList(this, "daily".equals(interval) ? R.color.text_primary : R.color.transparent));
                 btnDaily.setTextColor(ContextCompat.getColor(this, "daily".equals(interval) ? R.color.bg_dark : R.color.text_primary));
                 btnDaily.setStrokeWidth("daily".equals(interval) ? 0 : 1);

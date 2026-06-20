@@ -53,6 +53,11 @@ dependencies {
   // Spectrum for image transcoding
   implementation("com.facebook.spectrum:spectrum-default:1.3.0")
 
+  // Google Sign-In, AdMob, and OkHttp client
+  implementation("com.google.android.gms:play-services-auth:21.2.0")
+  implementation("com.google.android.gms:play-services-ads:23.1.0")
+  implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
   // Local testing
   testImplementation("junit:junit:4.13.2")
 }

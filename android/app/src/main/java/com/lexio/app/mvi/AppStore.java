@@ -41,14 +41,23 @@ public class AppStore {
 
     private AppState reduce(AppState current, AppEvent event) {
         switch (event.getType()) {
+            case LOGIN_SUCCESS:
+                return current.copyWith(
+                    AppState.Screen.LANDING, 
+                    null, null, null, -1, -1, null, null, 
+                    true, 
+                    event.getUserDisplayName()
+                );
+            case LOGOUT:
+                return AppState.initial();
             case NAVIGATE_TO_LANDING:
-                return current.copyWith(AppState.Screen.LANDING, null, null, new ArrayList<>(), 0, 0, null, "daily");
+                return current.copyWith(AppState.Screen.LANDING, null, null, new ArrayList<>(), 0, 0, null, "daily", null, null);
             case NAVIGATE_TO_CASE_LIST:
-                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, -1, null, null);
+                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, -1, null, null, null, null);
             case SELECT_CASE:
-                return current.copyWith(AppState.Screen.CASE_DETAIL, event.getSelectedCase(), null, null, -1, -1, null, null);
+                return current.copyWith(AppState.Screen.CASE_DETAIL, event.getSelectedCase(), null, null, -1, -1, null, null, null, null);
             case CHOOSE_ROLE:
-                return current.copyWith(null, null, event.getRole(), null, -1, -1, null, null);
+                return current.copyWith(null, null, event.getRole(), null, -1, -1, null, null, null, null);
             case START_SIMULATION:
                 List<AppState.Message> introMessages = new ArrayList<>();
                 Case selectedCase = current.getSelectedCase();
@@ -69,7 +78,7 @@ public class AppStore {
                 
                 introMessages.add(new AppState.Message("ai", "AI " + aiRole, opening));
                 
-                return current.copyWith(AppState.Screen.SIMULATION, null, null, introMessages, 0, 0, null, null);
+                return current.copyWith(AppState.Screen.SIMULATION, null, null, introMessages, 0, 0, null, null, null, null);
 
             case SELECT_CHOICE:
                 Case.Choice choice = event.getSelectedChoice();
@@ -90,28 +99,25 @@ public class AppStore {
 
                 Case activeCase = current.getSelectedCase();
                 if (activeCase != null && nextStepIndex >= activeCase.getTrialSteps().size()) {
-                    // Simulation complete! Let's generate the Judge's verdict immediately based on the accumulated score!
+                    // Simulation complete!
                     boolean defenseWin = newScore >= 60;
                     String finalVerdict = defenseWin ? activeCase.getFinalVerdictDefenseWin() : activeCase.getFinalVerdictDefenseLose();
                     updatedMessages.add(new AppState.Message("⚖️ Hakim — AI Kararı", finalVerdict));
-                    
-                    // Increment leaderboard scores (accumulatedScore is stored to mock global rank updates)
-                    // In a real app this is pushed to the backend database
                 }
 
-                return current.copyWith(null, null, null, updatedMessages, nextStepIndex, newScore, null, null);
+                return current.copyWith(null, null, null, updatedMessages, nextStepIndex, newScore, null, null, null, null);
 
             case NAVIGATE_TO_STUDY_PORTAL:
-                return current.copyWith(AppState.Screen.STUDY_PORTAL, null, null, null, -1, -1, null, null);
+                return current.copyWith(AppState.Screen.STUDY_PORTAL, null, null, null, -1, -1, null, null, null, null);
 
             case SELECT_STUDY_TOPIC:
-                return current.copyWith(AppState.Screen.STUDY_DETAIL, null, null, null, -1, -1, event.getSelectedStudyTopic(), null);
+                return current.copyWith(AppState.Screen.STUDY_DETAIL, null, null, null, -1, -1, event.getSelectedStudyTopic(), null, null, null);
 
             case NAVIGATE_TO_LEADERBOARD:
-                return current.copyWith(AppState.Screen.LEADERBOARD, null, null, null, -1, -1, null, null);
+                return current.copyWith(AppState.Screen.LEADERBOARD, null, null, null, -1, -1, null, null, null, null);
 
             case SET_LEADERBOARD_INTERVAL:
-                return current.copyWith(null, null, null, null, -1, -1, null, event.getLeaderboardInterval());
+                return current.copyWith(null, null, null, null, -1, -1, null, event.getLeaderboardInterval(), null, null);
 
             case RESET:
                 return AppState.initial();

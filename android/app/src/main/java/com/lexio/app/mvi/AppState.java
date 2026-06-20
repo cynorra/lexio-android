@@ -7,6 +7,7 @@ import java.util.List;
 
 public class AppState {
     public enum Screen {
+        LOGIN,
         LANDING,
         CASE_LIST,
         CASE_DETAIL,
@@ -35,14 +36,17 @@ public class AppState {
     private final List<Message> chatMessages;
     private final int currentStepIndex;
     private final int accumulatedScore;
-    
-    // Online Leaderboard & Study portal parameters
     private final StudyTopic selectedStudyTopic;
     private final String leaderboardInterval; // "daily", "weekly", "monthly"
+    
+    // Auth parameters
+    private final boolean isAuthenticated;
+    private final String userDisplayName;
 
     public AppState(Screen activeScreen, Case selectedCase, String selectedRole, 
                     List<Message> chatMessages, int currentStepIndex, int accumulatedScore,
-                    StudyTopic selectedStudyTopic, String leaderboardInterval) {
+                    StudyTopic selectedStudyTopic, String leaderboardInterval,
+                    boolean isAuthenticated, String userDisplayName) {
         this.activeScreen = activeScreen;
         this.selectedCase = selectedCase;
         this.selectedRole = selectedRole;
@@ -51,10 +55,12 @@ public class AppState {
         this.accumulatedScore = accumulatedScore;
         this.selectedStudyTopic = selectedStudyTopic;
         this.leaderboardInterval = leaderboardInterval;
+        this.isAuthenticated = isAuthenticated;
+        this.userDisplayName = userDisplayName;
     }
 
     public static AppState initial() {
-        return new AppState(Screen.LANDING, null, null, new ArrayList<>(), 0, 0, null, "daily");
+        return new AppState(Screen.LOGIN, null, null, new ArrayList<>(), 0, 0, null, "daily", false, "Avukat");
     }
 
     public Screen getActiveScreen() { return activeScreen; }
@@ -65,10 +71,13 @@ public class AppState {
     public int getAccumulatedScore() { return accumulatedScore; }
     public StudyTopic getSelectedStudyTopic() { return selectedStudyTopic; }
     public String getLeaderboardInterval() { return leaderboardInterval; }
+    public boolean isAuthenticated() { return isAuthenticated; }
+    public String getUserDisplayName() { return userDisplayName; }
 
     public AppState copyWith(Screen activeScreen, Case selectedCase, String selectedRole, 
                              List<Message> chatMessages, int currentStepIndex, int accumulatedScore,
-                             StudyTopic selectedStudyTopic, String leaderboardInterval) {
+                             StudyTopic selectedStudyTopic, String leaderboardInterval,
+                             Boolean isAuthenticated, String userDisplayName) {
         return new AppState(
             activeScreen != null ? activeScreen : this.activeScreen,
             selectedCase != null ? selectedCase : this.selectedCase,
@@ -77,7 +86,9 @@ public class AppState {
             currentStepIndex != -1 ? currentStepIndex : this.currentStepIndex,
             accumulatedScore != -1 ? accumulatedScore : this.accumulatedScore,
             selectedStudyTopic != null ? selectedStudyTopic : this.selectedStudyTopic,
-            leaderboardInterval != null ? leaderboardInterval : this.leaderboardInterval
+            leaderboardInterval != null ? leaderboardInterval : this.leaderboardInterval,
+            isAuthenticated != null ? isAuthenticated : this.isAuthenticated,
+            userDisplayName != null ? userDisplayName : this.userDisplayName
         );
     }
 }
