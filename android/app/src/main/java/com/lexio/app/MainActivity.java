@@ -31,6 +31,8 @@ import com.lexio.app.model.CasesData;
 import com.lexio.app.model.LeaderboardEntry;
 import com.lexio.app.model.StudyData;
 import com.lexio.app.model.StudyTopic;
+import com.lexio.app.model.FeedData;
+import com.lexio.app.model.WorkspaceData;
 import com.lexio.app.mvi.AppEvent;
 import com.lexio.app.mvi.AppState;
 import com.lexio.app.mvi.AppStore;
@@ -39,6 +41,8 @@ import com.lexio.app.ui.CasesAdapter;
 import com.lexio.app.ui.ChatAdapter;
 import com.lexio.app.ui.LeaderboardAdapter;
 import com.lexio.app.ui.StudyAdapter;
+import com.lexio.app.ui.FeedAdapter;
+import com.lexio.app.ui.WorkspaceAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,6 +135,18 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 setContentView(R.layout.layout_study_detail);
                 setupStudyDetailViews(state.getSelectedStudyTopic());
                 break;
+            case FEED:
+                setContentView(R.layout.layout_feed);
+                setupFeedViews();
+                setupBottomNavigation();
+                loadBannerAd();
+                break;
+            case WORKSPACE:
+                setContentView(R.layout.layout_workspace);
+                setupWorkspaceViews();
+                setupBottomNavigation();
+                loadBannerAd();
+                break;
             case LEADERBOARD:
                 setContentView(R.layout.layout_leaderboard);
                 setupLeaderboardViews(state.getLeaderboardInterval());
@@ -176,6 +192,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         View navCases = findViewById(R.id.navCases);
         View navStudy = findViewById(R.id.navStudy);
         View navLeaderboard = findViewById(R.id.navLeaderboard);
+        View navFeed = findViewById(R.id.navFeed);
+        View navWorkspace = findViewById(R.id.navWorkspace);
 
         if (navCases != null) {
             navCases.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
@@ -185,6 +203,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
         if (navLeaderboard != null) {
             navLeaderboard.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_LEADERBOARD)));
+        }
+        if (navFeed != null) {
+            navFeed.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_FEED)));
+        }
+        if (navWorkspace != null) {
+            navWorkspace.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_WORKSPACE)));
         }
     }
 
@@ -371,6 +395,24 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (adView != null) {
             AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd(adRequest);
+        }
+    }
+
+    private void setupFeedViews() {
+        RecyclerView rvFeed = findViewById(R.id.rvFeed);
+        if (rvFeed != null) {
+            rvFeed.setLayoutManager(new LinearLayoutManager(this));
+            FeedAdapter adapter = new FeedAdapter(FeedData.getPosts());
+            rvFeed.setAdapter(adapter);
+        }
+    }
+
+    private void setupWorkspaceViews() {
+        RecyclerView rvWorkspaces = findViewById(R.id.rvWorkspaces);
+        if (rvWorkspaces != null) {
+            rvWorkspaces.setLayoutManager(new LinearLayoutManager(this));
+            WorkspaceAdapter adapter = new WorkspaceAdapter(WorkspaceData.getWorkspaces());
+            rvWorkspaces.setAdapter(adapter);
         }
     }
 

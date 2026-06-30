@@ -14,7 +14,9 @@ public class AppState {
         SIMULATION,
         LEADERBOARD,
         STUDY_PORTAL,
-        STUDY_DETAIL
+        STUDY_DETAIL,
+        FEED,
+        WORKSPACE
     }
 
     public static class Message {

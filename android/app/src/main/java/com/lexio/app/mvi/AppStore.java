@@ -116,6 +116,12 @@ public class AppStore {
             case NAVIGATE_TO_LEADERBOARD:
                 return current.copyWith(AppState.Screen.LEADERBOARD, null, null, null, -1, -1, null, null, null, null);
 
+            case NAVIGATE_TO_FEED:
+                return current.copyWith(AppState.Screen.FEED, null, null, null, -1, -1, null, null, null, null);
+
+            case NAVIGATE_TO_WORKSPACE:
+                return current.copyWith(AppState.Screen.WORKSPACE, null, null, null, -1, -1, null, null, null, null);
+
             case SET_LEADERBOARD_INTERVAL:
                 return current.copyWith(null, null, null, null, -1, -1, null, event.getLeaderboardInterval(), null, null);
 

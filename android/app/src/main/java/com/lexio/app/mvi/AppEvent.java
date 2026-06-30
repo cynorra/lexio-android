@@ -15,6 +15,8 @@ public class AppEvent {
         SELECT_STUDY_TOPIC,
         NAVIGATE_TO_LEADERBOARD,
         SET_LEADERBOARD_INTERVAL,
+        NAVIGATE_TO_FEED,
+        NAVIGATE_TO_WORKSPACE,
         LOGIN_SUCCESS,
         LOGOUT,
         RESET

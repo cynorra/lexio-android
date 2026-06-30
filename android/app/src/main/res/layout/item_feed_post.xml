@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@color/card_bg"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            
+            <ImageView
+                android:id="@+id/ivAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_pill_accent"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:padding="8dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/ivAvatar"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+                
+                <TextView
+                    android:id="@+id/tvAuthorName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Yazar Adı"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:id="@+id/tvAuthorRole"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Avukat"
+                    android:textColor="@color/accent_primary"
+                    android:textSize="12sp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvTimestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="2s"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tvContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Gönderi içeriği buraya gelecek."
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:lineSpacingMultiplier="1.2"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/card_border" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/tvLikes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="❤️ 0 Beğeni"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:paddingEnd="16dp"/>
+
+            <TextView
+                android:id="@+id/tvComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💬 0 Yorum"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
