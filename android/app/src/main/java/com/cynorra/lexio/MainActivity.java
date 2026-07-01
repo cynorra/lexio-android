@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         // Configure Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("644546865365-0nac1q45eumek8drpfq9fi3vlccee6d3.apps.googleusercontent.com")
+                .requestIdToken("644546865365-r2j7da60f3tmcg46a6m6ts2hhcnudo7o.apps.googleusercontent.com")
                 .requestEmail()
                 .requestProfile()
                 .build();

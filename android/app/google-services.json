@@ -7,9 +7,38 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:644546865365:android:3d4d540664945daf781a5c",
+        "mobilesdk_app_id": "1:644546865365:android:0b4cf08de360aec8781a5c",
         "android_client_info": {
           "package_name": "com.cynorra.lexio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "644546865365-r2j7da60f3tmcg46a6m6ts2hhcnudo7o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwyRbMM2MXRUCRm6q-GBssCeOM9W_gUqQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "644546865365-r2j7da60f3tmcg46a6m6ts2hhcnudo7o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644546865365:android:3d4d540664945daf781a5c",
+        "android_client_info": {
+          "package_name": "com.lexio.app"
         }
       },
       "oauth_client": [
@@ -17,7 +46,7 @@
           "client_id": "644546865365-0nac1q45eumek8drpfq9fi3vlccee6d3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.cynorra.lexio",
+            "package_name": "com.lexio.app",
             "certificate_hash": "7cc338c7be0b1e6e181fe75e94afc31009a12327"
           }
         },
