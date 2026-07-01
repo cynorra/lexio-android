@@ -1,4 +1,4 @@
-package com.lexio.app;
+package com.cynorra.lexio;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,23 +36,23 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.lexio.app.model.Case;
-import com.lexio.app.model.CasesData;
-import com.lexio.app.model.LeaderboardEntry;
-import com.lexio.app.model.StudyData;
-import com.lexio.app.model.StudyTopic;
-import com.lexio.app.model.FeedData;
-import com.lexio.app.model.WorkspaceData;
-import com.lexio.app.mvi.AppEvent;
-import com.lexio.app.mvi.AppState;
-import com.lexio.app.mvi.AppStore;
-import com.lexio.app.service.ContentSyncService;
-import com.lexio.app.ui.CasesAdapter;
-import com.lexio.app.ui.ChatAdapter;
-import com.lexio.app.ui.LeaderboardAdapter;
-import com.lexio.app.ui.StudyAdapter;
-import com.lexio.app.ui.FeedAdapter;
-import com.lexio.app.ui.WorkspaceAdapter;
+import com.cynorra.lexio.model.Case;
+import com.cynorra.lexio.model.CasesData;
+import com.cynorra.lexio.model.LeaderboardEntry;
+import com.cynorra.lexio.model.StudyData;
+import com.cynorra.lexio.model.StudyTopic;
+import com.cynorra.lexio.model.FeedData;
+import com.cynorra.lexio.model.WorkspaceData;
+import com.cynorra.lexio.mvi.AppEvent;
+import com.cynorra.lexio.mvi.AppState;
+import com.cynorra.lexio.mvi.AppStore;
+import com.cynorra.lexio.service.ContentSyncService;
+import com.cynorra.lexio.ui.CasesAdapter;
+import com.cynorra.lexio.ui.ChatAdapter;
+import com.cynorra.lexio.ui.LeaderboardAdapter;
+import com.cynorra.lexio.ui.StudyAdapter;
+import com.cynorra.lexio.ui.FeedAdapter;
+import com.cynorra.lexio.ui.WorkspaceAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

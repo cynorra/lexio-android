@@ -1,4 +1,4 @@
-package com.lexio.app.model;
+package com.cynorra.lexio.model;
 
 public class FeedPost {
     private int id;

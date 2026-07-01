@@ -1,4 +1,4 @@
-package com.lexio.app;
+package com.cynorra.lexio;
 
 import android.app.Application;
 import com.facebook.soloader.SoLoader;

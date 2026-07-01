@@ -1,4 +1,4 @@
-package com.lexio.app.ui;
+package com.cynorra.lexio.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,8 +6,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.lexio.app.R;
-import com.lexio.app.model.Case;
+import com.cynorra.lexio.R;
+import com.cynorra.lexio.model.Case;
 import java.util.List;
 
 public class CasesAdapter extends RecyclerView.Adapter<CasesAdapter.ViewHolder> {

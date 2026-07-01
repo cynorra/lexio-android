@@ -1,4 +1,4 @@
-package com.lexio.app.service;
+package com.cynorra.lexio.service;
 
 public class GeminiService {
     public static class VerdictScore {

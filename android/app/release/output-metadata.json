@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.lexio.app",
+  "applicationId": "com.cynorra.lexio",
   "variantName": "release",
   "elements": [
     {

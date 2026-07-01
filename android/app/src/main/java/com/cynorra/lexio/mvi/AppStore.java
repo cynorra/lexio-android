@@ -1,6 +1,6 @@
-package com.lexio.app.mvi;
+package com.cynorra.lexio.mvi;
 
-import com.lexio.app.model.Case;
+import com.cynorra.lexio.model.Case;
 import java.util.ArrayList;
 import java.util.List;
 

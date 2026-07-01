@@ -1,4 +1,4 @@
-package com.lexio.app.ui;
+package com.cynorra.lexio.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +8,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.lexio.app.R;
-import com.lexio.app.model.FeedPost;
+import com.cynorra.lexio.R;
+import com.cynorra.lexio.model.FeedPost;
 
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;

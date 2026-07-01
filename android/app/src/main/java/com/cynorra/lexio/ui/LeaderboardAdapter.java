@@ -1,4 +1,4 @@
-package com.lexio.app.ui;
+package com.cynorra.lexio.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.card.MaterialCardView;
-import com.lexio.app.R;
-import com.lexio.app.model.LeaderboardEntry;
+import com.cynorra.lexio.R;
+import com.cynorra.lexio.model.LeaderboardEntry;
 import java.util.List;
 
 public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.ViewHolder> {

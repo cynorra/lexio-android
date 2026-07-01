@@ -4,10 +4,10 @@ plugins {
 }
 
 android {
-    namespace = "com.lexio.app"
+    namespace = "com.cynorra.lexio"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.lexio.app"
+        applicationId = "com.cynorra.lexio"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

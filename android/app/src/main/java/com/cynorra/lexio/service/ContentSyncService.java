@@ -1,4 +1,4 @@
-package com.lexio.app.service;
+package com.cynorra.lexio.service;
 
 import android.content.Context;
 import android.os.Handler;
@@ -7,10 +7,10 @@ import android.os.Looper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import com.lexio.app.model.Case;
-import com.lexio.app.model.CasesData;
-import com.lexio.app.model.StudyData;
-import com.lexio.app.model.StudyTopic;
+import com.cynorra.lexio.model.Case;
+import com.cynorra.lexio.model.CasesData;
+import com.cynorra.lexio.model.StudyData;
+import com.cynorra.lexio.model.StudyTopic;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

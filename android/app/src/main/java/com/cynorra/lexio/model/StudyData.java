@@ -1,4 +1,4 @@
-package com.lexio.app.model;
+package com.cynorra.lexio.model;
 
 import java.util.ArrayList;
 import java.util.List;

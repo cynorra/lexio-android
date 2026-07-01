@@ -1,4 +1,4 @@
-package com.lexio.app.ui;
+package com.cynorra.lexio.ui;
 
 import android.text.Html;
 import android.view.Gravity;
@@ -12,9 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.card.MaterialCardView;
-import com.lexio.app.R;
-import com.lexio.app.mvi.AppState;
-import com.lexio.app.service.GeminiService;
+import com.cynorra.lexio.R;
+import com.cynorra.lexio.mvi.AppState;
+import com.cynorra.lexio.service.GeminiService;
 
 import java.util.ArrayList;
 import java.util.List;
