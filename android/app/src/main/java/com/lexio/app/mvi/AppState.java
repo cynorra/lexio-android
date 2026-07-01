@@ -16,7 +16,8 @@ public class AppState {
         STUDY_PORTAL,
         STUDY_DETAIL,
         FEED,
-        WORKSPACE
+        WORKSPACE,
+        PROFILE
     }
 
     public static class Message {
@@ -51,11 +52,14 @@ public class AppState {
     // Auth parameters
     private final boolean isAuthenticated;
     private final String userDisplayName;
+    
+    // Theme
+    private final boolean isDarkTheme;
 
     public AppState(Screen activeScreen, Case selectedCase, String selectedRole, 
                     List<Message> chatMessages, int currentStepIndex, int accumulatedScore,
                     StudyTopic selectedStudyTopic, String leaderboardInterval,
-                    boolean isAuthenticated, String userDisplayName) {
+                    boolean isAuthenticated, String userDisplayName, boolean isDarkTheme) {
         this.activeScreen = activeScreen;
         this.selectedCase = selectedCase;
         this.selectedRole = selectedRole;
@@ -66,10 +70,11 @@ public class AppState {
         this.leaderboardInterval = leaderboardInterval;
         this.isAuthenticated = isAuthenticated;
         this.userDisplayName = userDisplayName;
+        this.isDarkTheme = isDarkTheme;
     }
 
     public static AppState initial() {
-        return new AppState(Screen.LOGIN, null, null, new ArrayList<>(), 0, 0, null, "daily", false, "Avukat");
+        return new AppState(Screen.LOGIN, null, null, new ArrayList<>(), 0, 0, null, "daily", false, "Avukat", true);
     }
 
     public Screen getActiveScreen() { return activeScreen; }
@@ -83,10 +88,12 @@ public class AppState {
     public boolean isAuthenticated() { return isAuthenticated; }
     public String getUserDisplayName() { return userDisplayName; }
 
+    public boolean isDarkTheme() { return isDarkTheme; }
+
     public AppState copyWith(Screen activeScreen, Case selectedCase, String selectedRole, 
                              List<Message> chatMessages, int currentStepIndex, int accumulatedScore,
                              StudyTopic selectedStudyTopic, String leaderboardInterval,
-                             Boolean isAuthenticated, String userDisplayName) {
+                             Boolean isAuthenticated, String userDisplayName, Boolean isDarkTheme) {
         return new AppState(
             activeScreen != null ? activeScreen : this.activeScreen,
             selectedCase != null ? selectedCase : this.selectedCase,
@@ -97,7 +104,8 @@ public class AppState {
             selectedStudyTopic != null ? selectedStudyTopic : this.selectedStudyTopic,
             leaderboardInterval != null ? leaderboardInterval : this.leaderboardInterval,
             isAuthenticated != null ? isAuthenticated : this.isAuthenticated,
-            userDisplayName != null ? userDisplayName : this.userDisplayName
+            userDisplayName != null ? userDisplayName : this.userDisplayName,
+            isDarkTheme != null ? isDarkTheme : this.isDarkTheme
         );
     }
 }

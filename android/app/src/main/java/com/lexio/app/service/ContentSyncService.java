@@ -4,6 +4,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import com.lexio.app.model.Case;
 import com.lexio.app.model.CasesData;
 import com.lexio.app.model.StudyData;
@@ -32,6 +35,7 @@ public class ContentSyncService {
     
     private final OkHttpClient client = new OkHttpClient();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Gson gson = new Gson();
 
     public void syncContent(SyncCallback callback) {
         Request request = new Request.Builder()
@@ -58,19 +62,26 @@ public class ContentSyncService {
 
                     // 1. Sync Cases if present in JSON
                     if (root.has("cases")) {
-                        JSONArray casesArray = root.getJSONArray("cases");
-                        // Clear and reload cases or sync them programmatically
-                        // For demo purposes, we parse them successfully
+                        String casesJson = root.getJSONArray("cases").toString();
+                        List<Case> parsedCases = gson.fromJson(casesJson, new TypeToken<List<Case>>(){}.getType());
+                        if (parsedCases != null && !parsedCases.isEmpty()) {
+                            CasesData.setCases(parsedCases);
+                        }
                     }
 
                     // 2. Sync Study Topics if present in JSON
                     if (root.has("studyTopics")) {
-                        JSONArray topicsArray = root.getJSONArray("studyTopics");
+                        String topicsJson = root.getJSONArray("studyTopics").toString();
+                        List<StudyTopic> parsedTopics = gson.fromJson(topicsJson, new TypeToken<List<StudyTopic>>(){}.getType());
+                        if (parsedTopics != null && !parsedTopics.isEmpty()) {
+                            StudyData.setTopics(parsedTopics);
+                        }
                     }
 
                     mainHandler.post(() -> callback.onSyncComplete(true));
 
                 } catch (Exception e) {
+                    e.printStackTrace();
                     mainHandler.post(() -> callback.onSyncComplete(false));
                 }
             }

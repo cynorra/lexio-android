@@ -17,6 +17,8 @@ public class AppEvent {
         SET_LEADERBOARD_INTERVAL,
         NAVIGATE_TO_FEED,
         NAVIGATE_TO_WORKSPACE,
+        NAVIGATE_TO_PROFILE,
+        TOGGLE_THEME,
         LOGIN_SUCCESS,
         LOGOUT,
         RESET

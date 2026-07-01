@@ -7,11 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +27,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.lexio.app.model.Case;
 import com.lexio.app.model.CasesData;
@@ -55,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private ContentSyncService syncService;
     private AppState.Screen activeScreen = null;
     private ChatAdapter chatAdapter;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     private int userScore = 0;
 
@@ -64,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         
         store = new AppStore();
         syncService = new ContentSyncService();
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         // Configure Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -94,6 +108,11 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     @Override
     public void onStateChanged(AppState state) {
+        int expectedMode = state.isDarkTheme() ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
+        if (AppCompatDelegate.getDefaultNightMode() != expectedMode) {
+            AppCompatDelegate.setDefaultNightMode(expectedMode);
+        }
+
         if (activeScreen != state.getActiveScreen()) {
             activeScreen = state.getActiveScreen();
             setupScreenLayout(activeScreen, state);
@@ -153,6 +172,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 setupBottomNavigation();
                 loadBannerAd();
                 break;
+            case PROFILE:
+                setContentView(R.layout.layout_profile);
+                setupProfileViews(state);
+                setupBottomNavigation();
+                loadBannerAd();
+                break;
         }
     }
 
@@ -170,11 +195,32 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account != null) {
-                String name = account.getDisplayName();
-                store.dispatch(new AppEvent(AppEvent.Type.LOGIN_SUCCESS, name));
+                AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+                mAuth.signInWithCredential(credential)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                String name = user.getDisplayName();
+                                
+                                // Save to Firestore
+                                Map<String, Object> userData = new HashMap<>();
+                                userData.put("name", name);
+                                userData.put("email", user.getEmail());
+                                userData.put("lastLogin", System.currentTimeMillis());
+                                
+                                db.collection("users").document(user.getUid())
+                                    .set(userData, SetOptions.merge());
+
+                                store.dispatch(new AppEvent(AppEvent.Type.LOGIN_SUCCESS, name));
+                            }
+                        } else {
+                            Toast.makeText(this, "Firebase Authentication failed.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
             }
         } catch (ApiException e) {
-            Toast.makeText(this, "Giriş başarısız: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Google Sign-In failed: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -194,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         View navLeaderboard = findViewById(R.id.navLeaderboard);
         View navFeed = findViewById(R.id.navFeed);
         View navWorkspace = findViewById(R.id.navWorkspace);
+        View navProfile = findViewById(R.id.navProfile);
 
         if (navCases != null) {
             navCases.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
@@ -209,6 +256,9 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
         if (navWorkspace != null) {
             navWorkspace.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_WORKSPACE)));
+        }
+        if (navProfile != null) {
+            navProfile.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_PROFILE)));
         }
     }
 
@@ -413,6 +463,40 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             rvWorkspaces.setLayoutManager(new LinearLayoutManager(this));
             WorkspaceAdapter adapter = new WorkspaceAdapter(WorkspaceData.getWorkspaces());
             rvWorkspaces.setAdapter(adapter);
+        }
+    }
+
+    private void setupProfileViews(AppState state) {
+        TextView tvProfileName = findViewById(R.id.tvProfileName);
+        TextView tvProfileEmail = findViewById(R.id.tvProfileEmail);
+        TextView tvTotalScore = findViewById(R.id.tvTotalScore);
+        TextView tvCasesSolved = findViewById(R.id.tvCasesSolved);
+        Switch switchTheme = findViewById(R.id.switchTheme);
+        View btnSignOut = findViewById(R.id.btnSignOut);
+
+        if (tvProfileName != null) tvProfileName.setText(state.getUserDisplayName());
+        
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (tvProfileEmail != null && user != null) {
+            tvProfileEmail.setText(user.getEmail());
+        }
+
+        if (tvTotalScore != null) tvTotalScore.setText(String.valueOf(userScore));
+        if (tvCasesSolved != null) tvCasesSolved.setText(String.valueOf(userScore > 0 ? (userScore / 60) + 1 : 0));
+
+        if (switchTheme != null) {
+            switchTheme.setChecked(state.isDarkTheme());
+            switchTheme.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                store.dispatch(new AppEvent(AppEvent.Type.TOGGLE_THEME));
+            });
+        }
+
+        if (btnSignOut != null) {
+            btnSignOut.setOnClickListener(v -> {
+                mAuth.signOut();
+                googleSignInClient.signOut();
+                store.dispatch(new AppEvent(AppEvent.Type.LOGOUT));
+            });
         }
     }
 

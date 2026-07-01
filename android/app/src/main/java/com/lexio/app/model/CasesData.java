@@ -461,6 +461,13 @@ public class CasesData {
         return CASES;
     }
 
+    public static void setCases(List<Case> newCases) {
+        CASES.clear();
+        if (newCases != null) {
+            CASES.addAll(newCases);
+        }
+    }
+
     public static Case getCaseById(int id) {
         for (Case c : CASES) {
             if (c.getId() == id) {

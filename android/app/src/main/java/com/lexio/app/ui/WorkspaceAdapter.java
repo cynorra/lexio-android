@@ -11,10 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.lexio.app.R;
 import com.lexio.app.model.Workspace;
 
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+
 import java.util.List;
 
 public class WorkspaceAdapter extends RecyclerView.Adapter<WorkspaceAdapter.ViewHolder> {
     private final List<Workspace> workspaces;
+    private int lastPosition = -1;
 
     public WorkspaceAdapter(List<Workspace> workspaces) {
         this.workspaces = workspaces;
@@ -34,6 +38,12 @@ public class WorkspaceAdapter extends RecyclerView.Adapter<WorkspaceAdapter.View
         holder.tvWorkspaceName.setText(ws.getName());
         holder.tvWorkspaceDesc.setText(ws.getDescription());
         holder.tvMemberCount.setText(ws.getMemberCount() + " üye");
+        
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_slide_up);
+            holder.itemView.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
     @Override

@@ -11,10 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.lexio.app.R;
 import com.lexio.app.model.FeedPost;
 
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+
 import java.util.List;
 
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     private final List<FeedPost> posts;
+    private int lastPosition = -1;
 
     public FeedAdapter(List<FeedPost> posts) {
         this.posts = posts;
@@ -36,6 +40,12 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         holder.tvContent.setText(post.getContent());
         holder.tvLikes.setText("❤️ " + post.getLikesCount() + " Beğeni");
         holder.tvComments.setText("💬 " + post.getCommentsCount() + " Yorum");
+        
+        if (position > lastPosition) {
+            Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_slide_up);
+            holder.itemView.startAnimation(animation);
+            lastPosition = position;
+        }
     }
 
     @Override
