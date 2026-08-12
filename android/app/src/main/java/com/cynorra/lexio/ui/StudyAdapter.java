@@ -3,6 +3,8 @@ package com.cynorra.lexio.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,7 +38,10 @@ public class StudyAdapter extends RecyclerView.Adapter<StudyAdapter.ViewHolder> 
         holder.tvCategory.setText(topic.getCategory());
         holder.tvTitle.setText(topic.getTitle());
         holder.tvDesc.setText(topic.getShortDesc());
-        holder.tvTime.setText("⏱ " + topic.getReadTimeMinutes() + " dk okuma");
+        holder.tvTime.setText("⏱ " + topic.getReadTimeMinutes() + " min");
+
+        Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_slide_up);
+        holder.itemView.startAnimation(animation);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {

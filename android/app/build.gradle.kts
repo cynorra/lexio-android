@@ -10,8 +10,8 @@ android {
         applicationId = "com.cynorra.lexio"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
     }
 
     buildTypes {
@@ -28,6 +28,11 @@ android {
       viewBinding = true
       buildConfig = true
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 dependencies {
@@ -40,10 +45,10 @@ dependencies {
   implementation("com.facebook.litho:litho-core:0.50.2")
   implementation("com.facebook.litho:litho-widget:0.50.2")
   annotationProcessor("com.facebook.litho:litho-processor:0.50.2")
-  implementation("com.facebook.soloader:soloader:0.11.0")
+  implementation("com.facebook.soloader:soloader:0.12.1")
 
   // Fresco for image loading
-  implementation("com.facebook.fresco:fresco:3.1.3")
+  implementation("com.facebook.fresco:fresco:3.7.0")
 
   // Lottie for animations
   implementation("com.airbnb.android:lottie:6.4.0")

@@ -3,6 +3,8 @@ package com.cynorra.lexio.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -54,6 +56,9 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
             holder.cardView.setStrokeColor(ContextCompat.getColorStateList(holder.itemView.getContext(), R.color.card_border));
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.card_bg));
         }
+
+        Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_slide_up);
+        holder.itemView.startAnimation(animation);
     }
 
     @Override

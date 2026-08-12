@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lexio</string>
+    
+    <!-- Navigation -->
+    <string name="nav_cases">Cases</string>
+    <string name="nav_study">Guide</string>
+    <string name="nav_leaderboard">Leaderboard</string>
+    <string name="nav_feed">Feed</string>
+    <string name="nav_workspace">Workspace</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- General Toast & Status -->
+    <string name="content_updated">Content updated successfully!</string>
+    <string name="offline_mode">Offline mode active.</string>
+    <string name="auth_failed">Firebase Authentication failed.</string>
+    <string name="google_sign_in_failed">Google Sign-In failed:</string>
+
+    <!-- Landing -->
+    <string name="landing_title">Defend the Case</string>
+    <string name="landing_subtitle">Cases inspired by Supreme Court precedents. AI opposing counsel. AI judge.\nLearn law in a real court environment.</string>
+    <string name="btn_start_simulation">Start Simulation</string>
+    <string name="btn_browse_cases">Browse Cases →</string>
+
+    <!-- Case Detail & Simulation -->
+    <string name="case_detail_ref_prefix">Supreme Court Precedent — </string>
+    <string name="case_evidence_header">Case Evidence:</string>
+    <string name="role_defense">⚖️ Defense Counsel</string>
+    <string name="role_prosecution">🔍 Prosecutor</string>
+    <string name="btn_choose_defense">⚖️ Start as Defense Counsel</string>
+    <string name="btn_choose_prosecution">🔍 Start as Prosecutor</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_exit_simulation">Exit</string>
+    <string name="verdict_declared">Verdict Announced</string>
+    <string name="trial_completed">Trial completed. The court has rendered its final verdict.</string>
+    <string name="judge_verdict_header">⚖️ Judge — AI Verdict</string>
+    <string name="sim_step_suffix">. Stage: </string>
+
+    <!-- Leaderboard -->
+    <string name="leaderboard_title">Leaderboard</string>
+    <string name="tab_daily">Daily</string>
+    <string name="tab_weekly">Weekly</string>
+    <string name="tab_monthly">Monthly</string>
+    <string name="you_suffix">(You)</string>
+
+    <!-- Profile & Settings -->
+    <string name="profile_title">Profile &amp; Settings</string>
+    <string name="profile_score_label">Total Score</string>
+    <string name="profile_cases_label">Solved Cases</string>
+    <string name="dark_theme_label">Dark Theme</string>
+    <string name="language_label">App Language</string>
+    <string name="language_turkish">Turkish 🇹🇷</string>
+    <string name="language_english">English 🇬🇧</string>
+    <string name="btn_sign_out">Sign Out</string>
+</resources>

@@ -47,18 +47,19 @@ public class AppStore {
                     null, null, null, -1, -1, null, null, 
                     true, 
                     event.getUserDisplayName(),
-                    null
+                    null,
+                    null, null, null, null
                 );
             case LOGOUT:
                 return AppState.initial();
             case NAVIGATE_TO_LANDING:
-                return current.copyWith(AppState.Screen.LANDING, null, null, new ArrayList<>(), 0, 0, null, "daily", null, null, null);
+                return current.copyWith(AppState.Screen.LANDING, null, null, new ArrayList<>(), 0, 0, null, "daily", null, null, null, null, null, null, null);
             case NAVIGATE_TO_CASE_LIST:
-                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, -1, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
             case SELECT_CASE:
-                return current.copyWith(AppState.Screen.CASE_DETAIL, event.getSelectedCase(), null, null, -1, -1, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.CASE_DETAIL, event.getSelectedCase(), null, null, -1, -1, null, null, null, null, null, null, null, null, null);
             case CHOOSE_ROLE:
-                return current.copyWith(null, null, event.getRole(), null, -1, -1, null, null, null, null, null);
+                return current.copyWith(null, null, event.getRole(), null, -1, -1, null, null, null, null, null, null, null, null, null);
             case START_SIMULATION:
                 List<AppState.Message> introMessages = new ArrayList<>();
                 Case selectedCase = current.getSelectedCase();
@@ -79,7 +80,7 @@ public class AppStore {
                 
                 introMessages.add(new AppState.Message("ai", "AI " + aiRole, opening));
                 
-                return current.copyWith(AppState.Screen.SIMULATION, null, null, introMessages, 0, 0, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.SIMULATION, null, null, introMessages, 0, 0, null, null, null, null, null, null, null, null, null);
 
             case SELECT_CHOICE:
                 Case.Choice choice = event.getSelectedChoice();
@@ -106,31 +107,49 @@ public class AppStore {
                     updatedMessages.add(new AppState.Message("⚖️ Hakim — AI Kararı", finalVerdict));
                 }
 
-                return current.copyWith(null, null, null, updatedMessages, nextStepIndex, newScore, null, null, null, null, null);
+                return current.copyWith(null, null, null, updatedMessages, nextStepIndex, newScore, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_STUDY_PORTAL:
-                return current.copyWith(AppState.Screen.STUDY_PORTAL, null, null, null, -1, -1, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.STUDY_PORTAL, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
 
             case SELECT_STUDY_TOPIC:
-                return current.copyWith(AppState.Screen.STUDY_DETAIL, null, null, null, -1, -1, event.getSelectedStudyTopic(), null, null, null, null);
+                return current.copyWith(AppState.Screen.STUDY_DETAIL, null, null, null, -1, -1, event.getSelectedStudyTopic(), null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_LEADERBOARD:
-                return current.copyWith(AppState.Screen.LEADERBOARD, null, null, null, -1, -1, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.LEADERBOARD, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_FEED:
-                return current.copyWith(AppState.Screen.FEED, null, null, null, -1, -1, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.FEED, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_WORKSPACE:
-                return current.copyWith(AppState.Screen.WORKSPACE, null, null, null, -1, -1, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.WORKSPACE, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_PROFILE:
-                return current.copyWith(AppState.Screen.PROFILE, null, null, null, -1, -1, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.PROFILE, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+
+            case NAVIGATE_TO_DAILY_QUIZ:
+                return current.copyWith(AppState.Screen.DAILY_QUIZ, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+
+            case SELECT_COUNTRY:
+                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, null, event.getRole(), null, null);
+
+            case COMPLETE_DAILY_QUIZ:
+                int updatedStreak = current.getDailyStreak() + 1;
+                int streakBonusScore = current.getAccumulatedScore() + 100;
+                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, streakBonusScore, null, null, null, null, null, null, null, updatedStreak, true);
 
             case TOGGLE_THEME:
-                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, !current.isDarkTheme());
+                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, !current.isDarkTheme(), null, null, null, null);
+
+            case TOGGLE_LANGUAGE:
+                String newLang = "tr".equalsIgnoreCase(current.getLanguage()) ? "en" : "tr";
+                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, newLang, null, null, null);
+
+            case SET_LANGUAGE:
+                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, event.getLanguage(), null, null, null);
 
             case SET_LEADERBOARD_INTERVAL:
-                return current.copyWith(null, null, null, null, -1, -1, null, event.getLeaderboardInterval(), null, null, null);
+                return current.copyWith(null, null, null, null, -1, -1, null, event.getLeaderboardInterval(), null, null, null, null, null, null, null);
 
             case RESET:
                 return AppState.initial();

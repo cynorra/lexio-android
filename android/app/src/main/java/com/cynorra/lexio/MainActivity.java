@@ -3,13 +3,19 @@ package com.cynorra.lexio;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
+import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import android.content.res.Configuration;
+import java.util.Locale;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +42,10 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.GridLayoutManager;
+import android.widget.ProgressBar;
+
 import com.cynorra.lexio.model.Case;
 import com.cynorra.lexio.model.CasesData;
 import com.cynorra.lexio.model.LeaderboardEntry;
@@ -43,6 +53,9 @@ import com.cynorra.lexio.model.StudyData;
 import com.cynorra.lexio.model.StudyTopic;
 import com.cynorra.lexio.model.FeedData;
 import com.cynorra.lexio.model.WorkspaceData;
+import com.cynorra.lexio.model.DailyQuizData;
+import com.cynorra.lexio.model.DailyQuizQuestion;
+import com.cynorra.lexio.model.BadgeData;
 import com.cynorra.lexio.mvi.AppEvent;
 import com.cynorra.lexio.mvi.AppState;
 import com.cynorra.lexio.mvi.AppStore;
@@ -53,6 +66,7 @@ import com.cynorra.lexio.ui.LeaderboardAdapter;
 import com.cynorra.lexio.ui.StudyAdapter;
 import com.cynorra.lexio.ui.FeedAdapter;
 import com.cynorra.lexio.ui.WorkspaceAdapter;
+import com.cynorra.lexio.ui.BadgeAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,11 +120,23 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         store.unsubscribe(this);
     }
 
+    private String currentLanguage = null;
+
     @Override
     public void onStateChanged(AppState state) {
+        userScore = state.getAccumulatedScore();
+
         int expectedMode = state.isDarkTheme() ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
         if (AppCompatDelegate.getDefaultNightMode() != expectedMode) {
             AppCompatDelegate.setDefaultNightMode(expectedMode);
+        }
+
+        if (currentLanguage == null || !currentLanguage.equals(state.getLanguage())) {
+            currentLanguage = state.getLanguage();
+            updateAppLocale(currentLanguage);
+            if (activeScreen != null) {
+                setupScreenLayout(activeScreen, state);
+            }
         }
 
         if (activeScreen != state.getActiveScreen()) {
@@ -118,6 +144,14 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             setupScreenLayout(activeScreen, state);
         }
         updateScreenState(activeScreen, state);
+    }
+
+    private void updateAppLocale(String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Configuration config = getResources().getConfiguration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 
     private void setupScreenLayout(AppState.Screen screen, AppState state) {
@@ -178,6 +212,16 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 setupBottomNavigation();
                 loadBannerAd();
                 break;
+            case DAILY_QUIZ:
+                setContentView(R.layout.layout_daily_quiz);
+                setupDailyQuizViews(state);
+                break;
+        }
+
+        View root = findViewById(android.R.id.content);
+        if (root != null) {
+            Animation fadeAnim = AnimationUtils.loadAnimation(this, R.anim.screen_fade_in);
+            root.startAnimation(fadeAnim);
         }
     }
 
@@ -243,22 +287,40 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         View navProfile = findViewById(R.id.navProfile);
 
         if (navCases != null) {
-            navCases.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
+            navCases.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_CASE_LIST));
+            });
         }
         if (navStudy != null) {
-            navStudy.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_STUDY_PORTAL)));
+            navStudy.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_STUDY_PORTAL));
+            });
         }
         if (navLeaderboard != null) {
-            navLeaderboard.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_LEADERBOARD)));
+            navLeaderboard.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_LEADERBOARD));
+            });
         }
         if (navFeed != null) {
-            navFeed.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_FEED)));
+            navFeed.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_FEED));
+            });
         }
         if (navWorkspace != null) {
-            navWorkspace.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_WORKSPACE)));
+            navWorkspace.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_WORKSPACE));
+            });
         }
         if (navProfile != null) {
-            navProfile.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_PROFILE)));
+            navProfile.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_PROFILE));
+            });
         }
     }
 
@@ -272,12 +334,22 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     private void setupCaseListViews() {
         RecyclerView rvCases = findViewById(R.id.rvCases);
-        rvCases.setLayoutManager(new LinearLayoutManager(this));
-        
-        CasesAdapter adapter = new CasesAdapter(CasesData.getCases(), selectedCase -> {
-            store.dispatch(new AppEvent(AppEvent.Type.SELECT_CASE, selectedCase));
-        });
-        rvCases.setAdapter(adapter);
+        if (rvCases != null) {
+            rvCases.setLayoutManager(new LinearLayoutManager(this));
+            
+            CasesAdapter adapter = new CasesAdapter(CasesData.getCases(), selectedCase -> {
+                store.dispatch(new AppEvent(AppEvent.Type.SELECT_CASE, selectedCase));
+            });
+            rvCases.setAdapter(adapter);
+        }
+
+        View cvDailyQuizBanner = findViewById(R.id.cvDailyQuizBanner);
+        if (cvDailyQuizBanner != null) {
+            cvDailyQuizBanner.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_DAILY_QUIZ));
+            });
+        }
     }
 
     private void setupCaseDetailViews(Case c) {
@@ -473,6 +545,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         TextView tvCasesSolved = findViewById(R.id.tvCasesSolved);
         Switch switchTheme = findViewById(R.id.switchTheme);
         View btnSignOut = findViewById(R.id.btnSignOut);
+        View btnLanguageToggle = findViewById(R.id.btnLanguageToggle);
+        TextView tvLanguageValue = findViewById(R.id.tvLanguageValue);
+        TextView tvCareerRankBadge = findViewById(R.id.tvCareerRankBadge);
+        View btnCountryToggle = findViewById(R.id.btnCountryToggle);
+        TextView tvCountryValue = findViewById(R.id.tvCountryValue);
+        RecyclerView rvBadges = findViewById(R.id.rvBadges);
 
         if (tvProfileName != null) tvProfileName.setText(state.getUserDisplayName());
         
@@ -481,8 +559,20 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             tvProfileEmail.setText(user.getEmail());
         }
 
+        if (tvCareerRankBadge != null) {
+            tvCareerRankBadge.setText(state.getCareerRankTitle());
+        }
+
+        int casesSolved = userScore > 0 ? (userScore / 60) + 1 : 0;
         if (tvTotalScore != null) tvTotalScore.setText(String.valueOf(userScore));
-        if (tvCasesSolved != null) tvCasesSolved.setText(String.valueOf(userScore > 0 ? (userScore / 60) + 1 : 0));
+        if (tvCasesSolved != null) tvCasesSolved.setText(String.valueOf(casesSolved));
+
+        if (rvBadges != null) {
+            rvBadges.setLayoutManager(new GridLayoutManager(this, 2));
+            List<BadgeData.Badge> badges = BadgeData.getAllBadges(userScore, state.getDailyStreak(), casesSolved);
+            BadgeAdapter badgeAdapter = new BadgeAdapter(badges);
+            rvBadges.setAdapter(badgeAdapter);
+        }
 
         if (switchTheme != null) {
             switchTheme.setChecked(state.isDarkTheme());
@@ -491,11 +581,159 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             });
         }
 
+        if (tvLanguageValue != null) {
+            boolean isTurkish = "tr".equalsIgnoreCase(state.getLanguage());
+            tvLanguageValue.setText(isTurkish ? getString(R.string.language_turkish) : getString(R.string.language_english));
+        }
+
+        if (btnLanguageToggle != null) {
+            btnLanguageToggle.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(new AppEvent(AppEvent.Type.TOGGLE_LANGUAGE));
+            });
+        }
+
+        if (tvCountryValue != null) {
+            String country = state.getCountry();
+            if ("US".equals(country)) {
+                tvCountryValue.setText("🇺🇸 USA (US Code)");
+            } else if ("UK".equals(country)) {
+                tvCountryValue.setText("🇬🇧 UK (Common Law)");
+            } else if ("DE".equals(country)) {
+                tvCountryValue.setText("🇩🇪 Germany (BGB/StGB)");
+            } else {
+                tvCountryValue.setText("🇹🇷 Türkiye (TCK/Yargıtay)");
+            }
+        }
+
+        if (btnCountryToggle != null) {
+            btnCountryToggle.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                String[] countries = new String[]{"🇹🇷 Türkiye (TCK/Yargıtay)", "🇺🇸 USA (US Code)", "🇬🇧 UK (Common Law)", "🇩🇪 Germany (BGB/StGB)"};
+                String[] codes = new String[]{"TR", "US", "UK", "DE"};
+
+                new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Hukuk Sistemi Seçin / Select Jurisdiction")
+                    .setItems(countries, (dialog, which) -> {
+                        store.dispatch(new AppEvent(AppEvent.Type.SELECT_COUNTRY, codes[which], true));
+                    })
+                    .show();
+            });
+        }
+
         if (btnSignOut != null) {
             btnSignOut.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                 mAuth.signOut();
                 googleSignInClient.signOut();
                 store.dispatch(new AppEvent(AppEvent.Type.LOGOUT));
+            });
+        }
+    }
+
+    private int quizCurrentQuestionIndex = 0;
+
+    private void setupDailyQuizViews(AppState state) {
+        Button btnBack = findViewById(R.id.btnBackFromQuiz);
+        TextView tvStreak = findViewById(R.id.tvQuizStreakBadge);
+        ProgressBar pbProgress = findViewById(R.id.pbQuizProgress);
+        TextView tvQNum = findViewById(R.id.tvQuizQuestionNum);
+        TextView tvQText = findViewById(R.id.tvQuizQuestionText);
+        LinearLayout llOptions = findViewById(R.id.llQuizOptionsContainer);
+        View cvExplanation = findViewById(R.id.cvQuizExplanation);
+        TextView tvExplanationText = findViewById(R.id.tvExplanationText);
+        Button btnNext = findViewById(R.id.btnNextQuestion);
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
+        }
+
+        if (tvStreak != null) {
+            tvStreak.setText("🔥 " + state.getDailyStreak() + " Gün Seri");
+        }
+
+        List<DailyQuizQuestion> questions = DailyQuizData.getQuestionsForJurisdiction(state.getCountry());
+        if (questions.isEmpty()) return;
+
+        if (quizCurrentQuestionIndex >= questions.size()) {
+            quizCurrentQuestionIndex = 0;
+        }
+
+        DailyQuizQuestion q = questions.get(quizCurrentQuestionIndex);
+
+        if (pbProgress != null) {
+            pbProgress.setMax(questions.size());
+            pbProgress.setProgress(quizCurrentQuestionIndex + 1);
+        }
+
+        if (tvQNum != null) {
+            tvQNum.setText("Soru " + (quizCurrentQuestionIndex + 1) + " / " + questions.size());
+        }
+
+        if (tvQText != null) {
+            tvQText.setText(q.getQuestion());
+        }
+
+        if (cvExplanation != null) cvExplanation.setVisibility(View.GONE);
+
+        if (llOptions != null) {
+            llOptions.removeAllViews();
+            List<String> options = q.getOptions();
+
+            for (int i = 0; i < options.size(); i++) {
+                int optionIndex = i;
+                String optText = options.get(i);
+
+                MaterialButton btnOption = new MaterialButton(this);
+                btnOption.setText(optText);
+                btnOption.setAllCaps(false);
+                btnOption.setTextSize(13);
+                btnOption.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+                btnOption.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.card_bg));
+                btnOption.setStrokeColor(ContextCompat.getColorStateList(this, R.color.card_border));
+                btnOption.setStrokeWidth(1);
+
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, 
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(0, 8, 0, 8);
+                btnOption.setLayoutParams(params);
+                btnOption.setPadding(16, 12, 16, 12);
+
+                btnOption.setOnClickListener(v -> {
+                    v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                    boolean isCorrect = (optionIndex == q.getCorrectIndex());
+
+                    if (isCorrect) {
+                        btnOption.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.defense_green_bg));
+                        btnOption.setStrokeColor(ContextCompat.getColorStateList(MainActivity.this, R.color.defense_green));
+                    } else {
+                        btnOption.setBackgroundTintList(ContextCompat.getColorStateList(MainActivity.this, R.color.prosecution_red_bg));
+                        btnOption.setStrokeColor(ContextCompat.getColorStateList(MainActivity.this, R.color.prosecution_red));
+                    }
+
+                    if (cvExplanation != null && tvExplanationText != null) {
+                        cvExplanation.setVisibility(View.VISIBLE);
+                        tvExplanationText.setText((isCorrect ? "✅ Doğru! " : "❌ Yanlış! ") + q.getExplanation());
+                    }
+                });
+
+                llOptions.addView(btnOption);
+            }
+        }
+
+        if (btnNext != null) {
+            btnNext.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                quizCurrentQuestionIndex++;
+                if (quizCurrentQuestionIndex < questions.size()) {
+                    setupDailyQuizViews(state);
+                } else {
+                    quizCurrentQuestionIndex = 0;
+                    Toast.makeText(MainActivity.this, "Tebrikler! Günlük Test Tamamlandı (+100 Puan)", Toast.LENGTH_LONG).show();
+                    store.dispatch(new AppEvent(AppEvent.Type.COMPLETE_DAILY_QUIZ));
+                }
             });
         }
     }

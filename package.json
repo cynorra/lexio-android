@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "dev": "NODE_OPTIONS=\"-r ./patch-fs.js\" next dev",
+    "build": "NODE_OPTIONS=\"-r ./patch-fs.js\" next build",
+    "start": "NODE_OPTIONS=\"-r ./patch-fs.js\" next start"
   },
   "dependencies": {
     "next": "14.2.3",

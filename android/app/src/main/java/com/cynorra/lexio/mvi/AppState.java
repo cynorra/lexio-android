@@ -17,7 +17,8 @@ public class AppState {
         STUDY_DETAIL,
         FEED,
         WORKSPACE,
-        PROFILE
+        PROFILE,
+        DAILY_QUIZ
     }
 
     public static class Message {
@@ -53,13 +54,20 @@ public class AppState {
     private final boolean isAuthenticated;
     private final String userDisplayName;
     
-    // Theme
+    // Theme & Localization
     private final boolean isDarkTheme;
+    private final String language; // "tr" or "en"
+
+    // Country Jurisdiction & Quiz Streaks
+    private final String country; // "TR", "US", "UK", "DE"
+    private final int dailyStreak;
+    private final boolean dailyQuizCompleted;
 
     public AppState(Screen activeScreen, Case selectedCase, String selectedRole, 
                     List<Message> chatMessages, int currentStepIndex, int accumulatedScore,
                     StudyTopic selectedStudyTopic, String leaderboardInterval,
-                    boolean isAuthenticated, String userDisplayName, boolean isDarkTheme) {
+                    boolean isAuthenticated, String userDisplayName, boolean isDarkTheme,
+                    String language, String country, int dailyStreak, boolean dailyQuizCompleted) {
         this.activeScreen = activeScreen;
         this.selectedCase = selectedCase;
         this.selectedRole = selectedRole;
@@ -71,10 +79,14 @@ public class AppState {
         this.isAuthenticated = isAuthenticated;
         this.userDisplayName = userDisplayName;
         this.isDarkTheme = isDarkTheme;
+        this.language = language != null ? language : "tr";
+        this.country = country != null ? country : "TR";
+        this.dailyStreak = dailyStreak >= 0 ? dailyStreak : 3;
+        this.dailyQuizCompleted = dailyQuizCompleted;
     }
 
     public static AppState initial() {
-        return new AppState(Screen.LOGIN, null, null, new ArrayList<>(), 0, 0, null, "daily", false, "Avukat", true);
+        return new AppState(Screen.LOGIN, null, null, new ArrayList<>(), 0, 0, null, "daily", false, "Avukat", true, "tr", "TR", 3, false);
     }
 
     public Screen getActiveScreen() { return activeScreen; }
@@ -89,11 +101,31 @@ public class AppState {
     public String getUserDisplayName() { return userDisplayName; }
 
     public boolean isDarkTheme() { return isDarkTheme; }
+    public String getLanguage() { return language; }
+
+    public String getCountry() { return country; }
+    public int getDailyStreak() { return dailyStreak; }
+    public boolean isDailyQuizCompleted() { return dailyQuizCompleted; }
+
+    public String getCareerRankTitle() {
+        if (accumulatedScore >= 1000) {
+            return "👑 Yargıtay Hakimi / Supreme Justice";
+        } else if (accumulatedScore >= 500) {
+            return "⚖️ Ağır Ceza Reisi / Senior Judge";
+        } else if (accumulatedScore >= 200) {
+            return "🥇 Uzman Avukat / Specialist Attorney";
+        } else if (accumulatedScore >= 50) {
+            return "🥈 Stajyer Avukat / Legal Intern";
+        } else {
+            return "🥉 Hukuk Öğrencisi / Law Student";
+        }
+    }
 
     public AppState copyWith(Screen activeScreen, Case selectedCase, String selectedRole, 
                              List<Message> chatMessages, int currentStepIndex, int accumulatedScore,
                              StudyTopic selectedStudyTopic, String leaderboardInterval,
-                             Boolean isAuthenticated, String userDisplayName, Boolean isDarkTheme) {
+                             Boolean isAuthenticated, String userDisplayName, Boolean isDarkTheme,
+                             String language, String country, Integer dailyStreak, Boolean dailyQuizCompleted) {
         return new AppState(
             activeScreen != null ? activeScreen : this.activeScreen,
             selectedCase != null ? selectedCase : this.selectedCase,
@@ -105,7 +137,11 @@ public class AppState {
             leaderboardInterval != null ? leaderboardInterval : this.leaderboardInterval,
             isAuthenticated != null ? isAuthenticated : this.isAuthenticated,
             userDisplayName != null ? userDisplayName : this.userDisplayName,
-            isDarkTheme != null ? isDarkTheme : this.isDarkTheme
+            isDarkTheme != null ? isDarkTheme : this.isDarkTheme,
+            language != null ? language : this.language,
+            country != null ? country : this.country,
+            dailyStreak != null ? dailyStreak : this.dailyStreak,
+            dailyQuizCompleted != null ? dailyQuizCompleted : this.dailyQuizCompleted
         );
     }
 }

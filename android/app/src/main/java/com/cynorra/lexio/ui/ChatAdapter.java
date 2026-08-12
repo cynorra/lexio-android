@@ -5,6 +5,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -162,6 +164,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             h.container.setLayoutParams(containerParams);
         }
+
+        Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_scale_up);
+        holder.itemView.startAnimation(animation);
     }
 
     @Override

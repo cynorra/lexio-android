@@ -19,6 +19,11 @@ public class AppEvent {
         NAVIGATE_TO_WORKSPACE,
         NAVIGATE_TO_PROFILE,
         TOGGLE_THEME,
+        TOGGLE_LANGUAGE,
+        SET_LANGUAGE,
+        NAVIGATE_TO_DAILY_QUIZ,
+        SELECT_COUNTRY,
+        COMPLETE_DAILY_QUIZ,
         LOGIN_SUCCESS,
         LOGOUT,
         RESET
@@ -31,33 +36,34 @@ public class AppEvent {
     private final StudyTopic selectedStudyTopic;
     private final String leaderboardInterval;
     private final String userDisplayName;
+    private final String language;
 
     public AppEvent(Type type) {
-        this(type, null, null, null, null, null, null);
+        this(type, null, null, null, null, null, null, null);
     }
 
     public AppEvent(Type type, Case selectedCase) {
-        this(type, selectedCase, null, null, null, null, null);
+        this(type, selectedCase, null, null, null, null, null, null);
     }
 
     public AppEvent(Type type, String data, boolean isRole) {
-        this(type, null, isRole ? data : null, null, null, isRole ? null : data, isRole ? null : null);
+        this(type, null, isRole ? data : null, null, null, isRole ? null : data, isRole ? null : null, null);
     }
 
     public AppEvent(Type type, String userDisplayName) {
-        this(type, null, null, null, null, null, userDisplayName);
+        this(type, null, null, null, null, null, userDisplayName, null);
     }
 
     public AppEvent(Type type, Case.Choice selectedChoice) {
-        this(type, null, null, selectedChoice, null, null, null);
+        this(type, null, null, selectedChoice, null, null, null, null);
     }
 
     public AppEvent(Type type, StudyTopic selectedStudyTopic) {
-        this(type, null, null, null, selectedStudyTopic, null, null);
+        this(type, null, null, null, selectedStudyTopic, null, null, null);
     }
 
     private AppEvent(Type type, Case selectedCase, String role, Case.Choice selectedChoice, 
-                     StudyTopic selectedStudyTopic, String leaderboardInterval, String userDisplayName) {
+                     StudyTopic selectedStudyTopic, String leaderboardInterval, String userDisplayName, String language) {
         this.type = type;
         this.selectedCase = selectedCase;
         this.role = role;
@@ -65,6 +71,7 @@ public class AppEvent {
         this.selectedStudyTopic = selectedStudyTopic;
         this.leaderboardInterval = leaderboardInterval;
         this.userDisplayName = userDisplayName;
+        this.language = language;
     }
 
     public Type getType() { return type; }
@@ -74,4 +81,5 @@ public class AppEvent {
     public StudyTopic getSelectedStudyTopic() { return selectedStudyTopic; }
     public String getLeaderboardInterval() { return leaderboardInterval; }
     public String getUserDisplayName() { return userDisplayName; }
+    public String getLanguage() { return language; }
 }

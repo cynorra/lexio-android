@@ -1,3 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lexio</string>
+    
+    <!-- Navigation -->
+    <string name="nav_cases">Vakalar</string>
+    <string name="nav_study">Rehber</string>
+    <string name="nav_leaderboard">Sıralama</string>
+    <string name="nav_feed">Akış</string>
+    <string name="nav_workspace">Atölye</string>
+    <string name="nav_profile">Profil</string>
+
+    <!-- General Toast & Status -->
+    <string name="content_updated">İçerikler güncellendi!</string>
+    <string name="offline_mode">Çevrimdışı mod aktif.</string>
+    <string name="auth_failed">Firebase Kimlik Doğrulama başarısız oldu.</string>
+    <string name="google_sign_in_failed">Google ile giriş başarısız oldu:</string>
+
+    <!-- Landing -->
+    <string name="landing_title">Davayı Sen Savun</string>
+    <string name="landing_subtitle">Yargıtay emsal kararlarından üretilmiş vakalar. AI karşı avukat. AI hakim.\nHukuku gerçek dava atmosferinde öğren.</string>
+    <string name="btn_start_simulation">Simülasyona Başla</string>
+    <string name="btn_browse_cases">Vakaları İncele →</string>
+
+    <!-- Case Detail & Simulation -->
+    <string name="case_detail_ref_prefix">Yargıtay Emsal Kararı — </string>
+    <string name="case_evidence_header">Dosyadaki Deliller:</string>
+    <string name="role_defense">⚖️ Savunma Avukatı</string>
+    <string name="role_prosecution">🔍 Savcı</string>
+    <string name="btn_choose_defense">⚖️ Savunma Avukatı Olarak Başla</string>
+    <string name="btn_choose_prosecution">🔍 Savcı Olarak Başla</string>
+    <string name="btn_back">Geri</string>
+    <string name="btn_exit_simulation">Ayrıl</string>
+    <string name="verdict_declared">Karar Açıklandı</string>
+    <string name="trial_completed">Duruşma tamamlandı. Mahkeme nihai hükmünü vermiştir.</string>
+    <string name="judge_verdict_header">⚖️ Hakim — AI Kararı</string>
+    <string name="sim_step_suffix">. Aşama: </string>
+
+    <!-- Leaderboard -->
+    <string name="leaderboard_title">Liderlik Tablosu</string>
+    <string name="tab_daily">Günlük</string>
+    <string name="tab_weekly">Haftalık</string>
+    <string name="tab_monthly">Aylık</string>
+    <string name="you_suffix">(Sen)</string>
+
+    <!-- Profile & Settings -->
+    <string name="profile_title">Profil &amp; Ayarlar</string>
+    <string name="profile_score_label">Toplam Puan</string>
+    <string name="profile_cases_label">Çözülen Dava</string>
+    <string name="dark_theme_label">Koyu Tema</string>
+    <string name="language_label">Uygulama Dili (Language)</string>
+    <string name="language_turkish">Türkçe 🇹🇷</string>
+    <string name="language_english">English 🇬🇧</string>
+    <string name="btn_sign_out">Oturumu Kapat</string>
 </resources>
