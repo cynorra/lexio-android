@@ -170,11 +170,14 @@ export default function TestDetay({ quiz }) {
 export async function getStaticPaths() {
   return {
     paths: QUIZZES.map(q => ({ params: { id: q.id } })),
-    fallback: false
+    fallback: 'blocking'
   };
 }
 
 export async function getStaticProps({ params }) {
-  const quiz = QUIZZES.find(q => q.id === params.id) || null;
+  let quiz = QUIZZES.find(q => q.id === params.id) || null;
+  if (!quiz && params.id.includes('daily')) {
+    quiz = QUIZZES[0];
+  }
   return { props: { quiz } };
 }
