@@ -71,12 +71,19 @@ import com.cynorra.lexio.ui.BadgeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.cynorra.lexio.service.LexioNotificationManager;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import android.os.Build;
+
 public class MainActivity extends AppCompatActivity implements AppStore.Observer {
     private static final int RC_SIGN_IN = 9001;
 
     private AppStore store;
     private GoogleSignInClient googleSignInClient;
     private ContentSyncService syncService;
+    private LexioNotificationManager notificationManager;
     private AppState.Screen activeScreen = null;
     private ChatAdapter chatAdapter;
     private FirebaseAuth mAuth;
@@ -90,8 +97,19 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         
         store = new AppStore();
         syncService = new ContentSyncService();
+        notificationManager = new LexioNotificationManager(this);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+
+        // Request POST_NOTIFICATIONS permission on Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
+            }
+        }
+
+        // Trigger daily quiz notification system setup
+        notificationManager.triggerDailyQuizPushNotification();
 
         // Configure Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

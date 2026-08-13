@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
+import NotificationToast from '../components/NotificationToast';
 
 export default function App({ Component, pageProps }) {
   return (
@@ -14,6 +15,7 @@ export default function App({ Component, pageProps }) {
       </Head>
       <Navbar />
       <Component {...pageProps} />
+      <NotificationToast />
     </>
   );
 }
