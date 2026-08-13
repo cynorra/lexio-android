@@ -1,0 +1,160 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.eyebrow {
+  color: #D4AF37;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #F9F6F0;
+  margin-bottom: 0.75rem;
+}
+
+.subtitle {
+  color: rgba(249, 246, 240, 0.7);
+  font-size: 1.05rem;
+  max-width: 650px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Post Form */
+.createCard {
+  background: rgba(22, 28, 42, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 14px;
+  padding: 2rem;
+  margin-bottom: 3rem;
+}
+
+.input, .select {
+  background: rgba(14, 18, 27, 0.8);
+  border: 1px solid rgba(249, 246, 240, 0.15);
+  color: #F9F6F0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  border-color: #D4AF37;
+}
+
+.textarea {
+  width: 100%;
+  background: rgba(14, 18, 27, 0.8);
+  border: 1px solid rgba(249, 246, 240, 0.15);
+  color: #F9F6F0;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.errorAlert {
+  background: rgba(229, 57, 53, 0.15);
+  border: 1px solid #E53935;
+  color: #FF8A80;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.successAlert {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid #4CAF50;
+  color: #81C784;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Posts List */
+.postList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.postCard {
+  background: rgba(22, 28, 42, 0.7);
+  border: 1px solid rgba(249, 246, 240, 0.12);
+  border-radius: 12px;
+  padding: 1.75rem;
+  transition: all 0.25s ease;
+}
+
+.postCard:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  background: rgba(26, 34, 52, 0.85);
+}
+
+.postHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.avatar {
+  font-size: 1.8rem;
+}
+
+.authorName {
+  font-weight: 600;
+  color: #F9F6F0;
+  font-size: 1rem;
+}
+
+.authorRole {
+  color: #D4AF37;
+  font-size: 0.82rem;
+}
+
+.categoryPill {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: #D4AF37;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.postContent {
+  color: rgba(249, 246, 240, 0.9);
+  font-size: 0.98rem;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+  white-space: pre-wrap;
+}
+
+.postFooter {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(249, 246, 240, 0.5);
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(249, 246, 240, 0.08);
+  padding-top: 0.8rem;
+}
