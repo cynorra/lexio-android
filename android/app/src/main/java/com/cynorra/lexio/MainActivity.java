@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private FirebaseFirestore db;
 
     private int userScore = 0;
+    private String userInstagramHandle = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -590,6 +591,54 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             List<BadgeData.Badge> badges = BadgeData.getAllBadges(userScore, state.getDailyStreak(), casesSolved);
             BadgeAdapter badgeAdapter = new BadgeAdapter(badges);
             rvBadges.setAdapter(badgeAdapter);
+        }
+
+        TextView tvInstagramHandle = findViewById(R.id.tvInstagramHandle);
+        View btnShareInstagramStory = findViewById(R.id.btnShareInstagramStory);
+
+        if (tvInstagramHandle != null) {
+            if (userInstagramHandle != null && !userInstagramHandle.isEmpty()) {
+                tvInstagramHandle.setText("📸 @" + userInstagramHandle.replace("@", ""));
+            } else {
+                tvInstagramHandle.setText("📸 Instagram Ekleyin");
+            }
+
+            tvInstagramHandle.setOnClickListener(v -> {
+                android.widget.EditText input = new android.widget.EditText(MainActivity.this);
+                input.setHint("@kullaniciadi");
+                if (userInstagramHandle != null) input.setText(userInstagramHandle);
+
+                new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("Instagram Kullanıcı Adı")
+                    .setMessage("Profilinizde ve paylaşımlarınızda görünecek Instagram kullanıcı adınızı girin:")
+                    .setView(input)
+                    .setPositiveButton("Kaydet", (dialog, which) -> {
+                        userInstagramHandle = input.getText().toString().trim();
+                        if (!userInstagramHandle.isEmpty()) {
+                            tvInstagramHandle.setText("📸 @" + userInstagramHandle.replace("@", ""));
+                            Toast.makeText(MainActivity.this, "Instagram hesabınız eklendi!", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton("İptal", null)
+                    .show();
+            });
+        }
+
+        if (btnShareInstagramStory != null) {
+            btnShareInstagramStory.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                String shareText = "Lexio Hukuk Platformu Başarım Kartım ⚖️\n" +
+                        "Unvan: " + state.getCareerRankTitle() + "\n" +
+                        "Toplam Puan: " + userScore + "\n" +
+                        "Seri: 🔥 " + state.getDailyStreak() + " Gün\n" +
+                        (userInstagramHandle != null ? "Instagram: @" + userInstagramHandle + "\n" : "") +
+                        "www.lexio.app";
+
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+                startActivity(Intent.createChooser(shareIntent, "Instagram Hikaye veya Sosyal Medyada Paylaş"));
+            });
         }
 
         if (switchTheme != null) {

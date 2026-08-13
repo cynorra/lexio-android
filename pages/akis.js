@@ -7,6 +7,7 @@ export default function Akis() {
   const [role, setRole] = useState('Avukat / Hukukçu');
   const [category, setCategory] = useState('Emsal Karar Tartışması');
   const [content, setContent] = useState('');
+  const [instaHandle, setInstaHandle] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
@@ -45,7 +46,7 @@ export default function Akis() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           author: author.trim() || 'Anonim Hukukçu',
-          role,
+          role: instaHandle.trim() ? `${role} • 📸 @${instaHandle.replace('@', '')}` : role,
           category,
           content: content.trim()
         })
@@ -100,10 +101,18 @@ export default function Akis() {
             <input
               type="text"
               className={styles.input}
-              placeholder="Adınız veya Unvanınız (Örn: Av. Selin Yılmaz)"
+              placeholder="Adınız (Örn: Av. Selin Yılmaz)"
               value={author}
               onChange={e => setAuthor(e.target.value)}
-              style={{ flex: 1, minWidth: '220px' }}
+              style={{ flex: 1, minWidth: '180px' }}
+            />
+            <input
+              type="text"
+              className={styles.input}
+              placeholder="📸 Instagram (Opsiyonel: @kullaniciadi)"
+              value={instaHandle}
+              onChange={e => setInstaHandle(e.target.value)}
+              style={{ width: '220px' }}
             />
             <select
               className={styles.select}

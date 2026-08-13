@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { CASES } from '../../lib/cases';
 import styles from '../../styles/Simulasyon.module.css';
+import InstagramStoryCard from '../../components/InstagramStoryCard';
 
 const FALLBACK = {
   savunma: [
@@ -27,6 +28,7 @@ export default function Simulasyon({ vaka }) {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [showStoryModal, setShowStoryModal] = useState(false);
 
   useEffect(() => {
     if (!vaka || !rol) return;
@@ -191,6 +193,16 @@ Konuşma: ${hist.map(m => `${m.role}: ${m.content}`).join('\n\n')}`;
                           </div>
                         ))}
                       </div>
+
+                      <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                        <button
+                          className="btn-primary"
+                          style={{ background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F56040)', padding: '0.6rem 1.2rem', fontSize: '0.9rem' }}
+                          onClick={() => setShowStoryModal(true)}
+                        >
+                          📸 Başarını Instagram Hikayede Paylaş
+                        </button>
+                      </div>
                     </>
                   )}
                   {m.type !== 'verdict' && (
@@ -239,6 +251,16 @@ Konuşma: ${hist.map(m => `${m.role}: ${m.content}`).join('\n\n')}`;
           </div>
         </div>
       </div>
+
+      {showStoryModal && (
+        <InstagramStoryCard
+          caseTitle={vaka.title}
+          score={88}
+          streak={7}
+          rank="Kıdemli Avukat"
+          onClose={() => setShowStoryModal(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,0 +1,197 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.modalContent {
+  position: relative;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.closeBtn {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: #F9F6F0;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+/* 9:16 Story Template Aspect Ratio Box */
+.storyCanvas {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: linear-gradient(160deg, #161C2A 0%, #0E121B 50%, #1A2234 100%);
+  border: 2px solid #D4AF37;
+  border-radius: 24px;
+  padding: 2.2rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.2);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.storyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  padding-bottom: 0.8rem;
+}
+
+.brandMark {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #F9F6F0;
+}
+
+.brandMark span {
+  color: #D4AF37;
+}
+
+.storyBadge {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  color: #D4AF37;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.storyBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.trophyIcon {
+  font-size: 3rem;
+  margin-bottom: -0.4rem;
+}
+
+.achievementTitle {
+  color: #D4AF37;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.caseName {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: #F9F6F0;
+  font-weight: 600;
+}
+
+.scoreCircle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, rgba(22, 28, 42, 0.9) 100%);
+  border: 3px solid #D4AF37;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+  margin: 0.5rem 0;
+}
+
+.scoreVal {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #F9F6F0;
+  line-height: 1;
+}
+
+.scoreLbl {
+  font-size: 0.68rem;
+  color: rgba(249, 246, 240, 0.7);
+  margin-top: 0.2rem;
+}
+
+.statsRow {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.statBox {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(249, 246, 240, 0.1);
+  border-radius: 12px;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statIcon {
+  font-size: 1.1rem;
+}
+
+.statVal {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #F9F6F0;
+}
+
+.statLbl {
+  font-size: 0.68rem;
+  color: rgba(249, 246, 240, 0.5);
+}
+
+.userInfo {
+  margin-top: 0.5rem;
+}
+
+.userName {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #F9F6F0;
+}
+
+.instaTag {
+  font-size: 0.85rem;
+  color: #E1306C;
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+.storyFooter {
+  border-top: 1px solid rgba(249, 246, 240, 0.1);
+  padding-top: 0.8rem;
+  font-size: 0.72rem;
+  color: rgba(249, 246, 240, 0.4);
+}
+
+.actionRow {
+  width: 100%;
+  margin-top: 1.2rem;
+  display: flex;
+  justify-content: center;
+}
