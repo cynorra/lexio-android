@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { QUIZZES } from '../lib/quizzes';
 import styles from '../styles/Testler.module.css';
@@ -6,26 +6,37 @@ import styles from '../styles/Testler.module.css';
 export default function Testler() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState('hepsi');
-  const [loadingBackend, setLoadingBackend] = useState(false);
-  const [randomQuestion, setRandomQuestion] = useState(null);
+  const [loadingPipeline, setLoadingPipeline] = useState(false);
+  const [dailyQuizInfo, setDailyQuizInfo] = useState(null);
 
-  const handleFetchBackendQuestion = async () => {
-    setLoadingBackend(true);
-    setRandomQuestion(null);
+  useEffect(() => {
+    fetch('/api/daily-quiz?country=TR')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setDailyQuizInfo(data);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  const handleGenerateBackendDailyQuiz = async () => {
+    setLoadingPipeline(true);
     try {
-      const res = await fetch('/api/generate-quiz', {
+      const res = await fetch('/api/admin/generate-daily-quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: selectedCategory })
+        body: JSON.stringify({ country: 'TR' })
       });
       const data = await res.json();
-      if (data.question) {
-        setRandomQuestion(data.question);
+      if (data.success) {
+        alert('✅ Günün testi canlı mevzuat kaynaklarından Gemini ve Hukuk API ile başarıyla üretilip backend sunucusuna kaydedildi. Artık tüm kullanıcılar bu testi çözecek!');
+        router.reload();
       }
     } catch (err) {
       console.error(err);
     } finally {
-      setLoadingBackend(false);
+      setLoadingPipeline(false);
     }
   };
 
@@ -39,60 +50,64 @@ export default function Testler() {
         <div className={styles.eyebrow}>HMGS & Adli Yargı Hakimlik Sınav Bankası</div>
         <h1 className={styles.title}>Test ve Sınav Merkezi</h1>
         <p className={styles.subtitle}>
-          ÖSYM ve Adalet Bakanlığı standartlarında 5 şıklı test soruları. Her sorunun altında Yargıtay ilamı ve Kanun Maddesi gerekçesi.
+          Hukuki kaynaklardan otomatik derlenen ve sunucu üzerinde saklanan güncel ortak sınavlar. Tüm kullanıcılar için senkronize test bankası.
         </p>
       </div>
 
-      {/* Backend Soru Bankası Hızlı Soru Getirici */}
-      <div className={styles.aiBox}>
-        <div>
-          <div className={styles.aiBoxTitle}>🏛 Hukuk Veritabanı Hızlı Soru Getirici</div>
-          <div className={styles.aiBoxDesc}>
-            Seçtiğiniz hukuk dalında backend soru bankasından rastgele mevzuat ve Yargıtay emsal sorusu getirin.
+      {/* Shared Daily Quiz Banner */}
+      {dailyQuizInfo && (
+        <div className={styles.aiBox} style={{ background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(22, 28, 42, 0.95))', borderColor: '#D4AF37' }}>
+          <div>
+            <div className={styles.aiBoxTitle}>🔥 Günün Ortak Testi (Tüm Kullanıcılar İçin Canlı Sınav)</div>
+            <div className={styles.aiBoxDesc}>
+              {dailyQuizInfo.title} • {dailyQuizInfo.questionsCount} Soru • Canlı Hukuk API ve Mevzuat Kaynaklı
+            </div>
           </div>
-        </div>
-        <div className={styles.aiControls}>
-          <select
-            className={styles.select}
-            value={selectedCategory}
-            onChange={e => setSelectedCategory(e.target.value)}
-          >
-            <option value="hepsi">Tüm Hukuk Dalları</option>
-            <option value="Ceza Hukuku">Ceza Hukuku</option>
-            <option value="Medeni Hukuk">Medeni Hukuk</option>
-            <option value="Borçlar Hukuku">Borçlar Hukuku</option>
-          </select>
-          <button className="btn-primary" onClick={handleFetchBackendQuestion} disabled={loadingBackend}>
-            {loadingBackend ? 'Yükleniyor...' : 'Soru Getir ↗'}
-          </button>
-        </div>
-      </div>
-
-      {/* Render Backend question if fetched */}
-      {randomQuestion && (
-        <div className={styles.questionCard} style={{ borderColor: '#D4AF37', marginBottom: '3rem' }}>
-          <div className={styles.qMeta}>
-            <span>🏛 Hukuk Veritabanı Soru Bankası</span>
-            <span>Kaynak: {randomQuestion.sourceCode}</span>
-          </div>
-          <div className={styles.qText}>{randomQuestion.question}</div>
-          <div className={styles.optionsList}>
-            {randomQuestion.options.map((opt, i) => (
-              <div key={i} className={styles.optionBtn} style={{ cursor: 'default' }}>
-                {opt}
-              </div>
-            ))}
-          </div>
-          <div className={styles.sourceBox} style={{ marginTop: '1.5rem' }}>
-            <strong>💡 Hukuki Gerekçe:</strong> {randomQuestion.explanation}
-            <div style={{ marginTop: '0.5rem', fontWeight: 600 }}>📜 {randomQuestion.sourceDetail}</div>
+          <div className={styles.aiControls}>
+            <button
+              className="btn-primary"
+              style={{ background: 'linear-gradient(135deg, #D4AF37, #B8860B)' }}
+              onClick={() => router.push(`/test/${dailyQuizInfo.quizId || 'quiz-ceza-1'}`)}
+            >
+              Günün Testini Çöz 🎯
+            </button>
+            <button
+              className="btn-ghost"
+              style={{ color: '#F9F6F0', borderColor: 'rgba(212,175,55,0.4)', fontSize: '0.85rem' }}
+              onClick={handleGenerateBackendDailyQuiz}
+              disabled={loadingPipeline}
+            >
+              {loadingPipeline ? 'Sunucu Soru Üretiyor...' : '⚡ Günün Testini Yenile (Backend Pipeline)'}
+            </button>
           </div>
         </div>
       )}
 
-      <h2 style={{ fontFamily: 'var(--font-serif)', color: '#F9F6F0', marginBottom: '1.5rem' }}>
-        ÖSYM & HMGS Deneme Testleri
-      </h2>
+      {/* Category Filter Controls */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <h2 style={{ fontFamily: 'var(--font-serif)', color: '#F9F6F0', margin: 0 }}>
+          ÖSYM & HMGS Deneme Testleri
+        </h2>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {['hepsi', 'Ceza Hukuku', 'Medeni Hukuk', 'Borçlar Hukuku'].map(cat => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              style={{
+                background: selectedCategory === cat ? 'rgba(212, 175, 55, 0.2)' : 'rgba(22, 28, 42, 0.6)',
+                border: `1px solid ${selectedCategory === cat ? '#D4AF37' : 'rgba(249, 246, 240, 0.15)'}`,
+                color: selectedCategory === cat ? '#D4AF37' : 'rgba(249, 246, 240, 0.8)',
+                padding: '0.4rem 0.8rem',
+                borderRadius: '16px',
+                cursor: 'pointer',
+                fontSize: '0.85rem'
+              }}
+            >
+              {cat === 'hepsi' ? 'Tüm Testler' : cat}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className={styles.grid}>
         {filteredQuizzes.map(quiz => (
@@ -116,4 +131,3 @@ export default function Testler() {
     </div>
   );
 }
-
