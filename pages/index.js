@@ -43,8 +43,8 @@ export default function Home() {
             <div className={styles.statLabel}>Emsal Karar Kaynağı</div>
           </div>
           <div className={styles.stat}>
-            <div className={styles.statNum}>AI</div>
-            <div className={styles.statLabel}>Simülatör & Soru Üreteci</div>
+            <div className={styles.statNum}>ÖSYM</div>
+            <div className={styles.statLabel}>Dava Simülatörü & Soru Bankası</div>
           </div>
         </div>
       </div>

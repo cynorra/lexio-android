@@ -5,84 +5,87 @@ import styles from '../styles/Testler.module.css';
 
 export default function Testler() {
   const router = useRouter();
-  const [selectedTopic, setSelectedTopic] = useState('Ceza Hukuku - Kast Yaralama');
-  const [loadingAi, setLoadingAi] = useState(false);
-  const [aiQuestion, setAiQuestion] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('hepsi');
+  const [loadingBackend, setLoadingBackend] = useState(false);
+  const [randomQuestion, setRandomQuestion] = useState(null);
 
-  const handleGenerateAiQuestion = async () => {
-    setLoadingAi(true);
-    setAiQuestion(null);
+  const handleFetchBackendQuestion = async () => {
+    setLoadingBackend(true);
+    setRandomQuestion(null);
     try {
       const res = await fetch('/api/generate-quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category: selectedTopic, topic: selectedTopic })
+        body: JSON.stringify({ category: selectedCategory })
       });
       const data = await res.json();
       if (data.question) {
-        setAiQuestion(data.question);
+        setRandomQuestion(data.question);
       }
     } catch (err) {
       console.error(err);
     } finally {
-      setLoadingAi(false);
+      setLoadingBackend(false);
     }
   };
+
+  const filteredQuizzes = selectedCategory === 'hepsi'
+    ? QUIZZES
+    : QUIZZES.filter(q => q.category.toLowerCase().includes(selectedCategory.toLowerCase()));
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <div className={styles.eyebrow}>HMGS & Adli Yargı Hakimlik</div>
+        <div className={styles.eyebrow}>HMGS & Adli Yargı Hakimlik Sınav Bankası</div>
         <h1 className={styles.title}>Test ve Sınav Merkezi</h1>
         <p className={styles.subtitle}>
           ÖSYM ve Adalet Bakanlığı standartlarında 5 şıklı test soruları. Her sorunun altında Yargıtay ilamı ve Kanun Maddesi gerekçesi.
         </p>
       </div>
 
-      {/* Dynamic AI Generator Box */}
+      {/* Backend Soru Bankası Hızlı Soru Getirici */}
       <div className={styles.aiBox}>
         <div>
-          <div className={styles.aiBoxTitle}>✨ Yapay Zeka (AI) Dinamik Soru Üreteci</div>
+          <div className={styles.aiBoxTitle}>🏛 Hukuk Veritabanı Hızlı Soru Getirici</div>
           <div className={styles.aiBoxDesc}>
-            Gemini 2.0 Flash ile seçtiğiniz hukuk dalında veya Yargıtay emsal kararında anlık çoktan seçmeli test sorusu üretin.
+            Seçtiğiniz hukuk dalında backend soru bankasından rastgele mevzuat ve Yargıtay emsal sorusu getirin.
           </div>
         </div>
         <div className={styles.aiControls}>
           <select
             className={styles.select}
-            value={selectedTopic}
-            onChange={e => setSelectedTopic(e.target.value)}
+            value={selectedCategory}
+            onChange={e => setSelectedCategory(e.target.value)}
           >
-            <option value="Ceza Hukuku - Kast Yaralama">Ceza Hukuku - Kast/Yaralama</option>
-            <option value="Medeni Hukuk - Muris Muvazaası">Medeni Hukuk - Muris Muvazaası</option>
-            <option value="Borçlar Hukuku - Haksız Fiil">Borçlar Hukuku - Haksız Fiil</option>
-            <option value="Ticaret Hukuku - Bono Teminat Kaydı">Ticaret Hukuku - Senetler</option>
-            <option value="Usul Hukuku - Hukuka Aykırı Delil">Usul Hukuku - Deliller</option>
+            <option value="hepsi">Tüm Hukuk Dalları</option>
+            <option value="Ceza Hukuku">Ceza Hukuku</option>
+            <option value="Medeni Hukuk">Medeni Hukuk</option>
+            <option value="Borçlar Hukuku">Borçlar Hukuku</option>
           </select>
-          <button className="btn-primary" onClick={handleGenerateAiQuestion} disabled={loadingAi}>
-            {loadingAi ? 'Üretiliyor...' : 'Soru Üret ↗'}
+          <button className="btn-primary" onClick={handleFetchBackendQuestion} disabled={loadingBackend}>
+            {loadingBackend ? 'Yükleniyor...' : 'Soru Getir ↗'}
           </button>
         </div>
       </div>
 
-      {/* Render AI generated question modal/box if available */}
-      {aiQuestion && (
+      {/* Render Backend question if fetched */}
+      {randomQuestion && (
         <div className={styles.questionCard} style={{ borderColor: '#D4AF37', marginBottom: '3rem' }}>
           <div className={styles.qMeta}>
-            <span>✨ Yapay Zeka Tarafından Üretilen Soru</span>
-            <span>Kaynak: {aiQuestion.sourceCode}</span>
+            <span>🏛 Hukuk Veritabanı Soru Bankası</span>
+            <span>Kaynak: {randomQuestion.sourceCode}</span>
           </div>
-          <div className={styles.qText}>{aiQuestion.question}</div>
+          <div className={styles.qText}>{randomQuestion.question}</div>
           <div className={styles.optionsList}>
-            {aiQuestion.options.map((opt, i) => (
+            {randomQuestion.options.map((opt, i) => (
               <div key={i} className={styles.optionBtn} style={{ cursor: 'default' }}>
                 {opt}
               </div>
             ))}
           </div>
           <div className={styles.sourceBox} style={{ marginTop: '1.5rem' }}>
-            <strong>💡 Hukuki Açıklama & İçtihat:</strong> {aiQuestion.explanation}
-            <div style={{ marginTop: '0.5rem', fontWeight: 600 }}>📜 {aiQuestion.sourceDetail}</div>
+            <strong>💡 Hukuki Gerekçe:</strong> {randomQuestion.explanation}
+            <div style={{ marginTop: '0.5rem', fontWeight: 600 }}>📜 {randomQuestion.sourceDetail}</div>
           </div>
         </div>
       )}
@@ -92,7 +95,7 @@ export default function Testler() {
       </h2>
 
       <div className={styles.grid}>
-        {QUIZZES.map(quiz => (
+        {filteredQuizzes.map(quiz => (
           <div
             key={quiz.id}
             className={styles.quizCard}
@@ -113,3 +116,4 @@ export default function Testler() {
     </div>
   );
 }
+
