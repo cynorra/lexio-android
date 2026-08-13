@@ -24,11 +24,14 @@ export default function Navbar() {
         <Link href="/testler" className={`${styles.link} ${isActive('/testler') || isActive('/test') ? styles.active : ''}`}>
           📝 Testler
         </Link>
+        <Link href="/liderlik" className={`${styles.link} ${isActive('/liderlik') ? styles.active : ''}`}>
+          🏆 Liderlik
+        </Link>
         <Link href="/akis" className={`${styles.link} ${isActive('/akis') ? styles.active : ''}`}>
-          💬 Sosyal Akış
+          💬 Akış
         </Link>
         <Link href="/blog" className={`${styles.link} ${isActive('/blog') ? styles.active : ''}`}>
-          📰 Blog & Haberler
+          📰 Blog
         </Link>
       </div>
     </nav>
