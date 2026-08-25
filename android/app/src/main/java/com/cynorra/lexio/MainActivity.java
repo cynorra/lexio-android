@@ -39,6 +39,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.DocumentSnapshot;
+import android.widget.EditText;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +55,9 @@ import com.cynorra.lexio.model.LeaderboardEntry;
 import com.cynorra.lexio.model.StudyData;
 import com.cynorra.lexio.model.StudyTopic;
 import com.cynorra.lexio.model.FeedData;
+import com.cynorra.lexio.model.FeedPost;
 import com.cynorra.lexio.model.WorkspaceData;
+import com.cynorra.lexio.model.Workspace;
 import com.cynorra.lexio.model.DailyQuizData;
 import com.cynorra.lexio.model.DailyQuizQuestion;
 import com.cynorra.lexio.model.BadgeData;
@@ -478,6 +483,18 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         btnBack.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_STUDY_PORTAL)));
     }
 
+    private void saveUserScoreToFirestore() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null && db != null) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("score", userScore);
+            data.put("name", user.getDisplayName() != null ? user.getDisplayName() : store.getState().getUserDisplayName());
+            data.put("email", user.getEmail());
+            data.put("lastActive", System.currentTimeMillis());
+            db.collection("users").document(user.getUid()).set(data, SetOptions.merge());
+        }
+    }
+
     private void setupLeaderboardViews(String activeInterval) {
         Button btnDaily = findViewById(R.id.btnTabDaily);
         Button btnWeekly = findViewById(R.id.btnTabWeekly);
@@ -496,39 +513,43 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         
         rvLeaderboard.setLayoutManager(new LinearLayoutManager(this));
 
-        List<LeaderboardEntry> list = new ArrayList<>();
-        String currentUserName = store.getState().getUserDisplayName();
-        
-        if ("daily".equals(interval)) {
-            list.add(new LeaderboardEntry(1, "Av. Burak Yılmaz", 280, false));
-            list.add(new LeaderboardEntry(2, "Av. Aslı Kaya", 255, false));
-            list.add(new LeaderboardEntry(3, "Av. Canan Demir", 220, false));
-            list.add(new LeaderboardEntry(4, currentUserName + " (Sen)", userScore, true));
-            list.add(new LeaderboardEntry(5, "Av. Mehmet Taş", 60, false));
-        } else if ("weekly".equals(interval)) {
-            list.add(new LeaderboardEntry(1, "Av. Aslı Kaya", 1250, false));
-            list.add(new LeaderboardEntry(2, "Av. Burak Yılmaz", 1100, false));
-            list.add(new LeaderboardEntry(3, "Av. Mehmet Taş", 950, false));
-            list.add(new LeaderboardEntry(4, currentUserName + " (Sen)", userScore + 300, true));
-            list.add(new LeaderboardEntry(5, "Av. Canan Demir", 720, false));
-        } else {
-            list.add(new LeaderboardEntry(1, "Av. Mehmet Taş", 4200, false));
-            list.add(new LeaderboardEntry(2, "Av. Aslı Kaya", 3800, false));
-            list.add(new LeaderboardEntry(3, "Av. Burak Yılmaz", 3600, false));
-            list.add(new LeaderboardEntry(4, currentUserName + " (Sen)", userScore + 1200, true));
-            list.add(new LeaderboardEntry(5, "Av. Canan Demir", 2900, false));
-        }
+        saveUserScoreToFirestore();
 
-        list.sort((e1, e2) -> Integer.compare(e2.getScore(), e1.getScore()));
+        db.collection("users")
+            .orderBy("score", Query.Direction.DESCENDING)
+            .limit(20)
+            .get()
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                List<LeaderboardEntry> list = new ArrayList<>();
+                int rank = 1;
+                FirebaseUser currentUser = mAuth.getCurrentUser();
+                String currentUid = currentUser != null ? currentUser.getUid() : "";
 
-        List<LeaderboardEntry> sortedList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            LeaderboardEntry old = list.get(i);
-            sortedList.add(new LeaderboardEntry(i + 1, old.getUsername(), old.getScore(), old.isCurrentUser()));
-        }
+                for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                    String name = doc.getString("name");
+                    if (name == null || name.isEmpty()) name = "Hukukçu";
+                    Long scoreLong = doc.getLong("score");
+                    int score = scoreLong != null ? scoreLong.intValue() : 0;
+                    boolean isCurrent = doc.getId().equals(currentUid);
 
-        LeaderboardAdapter adapter = new LeaderboardAdapter(sortedList);
-        rvLeaderboard.setAdapter(adapter);
+                    list.add(new LeaderboardEntry(rank++, isCurrent ? name + " (Sen)" : name, score, isCurrent));
+                }
+
+                if (list.isEmpty()) {
+                    String name = store.getState().getUserDisplayName();
+                    list.add(new LeaderboardEntry(1, name + " (Sen)", userScore, true));
+                }
+
+                LeaderboardAdapter adapter = new LeaderboardAdapter(list);
+                rvLeaderboard.setAdapter(adapter);
+            })
+            .addOnFailureListener(e -> {
+                List<LeaderboardEntry> list = new ArrayList<>();
+                String currentUserName = store.getState().getUserDisplayName();
+                list.add(new LeaderboardEntry(1, currentUserName + " (Sen)", userScore, true));
+                LeaderboardAdapter adapter = new LeaderboardAdapter(list);
+                rvLeaderboard.setAdapter(adapter);
+            });
     }
 
     private void loadBannerAd() {
@@ -543,8 +564,58 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         RecyclerView rvFeed = findViewById(R.id.rvFeed);
         if (rvFeed != null) {
             rvFeed.setLayoutManager(new LinearLayoutManager(this));
-            FeedAdapter adapter = new FeedAdapter(FeedData.getPosts());
-            rvFeed.setAdapter(adapter);
+            
+            db.collection("posts")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(50)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<FeedPost> livePosts = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        FeedPost p = doc.toObject(FeedPost.class);
+                        if (p != null) {
+                            p.setDocId(doc.getId());
+                            livePosts.add(p);
+                        }
+                    }
+                    FeedData.setPosts(livePosts);
+                    rvFeed.setAdapter(new FeedAdapter(FeedData.getPosts()));
+                })
+                .addOnFailureListener(e -> {
+                    rvFeed.setAdapter(new FeedAdapter(FeedData.getPosts()));
+                });
+        }
+
+        EditText etContent = findViewById(R.id.etNewPostContent);
+        View btnPublish = findViewById(R.id.btnPublishPost);
+        if (btnPublish != null && etContent != null) {
+            btnPublish.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                String text = etContent.getText().toString().trim();
+                if (text.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Lütfen paylaşmak istediğiniz içeriği yazın.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                FirebaseUser user = mAuth.getCurrentUser();
+                String author = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : store.getState().getUserDisplayName();
+                
+                Map<String, Object> postMap = new HashMap<>();
+                postMap.put("authorName", author);
+                postMap.put("authorRole", "Hukukçu");
+                postMap.put("timestamp", "Az önce");
+                postMap.put("content", text);
+                postMap.put("likesCount", 0);
+                postMap.put("commentsCount", 0);
+                postMap.put("createdAt", System.currentTimeMillis());
+
+                db.collection("posts").add(postMap).addOnSuccessListener(docRef -> {
+                    etContent.setText("");
+                    Toast.makeText(MainActivity.this, "Gönderiniz başarıyla paylaşıldı! 🚀", Toast.LENGTH_SHORT).show();
+                    setupFeedViews();
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(MainActivity.this, "Gönderi paylaşılamadı: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            });
         }
     }
 
@@ -552,8 +623,36 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         RecyclerView rvWorkspaces = findViewById(R.id.rvWorkspaces);
         if (rvWorkspaces != null) {
             rvWorkspaces.setLayoutManager(new LinearLayoutManager(this));
-            WorkspaceAdapter adapter = new WorkspaceAdapter(WorkspaceData.getWorkspaces());
-            rvWorkspaces.setAdapter(adapter);
+
+            db.collection("workspaces")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Workspace> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
+                        Workspace w = doc.toObject(Workspace.class);
+                        if (w != null) {
+                            list.add(w);
+                        }
+                    }
+                    if (list.isEmpty()) {
+                        List<Workspace> seeds = new ArrayList<>();
+                        seeds.add(new Workspace(1, "Ceza Hukuku Tartışmaları", "Yargıtay kararları ve ceza hukuku üzerine akademik/pratik tartışmalar.", 1245, "⚖️"));
+                        seeds.add(new Workspace(2, "Stajyer Avukatlar Yardımlaşma", "Adliye tecrübeleri, dilekçe örnekleri ve mesleki dayanışma.", 850, "📚"));
+                        seeds.add(new Workspace(3, "İş ve Sosyal Güvenlik Hukuku", "İşçi-işveren uyuşmazlıkları ve SGK davaları hakkında güncel gelişmeler.", 620, "💼"));
+                        seeds.add(new Workspace(4, "Hukuk Fakültesi Öğrencileri", "Vize/Final not paylaşımı ve genel sohbet.", 3400, "🎓"));
+                        seeds.add(new Workspace(5, "Bilişim Hukuku & KVKK", "Kişisel verilerin korunması, siber suçlar ve teknoloji hukuku.", 410, "💻"));
+
+                        for (Workspace w : seeds) {
+                            db.collection("workspaces").document(String.valueOf(w.getId())).set(w);
+                        }
+                        list = seeds;
+                    }
+                    WorkspaceData.setWorkspaces(list);
+                    rvWorkspaces.setAdapter(new WorkspaceAdapter(WorkspaceData.getWorkspaces()));
+                })
+                .addOnFailureListener(e -> {
+                    rvWorkspaces.setAdapter(new WorkspaceAdapter(WorkspaceData.getWorkspaces()));
+                });
         }
     }
 
