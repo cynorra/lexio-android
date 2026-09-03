@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="Profilim"
+            android:text="@string/profile_header_title"
             android:textColor="@color/text_primary"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -96,7 +96,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="38dp"
                     android:layout_marginTop="10dp"
-                    android:text="📸 Instagram Hikayede Paylaş"
+                    android:text="@string/btn_share_instagram"
                     android:textColor="@color/text_primary"
                     android:textSize="12sp"
                     android:backgroundTint="#E1306C"
@@ -118,7 +118,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Hukuk Sistemi / Jurisdiction"
+                    android:text="@string/profile_jurisdiction_label"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:layout_gravity="center_vertical"/>
@@ -158,7 +158,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Toplam Puan"
+                        android:text="@string/profile_score_label"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"/>
                 </LinearLayout>
@@ -179,7 +179,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Çözülen Dava"
+                        android:text="@string/profile_cases_label"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp"/>
                 </LinearLayout>
@@ -196,7 +196,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🏆 Başarımlar &amp; Rozetler"
+                    android:text="@string/profile_badges_header"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -227,7 +227,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Karanlık Tema"
+                    android:text="@string/dark_theme_label"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:layout_gravity="center_vertical"/>
@@ -254,7 +254,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Uygulama Dili / Language"
+                    android:text="@string/language_label"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:layout_gravity="center_vertical"/>
@@ -284,7 +284,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Çıkış Yap"
+                    android:text="@string/btn_sign_out"
                     android:textColor="@color/prosecution_red"
                     android:textSize="16sp" />
             </LinearLayout>

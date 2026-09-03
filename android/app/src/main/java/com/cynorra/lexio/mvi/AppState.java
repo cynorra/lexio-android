@@ -111,19 +111,6 @@ public class AppState {
     public int getDailyStreak() { return dailyStreak; }
     public boolean isDailyQuizCompleted() { return dailyQuizCompleted; }
 
-    public String getCareerRankTitle() {
-        if (accumulatedScore >= 1000) {
-            return "👑 Yargıtay Hakimi / Supreme Justice";
-        } else if (accumulatedScore >= 500) {
-            return "⚖️ Ağır Ceza Reisi / Senior Judge";
-        } else if (accumulatedScore >= 200) {
-            return "🥇 Uzman Avukat / Specialist Attorney";
-        } else if (accumulatedScore >= 50) {
-            return "🥈 Stajyer Avukat / Legal Intern";
-        } else {
-            return "🥉 Hukuk Öğrencisi / Law Student";
-        }
-    }
 
     public AppState copyWith(Screen activeScreen, Case selectedCase, String selectedRole,
                              List<Message> chatMessages, int currentStepIndex, int accumulatedScore,

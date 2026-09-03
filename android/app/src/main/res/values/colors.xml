@@ -1,28 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark Mode Theme Colors (shadcn UI inspired) -->
-    <color name="bg_dark">#09090b</color>
-    <color name="card_bg">#18181b</color>
-    <color name="card_border">#27272a</color>
-    <color name="text_primary">#fafafa</color>
-    <color name="text_secondary">#a1a1aa</color>
+    <!-- Light Mode Theme Colors (shadcn UI inspired) -->
+    <color name="bg_dark">#ffffff</color>
+    <color name="card_bg">#f4f4f5</color>
+    <color name="card_border">#e4e4e7</color>
+    <color name="text_primary">#18181b</color>
+    <color name="text_secondary">#52525b</color>
     <color name="text_muted">#71717a</color>
-    
-    <!-- Accent Colors -->
+
+    <!-- Accent Colors (brand color stays the same across themes) -->
     <color name="accent_primary">#f97316</color>
     <color name="accent_secondary">#ea580c</color>
-    
+
     <!-- Role specific colors -->
-    <color name="defense_green">#10b981</color>
+    <color name="defense_green">#059669</color>
     <color name="defense_green_bg">#1010b981</color>
-    <color name="prosecution_red">#ef4444</color>
+    <color name="prosecution_red">#dc2626</color>
     <color name="prosecution_red_bg">#10ef4444</color>
-    
+    <color name="role_defense_bg">#e7f6ef</color>
+    <color name="role_prosecution_bg">#fdeceb</color>
+
     <!-- Neutral Utility Colors -->
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
-    
+
     <!-- Input Background -->
-    <color name="input_bg">#202024</color>
+    <color name="input_bg">#f4f4f5</color>
+
+    <!-- Ripple highlight overlay -->
+    <color name="ripple_overlay">#1a000000</color>
 </resources>

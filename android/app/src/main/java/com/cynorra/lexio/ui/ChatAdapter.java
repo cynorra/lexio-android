@@ -68,11 +68,13 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void setItems(AppState state) {
         List<AppState.Message> messages = state.getChatMessages();
+        Case selectedCase = state.getSelectedCase();
+        String systemLabel = selectedCase != null && !"TR".equals(selectedCase.getJurisdiction()) ? "SYSTEM" : "SİSTEM";
         items.clear();
         for (AppState.Message m : messages) {
             if ("system".equalsIgnoreCase(m.getSender())) {
-                items.add(new ChatItem("system", "SİSTEM", m.getContent()));
-            } else if (m.getSender().startsWith("⚖️ Hakim")) {
+                items.add(new ChatItem("system", systemLabel, m.getContent()));
+            } else if (m.getSender().startsWith("⚖️")) {
                 items.add(new ChatItem("verdict", m.getSender(), m.getContent(), computeMetricScores(state)));
             } else {
                 items.add(new ChatItem(
@@ -93,7 +95,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static List<MetricScore> computeMetricScores(AppState state) {
         Case selectedCase = state.getSelectedCase();
         List<Integer> stepScores = state.getStepScores();
-        String[] labels = {"Argüman Gücü", "Delil Kullanımı", "Hukuki Analiz"};
+        boolean isTrCase = selectedCase == null || "TR".equals(selectedCase.getJurisdiction());
+        String[] labels = isTrCase
+            ? new String[]{"Argüman Gücü", "Delil Kullanımı", "Hukuki Analiz"}
+            : new String[]{"Argument Strength", "Evidence Usage", "Legal Analysis"};
         List<Integer> percentages = new ArrayList<>();
 
         if (selectedCase != null) {
@@ -119,7 +124,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             int value = i < percentages.size() ? percentages.get(i) : overall;
             result.add(new MetricScore(labels[i], value));
         }
-        result.add(new MetricScore("Mevzuat Hakimiyeti", overall));
+        result.add(new MetricScore(isTrCase ? "Mevzuat Hakimiyeti" : "Statutory Mastery", overall));
         return result;
     }
 

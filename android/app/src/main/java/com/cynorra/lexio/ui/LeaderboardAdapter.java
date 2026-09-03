@@ -44,7 +44,7 @@ public class LeaderboardAdapter extends RecyclerView.Adapter<LeaderboardAdapter.
         }
 
         holder.tvUser.setText(entry.getUsername());
-        holder.tvScore.setText(entry.getScore() + " Puan");
+        holder.tvScore.setText(holder.itemView.getContext().getString(R.string.leaderboard_points_suffix, entry.getScore()));
 
         // Highlight current user
         if (entry.isCurrentUser()) {

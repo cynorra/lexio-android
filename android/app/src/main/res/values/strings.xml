@@ -1,55 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lexio</string>
-    
+
     <!-- Navigation -->
-    <string name="nav_cases">Vakalar</string>
-    <string name="nav_study">Rehber</string>
+    <string name="nav_cases">Duruşmalar</string>
+    <string name="nav_study">Ders Çalış</string>
     <string name="nav_leaderboard">Sıralama</string>
-    <string name="nav_feed">Akış</string>
-    <string name="nav_workspace">Atölye</string>
+    <string name="nav_feed">Topluluk</string>
+    <string name="nav_workspace">Gruplar</string>
     <string name="nav_profile">Profil</string>
 
     <!-- General Toast & Status -->
-    <string name="content_updated">İçerikler güncellendi!</string>
-    <string name="offline_mode">Çevrimdışı mod aktif.</string>
     <string name="auth_failed">Firebase Kimlik Doğrulama başarısız oldu.</string>
     <string name="google_sign_in_failed">Google ile giriş başarısız oldu:</string>
 
+    <!-- Login -->
+    <string name="login_tagline">Yargıtay Kararlarıyla Pratik Hukuk Simülasyonu</string>
+    <string name="login_heading">Hesabınıza Giriş Yapın</string>
+    <string name="login_subheading">Skorunuzu kaydetmek ve sıralamaya katılmak için giriş yapmanız gerekmektedir.</string>
+    <string name="btn_google_signin">Google ile Giriş Yap</string>
+    <string name="login_terms_notice">Giriş yaparak kullanım koşullarını kabul etmiş olursunuz.</string>
+
     <!-- Landing -->
-    <string name="landing_title">Davayı Sen Savun</string>
-    <string name="landing_subtitle">Yargıtay emsal kararlarından üretilmiş vakalar. AI karşı avukat. AI hakim.\nHukuku gerçek dava atmosferinde öğren.</string>
+    <string name="landing_brand_mark">Lexio — AI Hukuk Simülasyonu</string>
+    <string name="landing_title">Davayı\nSen Savun.</string>
+    <string name="landing_subtitle">Gerçek Yargıtay kararlarından üretilmiş vakalar. AI karşı avukat. AI hakim.\nHukuku gerçek dava atmosferinde öğren.</string>
     <string name="btn_start_simulation">Simülasyona Başla</string>
     <string name="btn_browse_cases">Vakaları İncele →</string>
+    <string name="landing_stat_cases_count">10</string>
+    <string name="landing_stat_cases_label">Ceza Davası</string>
+    <string name="landing_stat_ai_value">AI</string>
+    <string name="landing_stat_ai_label">Karşı Avukat</string>
+    <string name="landing_stat_jurisdiction_value">TR</string>
+    <string name="landing_stat_jurisdiction_label">Yargıtay Bazlı</string>
+
+    <!-- Case List -->
+    <string name="case_list_header_label">Vaka Seçimi</string>
+    <string name="case_list_eyebrow">Ceza Hukuku</string>
+    <string name="case_list_heading">Hangi Davayı Üstleniyorsunuz?</string>
+    <string name="case_list_subheading">Yargıtay kararlarından uyarlanmış gerçek senaryolar. Savunma veya savcılık rolünü seçin, karşı tarafın hamlelerine göre stratejinizi belirleyin.</string>
+    <string name="daily_quiz_banner_title">Günün Hukuk Testi — 3 Soru</string>
+    <string name="daily_quiz_banner_subtitle">Günün sorularını çöz, seriyi yakala ve +100 Puan kazan!</string>
+    <string name="daily_quiz_banner_cta">Başla →</string>
 
     <!-- Case Detail & Simulation -->
-    <string name="case_detail_ref_prefix">Yargıtay Emsal Kararı — </string>
-    <string name="case_evidence_header">Dosyadaki Deliller:</string>
+    <string name="case_detail_ref_prefix">İlgili Mevzuat — </string>
+    <string name="case_detail_back">← Geri Dön</string>
+    <string name="case_detail_summary_header">Olay Özeti</string>
+    <string name="case_evidence_header">Dosyadaki Deliller</string>
+    <string name="case_detail_role_header">Duruşmadaki Rolünüzü Seçin</string>
+    <string name="case_detail_role_prompt">Hangi tarafın savunmasını üstleneceksiniz? AI diğer tarafı temsil edecektir.</string>
+    <string name="case_detail_defense_title">⚖️ Savunma Avukatı (Müdafi)</string>
+    <string name="case_detail_defense_desc">Müvekkilinizi savunun, şüpheleri ortaya koyun ve beraat veya lehe kanun maddeleri talep edin.</string>
+    <string name="case_detail_prosecution_title">🔍 Savcı (İddia Makamı)</string>
+    <string name="case_detail_prosecution_desc">Kamuyu savunun, suçun unsurlarını ispat edin ve sanığın en ağır cezayla cezalandırılmasını isteyin.</string>
     <string name="role_defense">⚖️ Savunma Avukatı</string>
     <string name="role_prosecution">🔍 Savcı</string>
     <string name="btn_choose_defense">⚖️ Savunma Avukatı Olarak Başla</string>
     <string name="btn_choose_prosecution">🔍 Savcı Olarak Başla</string>
     <string name="btn_back">Geri</string>
-    <string name="btn_exit_simulation">Ayrıl</string>
+    <string name="btn_exit_simulation">↩ Çıkış</string>
     <string name="verdict_declared">Karar Açıklandı</string>
     <string name="trial_completed">Duruşma tamamlandı. Mahkeme nihai hükmünü vermiştir.</string>
     <string name="judge_verdict_header">⚖️ Hakim Kararı</string>
     <string name="sim_step_suffix">. Aşama: </string>
+    <string name="sim_typing_text">Karşı taraf yanıt hazırlıyor…</string>
+    <string name="sim_input_label">Aşama Başlığı</string>
+    <string name="sim_hint_text">💡 Davayı kazanmak için en doğru hukuki gerekçeleri barındıran seçeneği belirleyin.</string>
+    <string name="verdict_card_header">⚖️ MAHKEME KARARI</string>
+    <string name="verdict_card_subheader">KARAR VE GEREKÇESİ</string>
+    <string name="verdict_performance_header">Performans Değerlendirmeniz</string>
+    <string name="metric_legal_analysis">Hukuki Analiz</string>
+    <string name="metric_evidence_use">Delil Kullanımı</string>
+    <string name="metric_argument_strength">Argüman Gücü</string>
+    <string name="metric_legislation_mastery">Mevzuat Hakimiyeti</string>
+    <string name="system_message_header">SİSTEM</string>
+
+    <!-- Feed -->
+    <string name="feed_header_title">Topluluk Akışı</string>
+    <string name="feed_eyebrow">Hukukçular Ağı</string>
+    <string name="feed_heading">Meslektaşların Neler Konuşuyor?</string>
+    <string name="feed_composer_hint">Düşüncelerini veya bir hukuki soruyu meslektaşlarınla paylaş…</string>
+    <string name="btn_publish_post">Paylaş 🚀</string>
+    <string name="feed_empty_content_toast">Lütfen paylaşmak istediğiniz içeriği yazın.</string>
+    <string name="feed_post_success_toast">Gönderiniz başarıyla paylaşıldı! 🚀</string>
+    <string name="feed_post_failure_toast">Gönderi paylaşılamadı: </string>
+    <string name="feed_default_author_role">Hukukçu</string>
+    <string name="feed_time_now">Az önce</string>
+    <string name="feed_time_minutes">%1$d dk önce</string>
+    <string name="feed_time_hours">%1$d sa önce</string>
+    <string name="feed_time_days">%1$d gün önce</string>
+    <string name="feed_time_weeks">%1$d hafta önce</string>
+    <string name="feed_likes_count">❤️ %1$d Beğeni</string>
+    <string name="feed_comments_count">💬 %1$d Yorum</string>
+
+    <!-- Daily Quiz -->
+    <string name="daily_quiz_screen_title">Günlük Hukuk Testi</string>
+    <string name="quiz_back_btn">← Geri</string>
+    <string name="quiz_explanation_header">💡 Hukuki Açıklama</string>
+    <string name="btn_next_question">Sonraki Soru →</string>
+    <string name="quiz_streak_badge">🔥 %1$d Gün Seri</string>
+    <string name="quiz_question_num">Soru %1$d / %2$d</string>
+    <string name="quiz_completed_toast">Tebrikler! Günlük Test Tamamlandı (+100 Puan)</string>
+    <string name="quiz_correct_prefix">✅ Doğru! </string>
+    <string name="quiz_incorrect_prefix">❌ Yanlış! </string>
+
+    <!-- Study Portal -->
+    <string name="study_portal_header_label">Hukuk Kütüphanesi</string>
+    <string name="study_portal_eyebrow">Ders Çalışma Portalı</string>
+    <string name="study_portal_heading">Hukuk Bilgini Geliştir</string>
+    <string name="study_portal_subheading">Duruşmalarda daha yüksek performans göstermek ve doğru kanun maddelerini seçebilmek için özet ders notlarımızı inceleyin.</string>
+    <string name="study_card_read_more">Oku →</string>
+    <string name="study_card_read_time">⏱ %1$d dk okuma</string>
+    <string name="study_detail_back">← Derslere Dön</string>
+
+    <!-- Workspace -->
+    <string name="workspace_header_label">Çalışma Alanları</string>
+    <string name="workspace_eyebrow">Odak Grupları</string>
+    <string name="workspace_heading">Uzmanlaştığın Alana Katıl</string>
+    <string name="workspace_join_btn">Katıl</string>
+    <string name="workspace_member_count">%1$d üye</string>
 
     <!-- Leaderboard -->
     <string name="leaderboard_title">Liderlik Tablosu</string>
     <string name="tab_daily">Günlük</string>
     <string name="tab_weekly">Haftalık</string>
     <string name="tab_monthly">Aylık</string>
-    <string name="you_suffix">(Sen)</string>
+    <string name="you_suffix"> (Sen)</string>
+    <string name="leaderboard_default_name">Hukukçu</string>
+    <string name="leaderboard_you_badge">SEN</string>
+    <string name="leaderboard_points_suffix">%1$d Puan</string>
 
     <!-- Profile & Settings -->
+    <string name="profile_header_title">Profilim</string>
     <string name="profile_title">Profil &amp; Ayarlar</string>
     <string name="profile_score_label">Toplam Puan</string>
     <string name="profile_cases_label">Çözülen Dava</string>
-    <string name="dark_theme_label">Koyu Tema</string>
-    <string name="language_label">Uygulama Dili (Language)</string>
+    <string name="profile_jurisdiction_label">Hukuk Sistemi / Jurisdiction</string>
+    <string name="profile_badges_header">🏆 Başarımlar &amp; Rozetler</string>
+    <string name="dark_theme_label">Karanlık Tema</string>
+    <string name="language_label">Uygulama Dili / Language</string>
     <string name="language_turkish">Türkçe 🇹🇷</string>
     <string name="language_english">English 🇬🇧</string>
-    <string name="btn_sign_out">Oturumu Kapat</string>
+    <string name="btn_sign_out">Çıkış Yap</string>
+    <string name="btn_share_instagram">📸 Instagram Hikayede Paylaş</string>
+    <string name="instagram_handle_placeholder">📸 Instagram Ekleyin</string>
+    <string name="instagram_handle_prefix">📸 @%1$s</string>
+    <string name="instagram_handle_dialog_title">Instagram Kullanıcı Adı</string>
+    <string name="instagram_handle_dialog_message">Profilinizde ve paylaşımlarınızda görünecek Instagram kullanıcı adınızı girin:</string>
+    <string name="instagram_handle_hint">@kullaniciadi</string>
+    <string name="btn_save">Kaydet</string>
+    <string name="btn_cancel">İptal</string>
+    <string name="instagram_added_toast">Instagram hesabınız eklendi!</string>
+    <string name="instagram_share_text">Lexio Hukuk Platformu Başarım Kartım ⚖️\nUnvan: %1$s\nToplam Puan: %2$d\nSeri: 🔥 %3$d Gün\n</string>
+    <string name="instagram_share_handle_line">Instagram: @%1$s\n</string>
+    <string name="instagram_share_chooser_title">Instagram Hikaye veya Sosyal Medyada Paylaş</string>
+    <string name="jurisdiction_dialog_title">Hukuk Sistemi Seçin / Select Jurisdiction</string>
+    <string name="jurisdiction_tr">🇹🇷 Türkiye (TCK/Yargıtay)</string>
+    <string name="jurisdiction_us">🇺🇸 ABD (US Code)</string>
+    <string name="jurisdiction_uk">🇬🇧 İngiltere (Common Law)</string>
+    <string name="jurisdiction_de">🇩🇪 Almanya (BGB/StGB)</string>
+    <string name="rank_supreme_justice">👑 Yargıtay Hakimi</string>
+    <string name="rank_senior_judge">⚖️ Ağır Ceza Reisi</string>
+    <string name="rank_specialist_attorney">🥇 Uzman Avukat</string>
+    <string name="rank_legal_intern">🥈 Stajyer Avukat</string>
+    <string name="rank_law_student">🥉 Hukuk Öğrencisi</string>
+
+    <!-- Opponent / trial roles (used regardless of case jurisdiction) -->
+    <string name="opponent_prosecutor">Savcı</string>
+    <string name="opponent_defense">Savunma Avukatı</string>
+    <string name="sim_opening_prosecution">Sayın Mahkeme, Savcılık sıfatıyla bu duruşmada müttehem aleyhine yeterli delil olduğunu ispatlayacağız. Deliller incelendiğinde eylemin yasal unsurları tam olarak taşıdığı görülecektir. Savunmanın argümanlarını bekliyoruz.</string>
+    <string name="sim_opening_defense">Sayın Mahkeme, müdafi olarak şunu belirtmeliyim: İddianame yüzeysel değerlendirmeye dayanmaktadır. Delillerin bütünlüklü değerlendirilmesi müvekkilimin iddia edilen suçu işlemediğini ortaya koyacaktır.</string>
+    <string name="sim_case_summary_header">Vaka Özeti:</string>
+    <string name="sim_evidence_header">Dosyadaki Deliller:</string>
 </resources>

@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:text="Vaka Seçimi"
+            android:text="@string/case_list_header_label"
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
     </RelativeLayout>
@@ -53,7 +53,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ceza Hukuku"
+            android:text="@string/case_list_eyebrow"
             android:textColor="@color/accent_primary"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Hangi Davayı Üstleniyorsunuz?"
+            android:text="@string/case_list_heading"
             android:textColor="@color/text_primary"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Yargıtay kararlarından uyarlanmış gerçek senaryolar. Savunma veya savcılık rolünü seçin, karşı tarafın hamlelerine göre stratejinizi belirleyin."
+            android:text="@string/case_list_subheading"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:lineSpacingMultiplier="1.2" />
@@ -108,7 +108,7 @@
                     android:layout_height="wrap_content"
                     android:layout_toEndOf="@id/tvDailyQuizIcon"
                     android:layout_marginStart="12dp"
-                    android:text="Günün Hukuk Testi — 3 Soru"
+                    android:text="@string/daily_quiz_banner_title"
                     android:textColor="@color/text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -120,7 +120,7 @@
                     android:layout_toEndOf="@id/tvDailyQuizIcon"
                     android:layout_marginStart="12dp"
                     android:layout_marginTop="2dp"
-                    android:text="Günün sorularını çöz, seriyi yakala ve +100 Puan kazan!"
+                    android:text="@string/daily_quiz_banner_subtitle"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:text="Başla →"
+                    android:text="@string/daily_quiz_banner_cta"
                     android:textColor="@color/accent_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />

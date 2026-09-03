@@ -1,55 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lexio</string>
-    
+
     <!-- Navigation -->
-    <string name="nav_cases">Cases</string>
-    <string name="nav_study">Guide</string>
+    <string name="nav_cases">Trials</string>
+    <string name="nav_study">Study</string>
     <string name="nav_leaderboard">Leaderboard</string>
-    <string name="nav_feed">Feed</string>
-    <string name="nav_workspace">Workspace</string>
+    <string name="nav_feed">Community</string>
+    <string name="nav_workspace">Groups</string>
     <string name="nav_profile">Profile</string>
 
     <!-- General Toast & Status -->
-    <string name="content_updated">Content updated successfully!</string>
-    <string name="offline_mode">Offline mode active.</string>
     <string name="auth_failed">Firebase Authentication failed.</string>
     <string name="google_sign_in_failed">Google Sign-In failed:</string>
 
+    <!-- Login -->
+    <string name="login_tagline">Practice Law Through Real Precedents</string>
+    <string name="login_heading">Sign In to Your Account</string>
+    <string name="login_subheading">Sign in to save your score and join the leaderboard.</string>
+    <string name="btn_google_signin">Sign in with Google</string>
+    <string name="login_terms_notice">By signing in you agree to the terms of use.</string>
+
     <!-- Landing -->
-    <string name="landing_title">Defend the Case</string>
+    <string name="landing_brand_mark">Lexio — AI Legal Simulation</string>
+    <string name="landing_title">Defend\nthe Case.</string>
     <string name="landing_subtitle">Cases inspired by Supreme Court precedents. AI opposing counsel. AI judge.\nLearn law in a real court environment.</string>
     <string name="btn_start_simulation">Start Simulation</string>
     <string name="btn_browse_cases">Browse Cases →</string>
+    <string name="landing_stat_cases_count">10</string>
+    <string name="landing_stat_cases_label">Criminal Cases</string>
+    <string name="landing_stat_ai_value">AI</string>
+    <string name="landing_stat_ai_label">Opposing Counsel</string>
+    <string name="landing_stat_jurisdiction_value">TR</string>
+    <string name="landing_stat_jurisdiction_label">Based on Precedent</string>
+
+    <!-- Case List -->
+    <string name="case_list_header_label">Case Selection</string>
+    <string name="case_list_eyebrow">Criminal Law</string>
+    <string name="case_list_heading">Which Case Will You Take?</string>
+    <string name="case_list_subheading">Real-world scenarios adapted from court precedents. Choose the defense or prosecution role and shape your strategy around the opposing side\'s moves.</string>
+    <string name="daily_quiz_banner_title">Today\'s Law Quiz — 3 Questions</string>
+    <string name="daily_quiz_banner_subtitle">Solve today\'s questions, keep your streak, and earn +100 points!</string>
+    <string name="daily_quiz_banner_cta">Start →</string>
 
     <!-- Case Detail & Simulation -->
-    <string name="case_detail_ref_prefix">Supreme Court Precedent — </string>
-    <string name="case_evidence_header">Case Evidence:</string>
+    <string name="case_detail_ref_prefix">Legal Basis — </string>
+    <string name="case_detail_back">← Back</string>
+    <string name="case_detail_summary_header">Case Summary</string>
+    <string name="case_evidence_header">Case Evidence</string>
+    <string name="case_detail_role_header">Choose Your Role in the Trial</string>
+    <string name="case_detail_role_prompt">Which side will you argue? AI will represent the other party.</string>
+    <string name="case_detail_defense_title">⚖️ Defense Counsel (Advocate)</string>
+    <string name="case_detail_defense_desc">Defend your client, raise reasonable doubt, and argue for acquittal or favorable statutes.</string>
+    <string name="case_detail_prosecution_title">🔍 Prosecutor (Public Prosecution)</string>
+    <string name="case_detail_prosecution_desc">Represent the public, prove the elements of the offense, and seek the harshest applicable sentence.</string>
     <string name="role_defense">⚖️ Defense Counsel</string>
     <string name="role_prosecution">🔍 Prosecutor</string>
     <string name="btn_choose_defense">⚖️ Start as Defense Counsel</string>
     <string name="btn_choose_prosecution">🔍 Start as Prosecutor</string>
     <string name="btn_back">Back</string>
-    <string name="btn_exit_simulation">Exit</string>
+    <string name="btn_exit_simulation">↩ Exit</string>
     <string name="verdict_declared">Verdict Announced</string>
     <string name="trial_completed">Trial completed. The court has rendered its final verdict.</string>
     <string name="judge_verdict_header">⚖️ Judge\'s Verdict</string>
     <string name="sim_step_suffix">. Stage: </string>
+    <string name="sim_typing_text">Opposing party is preparing a response…</string>
+    <string name="sim_input_label">Stage Title</string>
+    <string name="sim_hint_text">💡 Choose the option with the strongest legal reasoning to win the case.</string>
+    <string name="verdict_card_header">⚖️ COURT VERDICT</string>
+    <string name="verdict_card_subheader">VERDICT AND RATIONALE</string>
+    <string name="verdict_performance_header">Your Performance Evaluation</string>
+    <string name="metric_legal_analysis">Legal Analysis</string>
+    <string name="metric_evidence_use">Evidence Usage</string>
+    <string name="metric_argument_strength">Argument Strength</string>
+    <string name="metric_legislation_mastery">Statutory Mastery</string>
+    <string name="system_message_header">SYSTEM</string>
+
+    <!-- Feed -->
+    <string name="feed_header_title">Community Feed</string>
+    <string name="feed_eyebrow">Legal Professionals Network</string>
+    <string name="feed_heading">What Are Your Colleagues Discussing?</string>
+    <string name="feed_composer_hint">Share your thoughts or a legal question with your colleagues…</string>
+    <string name="btn_publish_post">Post 🚀</string>
+    <string name="feed_empty_content_toast">Please write the content you\'d like to share.</string>
+    <string name="feed_post_success_toast">Your post was shared successfully! 🚀</string>
+    <string name="feed_post_failure_toast">Could not share post: </string>
+    <string name="feed_default_author_role">Legal Professional</string>
+    <string name="feed_time_now">Just now</string>
+    <string name="feed_time_minutes">%1$d min ago</string>
+    <string name="feed_time_hours">%1$d h ago</string>
+    <string name="feed_time_days">%1$d d ago</string>
+    <string name="feed_time_weeks">%1$d w ago</string>
+    <string name="feed_likes_count">❤️ %1$d Likes</string>
+    <string name="feed_comments_count">💬 %1$d Comments</string>
+
+    <!-- Daily Quiz -->
+    <string name="daily_quiz_screen_title">Daily Law Quiz</string>
+    <string name="quiz_back_btn">← Back</string>
+    <string name="quiz_explanation_header">💡 Legal Explanation</string>
+    <string name="btn_next_question">Next Question →</string>
+    <string name="quiz_streak_badge">🔥 %1$d Day Streak</string>
+    <string name="quiz_question_num">Question %1$d / %2$d</string>
+    <string name="quiz_completed_toast">Congratulations! Daily Quiz Completed (+100 Points)</string>
+    <string name="quiz_correct_prefix">✅ Correct! </string>
+    <string name="quiz_incorrect_prefix">❌ Incorrect! </string>
+
+    <!-- Study Portal -->
+    <string name="study_portal_header_label">Law Library</string>
+    <string name="study_portal_eyebrow">Study Portal</string>
+    <string name="study_portal_heading">Sharpen Your Legal Knowledge</string>
+    <string name="study_portal_subheading">Review our concise study notes to perform better in trials and choose the right statutes.</string>
+    <string name="study_card_read_more">Read →</string>
+    <string name="study_card_read_time">⏱ %1$d min read</string>
+    <string name="study_detail_back">← Back to Lessons</string>
+
+    <!-- Workspace -->
+    <string name="workspace_header_label">Workspaces</string>
+    <string name="workspace_eyebrow">Focus Groups</string>
+    <string name="workspace_heading">Join Your Area of Expertise</string>
+    <string name="workspace_join_btn">Join</string>
+    <string name="workspace_member_count">%1$d members</string>
 
     <!-- Leaderboard -->
     <string name="leaderboard_title">Leaderboard</string>
     <string name="tab_daily">Daily</string>
     <string name="tab_weekly">Weekly</string>
     <string name="tab_monthly">Monthly</string>
-    <string name="you_suffix">(You)</string>
+    <string name="you_suffix"> (You)</string>
+    <string name="leaderboard_default_name">Legal Professional</string>
+    <string name="leaderboard_you_badge">YOU</string>
+    <string name="leaderboard_points_suffix">%1$d pts</string>
 
     <!-- Profile & Settings -->
+    <string name="profile_header_title">My Profile</string>
     <string name="profile_title">Profile &amp; Settings</string>
     <string name="profile_score_label">Total Score</string>
     <string name="profile_cases_label">Solved Cases</string>
+    <string name="profile_jurisdiction_label">Legal System / Jurisdiction</string>
+    <string name="profile_badges_header">🏆 Achievements &amp; Badges</string>
     <string name="dark_theme_label">Dark Theme</string>
-    <string name="language_label">App Language</string>
-    <string name="language_turkish">Turkish 🇹🇷</string>
+    <string name="language_label">App Language / Dil</string>
+    <string name="language_turkish">Türkçe 🇹🇷</string>
     <string name="language_english">English 🇬🇧</string>
     <string name="btn_sign_out">Sign Out</string>
+    <string name="btn_share_instagram">📸 Share on Instagram Story</string>
+    <string name="instagram_handle_placeholder">📸 Add Instagram</string>
+    <string name="instagram_handle_prefix">📸 @%1$s</string>
+    <string name="instagram_handle_dialog_title">Instagram Handle</string>
+    <string name="instagram_handle_dialog_message">Enter the Instagram handle to show on your profile and shares:</string>
+    <string name="instagram_handle_hint">@username</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="instagram_added_toast">Your Instagram account was added!</string>
+    <string name="instagram_share_text">My Lexio Legal Platform Achievement Card ⚖️\nRank: %1$s\nTotal Score: %2$d\nStreak: 🔥 %3$d Days\n</string>
+    <string name="instagram_share_handle_line">Instagram: @%1$s\n</string>
+    <string name="instagram_share_chooser_title">Share on Instagram Story or Social Media</string>
+    <string name="jurisdiction_dialog_title">Select Jurisdiction / Hukuk Sistemi Seçin</string>
+    <string name="jurisdiction_tr">🇹🇷 Turkey (TCK/Yargıtay)</string>
+    <string name="jurisdiction_us">🇺🇸 USA (US Code)</string>
+    <string name="jurisdiction_uk">🇬🇧 UK (Common Law)</string>
+    <string name="jurisdiction_de">🇩🇪 Germany (BGB/StGB)</string>
+    <string name="rank_supreme_justice">👑 Supreme Justice</string>
+    <string name="rank_senior_judge">⚖️ Senior Judge</string>
+    <string name="rank_specialist_attorney">🥇 Specialist Attorney</string>
+    <string name="rank_legal_intern">🥈 Legal Intern</string>
+    <string name="rank_law_student">🥉 Law Student</string>
+
+    <!-- Opponent / trial roles (used regardless of case jurisdiction) -->
+    <string name="opponent_prosecutor">Prosecutor</string>
+    <string name="opponent_defense">Defense Counsel</string>
+    <string name="sim_opening_prosecution">Your Honor, as the Prosecution, we will prove in this trial that there is sufficient evidence against the accused. Upon review of the evidence, it will be clear that the act meets every legal element of the offense. We await the defense\'s arguments.</string>
+    <string name="sim_opening_defense">Your Honor, as defense counsel, I must state: the indictment rests on a superficial assessment. A full review of the evidence will show my client did not commit the alleged offense.</string>
+    <string name="sim_case_summary_header">Case Summary:</string>
+    <string name="sim_evidence_header">Case Evidence:</string>
 </resources>

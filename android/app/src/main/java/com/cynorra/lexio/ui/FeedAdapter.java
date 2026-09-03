@@ -1,5 +1,6 @@
 package com.cynorra.lexio.ui;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,13 +35,14 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FeedPost post = posts.get(position);
+        Context context = holder.itemView.getContext();
         holder.tvAuthorName.setText(post.getAuthorName());
         holder.tvAuthorRole.setText(post.getAuthorRole());
-        holder.tvTimestamp.setText(formatRelativeTime(post));
+        holder.tvTimestamp.setText(formatRelativeTime(context, post));
         holder.tvContent.setText(post.getContent());
-        holder.tvLikes.setText("❤️ " + post.getLikesCount() + " Beğeni");
-        holder.tvComments.setText("💬 " + post.getCommentsCount() + " Yorum");
-        
+        holder.tvLikes.setText(context.getString(R.string.feed_likes_count, post.getLikesCount()));
+        holder.tvComments.setText(context.getString(R.string.feed_comments_count, post.getCommentsCount()));
+
         if (position > lastPosition) {
             Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_slide_up);
             holder.itemView.startAnimation(animation);
@@ -55,7 +57,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
     /** Computes a live relative-time label from createdAt; falls back to the stored
      *  timestamp string for legacy posts that predate the createdAt field. */
-    private static String formatRelativeTime(FeedPost post) {
+    private static String formatRelativeTime(Context context, FeedPost post) {
         long createdAt = post.getCreatedAt();
         if (createdAt <= 0) {
             String fallback = post.getTimestamp();
@@ -64,14 +66,14 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
         long diffMs = System.currentTimeMillis() - createdAt;
         long minutes = diffMs / (60 * 1000);
-        if (minutes < 1) return "Az önce";
-        if (minutes < 60) return minutes + " dk önce";
+        if (minutes < 1) return context.getString(R.string.feed_time_now);
+        if (minutes < 60) return context.getString(R.string.feed_time_minutes, minutes);
         long hours = minutes / 60;
-        if (hours < 24) return hours + " sa önce";
+        if (hours < 24) return context.getString(R.string.feed_time_hours, hours);
         long days = hours / 24;
-        if (days < 7) return days + " gün önce";
+        if (days < 7) return context.getString(R.string.feed_time_days, days);
         long weeks = days / 7;
-        return weeks + " hafta önce";
+        return context.getString(R.string.feed_time_weeks, weeks);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

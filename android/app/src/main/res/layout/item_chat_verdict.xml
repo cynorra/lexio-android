@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="⚖️ MAHKEME KARARI"
+            android:text="@string/verdict_card_header"
             android:textColor="@color/accent_primary"
             android:textSize="12sp"
             android:textStyle="bold"
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="KARAR VE GEREKÇESİ"
+            android:text="@string/verdict_card_subheader"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Performans Değerlendirmeniz"
+            android:text="@string/verdict_performance_header"
             android:textColor="@color/text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />

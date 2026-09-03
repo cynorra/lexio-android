@@ -37,7 +37,7 @@ public class WorkspaceAdapter extends RecyclerView.Adapter<WorkspaceAdapter.View
         holder.tvWorkspaceIcon.setText(ws.getIconEmoji());
         holder.tvWorkspaceName.setText(ws.getName());
         holder.tvWorkspaceDesc.setText(ws.getDescription());
-        holder.tvMemberCount.setText(ws.getMemberCount() + " üye");
+        holder.tvMemberCount.setText(holder.itemView.getContext().getString(R.string.workspace_member_count, ws.getMemberCount()));
         
         if (position > lastPosition) {
             Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_slide_up);

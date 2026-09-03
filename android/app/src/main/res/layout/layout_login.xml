@@ -36,7 +36,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Yargıtay Kararlarıyla Pratik Hukuk Simülasyonu"
+        android:text="@string/login_tagline"
         android:textColor="@color/text_secondary"
         android:textSize="14sp"
         android:gravity="center"
@@ -62,7 +62,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hesabınıza Giriş Yapın"
+                android:text="@string/login_heading"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -71,7 +71,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Skorunuzu kaydetmek ve sıralamaya katılmak için giriş yapmanız gerekmektedir."
+                android:text="@string/login_subheading"
                 android:textColor="@color/text_muted"
                 android:textSize="12sp"
                 android:gravity="center"
@@ -83,7 +83,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="28dp"
-                android:text="Google ile Giriş Yap"
+                android:text="@string/btn_google_signin"
                 android:textColor="@color/text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -102,7 +102,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Giriş yaparak kullanım koşullarını kabul etmiş olursunuz."
+                android:text="@string/login_terms_notice"
                 android:textColor="@color/text_muted"
                 android:textSize="10sp"
                 android:gravity="center" />

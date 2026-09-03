@@ -17,7 +17,7 @@
             android:id="@+id/btnBackToCases"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:text="← Geri Dön"
+            android:text="@string/case_detail_back"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:backgroundTint="@color/transparent"
@@ -68,7 +68,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Olay Özeti"
+                    android:text="@string/case_detail_summary_header"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -90,7 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Dosyadaki Deliller"
+            android:text="@string/case_evidence_header"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -110,7 +110,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
-            android:text="Duruşmadaki Rolünüzü Seçin"
+            android:text="@string/case_detail_role_header"
             android:textColor="@color/text_primary"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -119,7 +119,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Hangi tarafın savunmasını üstleneceksiniz? AI diğer tarafı temsil edecektir."
+            android:text="@string/case_detail_role_prompt"
             android:textColor="@color/text_muted"
             android:textSize="13sp" />
 
@@ -144,7 +144,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="⚖️ Savunma Avukatı (Müdafi)"
+                    android:text="@string/case_detail_defense_title"
                     android:textColor="@color/defense_green"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -153,7 +153,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Müvekkilinizi savunun, şüpheleri ortaya koyun ve beraat veya lehe kanun maddeleri talep edin."
+                    android:text="@string/case_detail_defense_desc"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -173,7 +173,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="🔍 Savcı (İddia Makamı)"
+                    android:text="@string/case_detail_prosecution_title"
                     android:textColor="@color/prosecution_red"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -182,7 +182,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Kamuyu savunun, suçun unsurlarını ispat edin ve sanığın en ağır cezayla cezalandırılmasını isteyin."
+                    android:text="@string/case_detail_prosecution_desc"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>

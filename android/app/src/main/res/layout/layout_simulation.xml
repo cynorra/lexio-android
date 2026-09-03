@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:layout_centerVertical="true"
-            android:text="↩ Çıkış"
+            android:text="@string/btn_exit_simulation"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:backgroundTint="@color/transparent"
@@ -115,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
-                android:text="Karşı taraf yanıt hazırlıyor..."
+                android:text="@string/sim_typing_text"
                 android:textColor="@color/text_secondary"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -157,7 +157,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="💡 Davayı kazanmak için en doğru hukuki gerekçeleri barındıran seçeneği belirleyin."
+            android:text="@string/sim_hint_text"
             android:textColor="@color/text_muted"
             android:textSize="11sp" />
     </LinearLayout>

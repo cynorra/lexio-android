@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark Mode Theme Colors (shadcn UI inspired) -->
+    <color name="bg_dark">#09090b</color>
+    <color name="card_bg">#18181b</color>
+    <color name="card_border">#27272a</color>
+    <color name="text_primary">#fafafa</color>
+    <color name="text_secondary">#a1a1aa</color>
+    <color name="text_muted">#71717a</color>
+
+    <!-- Role specific colors -->
+    <color name="defense_green">#10b981</color>
+    <color name="prosecution_red">#ef4444</color>
+    <color name="role_defense_bg">#0b1c15</color>
+    <color name="role_prosecution_bg">#1c0b0b</color>
+
+    <!-- Input Background -->
+    <color name="input_bg">#202024</color>
+
+    <!-- Ripple highlight overlay -->
+    <color name="ripple_overlay">#20ffffff</color>
+</resources>

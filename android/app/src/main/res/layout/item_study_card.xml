@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignBottom="@id/tvStudyCardTime"
-            android:text="Oku →"
+            android:text="@string/study_card_read_more"
             android:textColor="@color/accent_primary"
             android:textSize="13sp"
             android:textStyle="bold" />

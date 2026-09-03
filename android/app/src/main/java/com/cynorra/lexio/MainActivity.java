@@ -1,6 +1,7 @@
 package com.cynorra.lexio;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.HapticFeedbackConstants;
@@ -124,12 +125,35 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         // network, so this also works offline for a returning user.
         FirebaseUser existingUser = mAuth.getCurrentUser();
         if (existingUser != null) {
-            String name = existingUser.getDisplayName() != null ? existingUser.getDisplayName() : "Hukukçu";
+            String name = existingUser.getDisplayName() != null ? existingUser.getDisplayName() : getString(R.string.leaderboard_default_name);
             store.dispatch(new AppEvent(AppEvent.Type.LOGIN_SUCCESS, name));
+        }
+
+        // Restore saved language/theme preferences - AppState is otherwise in-memory
+        // only, so without this every cold start would silently reset to TR/dark.
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String savedLanguage = prefs.getString(PREF_LANGUAGE, "tr");
+        boolean savedDarkTheme = prefs.getBoolean(PREF_DARK_THEME, true);
+        if (!savedLanguage.equals(store.getState().getLanguage())) {
+            store.dispatch(AppEvent.forLanguage(AppEvent.Type.SET_LANGUAGE, savedLanguage));
+        }
+        if (savedDarkTheme != store.getState().isDarkTheme()) {
+            store.dispatch(new AppEvent(AppEvent.Type.TOGGLE_THEME));
         }
 
         // Subscribe to state updates
         store.subscribe(this);
+    }
+
+    private static final String PREFS_NAME = "lexio_prefs";
+    private static final String PREF_LANGUAGE = "language";
+    private static final String PREF_DARK_THEME = "dark_theme";
+
+    private void persistPreferences(AppState state) {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
+                .putString(PREF_LANGUAGE, state.getLanguage())
+                .putBoolean(PREF_DARK_THEME, state.isDarkTheme())
+                .apply();
     }
 
     @Override
@@ -143,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     @Override
     public void onStateChanged(AppState state) {
         userScore = state.getAccumulatedScore();
+        persistPreferences(state);
 
         int expectedMode = state.isDarkTheme() ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO;
         if (AppCompatDelegate.getDefaultNightMode() != expectedMode) {
@@ -277,12 +302,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                                 store.dispatch(new AppEvent(AppEvent.Type.LOGIN_SUCCESS, name));
                             }
                         } else {
-                            Toast.makeText(this, "Firebase Authentication failed.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.auth_failed), Toast.LENGTH_SHORT).show();
                         }
                     });
             }
         } catch (ApiException e) {
-            Toast.makeText(this, "Google Sign-In failed: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.google_sign_in_failed) + " " + e.getStatusCode(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -420,9 +445,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         LinearLayout llSteps = findViewById(R.id.llStepsIndicatorContainer);
 
         tvTitle.setText(c.getTitle());
-        
+
+        boolean simScreenIsTrCase = "TR".equals(c.getJurisdiction());
         boolean isDefense = "savunma".equalsIgnoreCase(state.getSelectedRole());
-        tvRoleBadge.setText(isDefense ? "⚖️ Savunma Avukatı" : "🔍 Savcı");
+        tvRoleBadge.setText(isDefense
+                ? (simScreenIsTrCase ? "⚖️ Savunma Avukatı" : "⚖️ Defense Counsel")
+                : (simScreenIsTrCase ? "🔍 Savcı" : "🔍 Prosecutor"));
         tvRoleBadge.setTextColor(ContextCompat.getColor(this, isDefense ? R.color.defense_green : R.color.prosecution_red));
         tvRoleBadge.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_pill_accent));
 
@@ -436,7 +464,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         List<Case.TrialStep> steps = c.getTrialSteps();
         for (int i = 0; i < steps.size() + 1; i++) {
             TextView stepView = new TextView(this);
-            String name = (i < steps.size()) ? steps.get(i).getStepName() : "Karar";
+            String name = (i < steps.size()) ? steps.get(i).getStepName() : (simScreenIsTrCase ? "Karar" : "Verdict");
             stepView.setText((i + 1) + ". " + name);
             stepView.setTextSize(12);
             stepView.setPadding(12, 6, 12, 6);
@@ -522,17 +550,17 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
                 for (DocumentSnapshot doc : queryDocumentSnapshots.getDocuments()) {
                     String name = doc.getString("name");
-                    if (name == null || name.isEmpty()) name = "Hukukçu";
+                    if (name == null || name.isEmpty()) name = getString(R.string.leaderboard_default_name);
                     Long scoreLong = doc.getLong("score");
                     int score = scoreLong != null ? scoreLong.intValue() : 0;
                     boolean isCurrent = doc.getId().equals(currentUid);
 
-                    list.add(new LeaderboardEntry(rank++, isCurrent ? name + " (Sen)" : name, score, isCurrent));
+                    list.add(new LeaderboardEntry(rank++, isCurrent ? name + getString(R.string.you_suffix) : name, score, isCurrent));
                 }
 
                 if (list.isEmpty()) {
                     String name = store.getState().getUserDisplayName();
-                    list.add(new LeaderboardEntry(1, name + " (Sen)", userScore, true));
+                    list.add(new LeaderboardEntry(1, name + getString(R.string.you_suffix), userScore, true));
                 }
 
                 LeaderboardAdapter adapter = new LeaderboardAdapter(list);
@@ -541,7 +569,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             .addOnFailureListener(e -> {
                 List<LeaderboardEntry> list = new ArrayList<>();
                 String currentUserName = store.getState().getUserDisplayName();
-                list.add(new LeaderboardEntry(1, currentUserName + " (Sen)", userScore, true));
+                list.add(new LeaderboardEntry(1, currentUserName + getString(R.string.you_suffix), userScore, true));
                 LeaderboardAdapter adapter = new LeaderboardAdapter(list);
                 rvLeaderboard.setAdapter(adapter);
             });
@@ -588,15 +616,15 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                 String text = etContent.getText().toString().trim();
                 if (text.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Lütfen paylaşmak istediğiniz içeriği yazın.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.feed_empty_content_toast), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 FirebaseUser user = mAuth.getCurrentUser();
                 String author = (user != null && user.getDisplayName() != null) ? user.getDisplayName() : store.getState().getUserDisplayName();
-                
+
                 Map<String, Object> postMap = new HashMap<>();
                 postMap.put("authorName", author);
-                postMap.put("authorRole", "Hukukçu");
+                postMap.put("authorRole", getString(R.string.feed_default_author_role));
                 postMap.put("content", text);
                 postMap.put("likesCount", 0);
                 postMap.put("commentsCount", 0);
@@ -604,10 +632,10 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
                 db.collection("posts").add(postMap).addOnSuccessListener(docRef -> {
                     etContent.setText("");
-                    Toast.makeText(MainActivity.this, "Gönderiniz başarıyla paylaşıldı! 🚀", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.feed_post_success_toast), Toast.LENGTH_SHORT).show();
                     setupFeedViews();
                 }).addOnFailureListener(e -> {
-                    Toast.makeText(MainActivity.this, "Gönderi paylaşılamadı: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.feed_post_failure_toast) + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
             });
         }
@@ -672,7 +700,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
 
         if (tvCareerRankBadge != null) {
-            tvCareerRankBadge.setText(state.getCareerRankTitle());
+            tvCareerRankBadge.setText(getCareerRankTitle(state.getAccumulatedScore()));
         }
 
         int casesSolved = userScore > 0 ? (userScore / 60) + 1 : 0;
@@ -691,28 +719,28 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         if (tvInstagramHandle != null) {
             if (userInstagramHandle != null && !userInstagramHandle.isEmpty()) {
-                tvInstagramHandle.setText("📸 @" + userInstagramHandle.replace("@", ""));
+                tvInstagramHandle.setText(getString(R.string.instagram_handle_prefix, userInstagramHandle.replace("@", "")));
             } else {
-                tvInstagramHandle.setText("📸 Instagram Ekleyin");
+                tvInstagramHandle.setText(getString(R.string.instagram_handle_placeholder));
             }
 
             tvInstagramHandle.setOnClickListener(v -> {
                 android.widget.EditText input = new android.widget.EditText(MainActivity.this);
-                input.setHint("@kullaniciadi");
+                input.setHint(getString(R.string.instagram_handle_hint));
                 if (userInstagramHandle != null) input.setText(userInstagramHandle);
 
                 new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Instagram Kullanıcı Adı")
-                    .setMessage("Profilinizde ve paylaşımlarınızda görünecek Instagram kullanıcı adınızı girin:")
+                    .setTitle(getString(R.string.instagram_handle_dialog_title))
+                    .setMessage(getString(R.string.instagram_handle_dialog_message))
                     .setView(input)
-                    .setPositiveButton("Kaydet", (dialog, which) -> {
+                    .setPositiveButton(getString(R.string.btn_save), (dialog, which) -> {
                         userInstagramHandle = input.getText().toString().trim();
                         if (!userInstagramHandle.isEmpty()) {
-                            tvInstagramHandle.setText("📸 @" + userInstagramHandle.replace("@", ""));
-                            Toast.makeText(MainActivity.this, "Instagram hesabınız eklendi!", Toast.LENGTH_SHORT).show();
+                            tvInstagramHandle.setText(getString(R.string.instagram_handle_prefix, userInstagramHandle.replace("@", "")));
+                            Toast.makeText(MainActivity.this, getString(R.string.instagram_added_toast), Toast.LENGTH_SHORT).show();
                         }
                     })
-                    .setNegativeButton("İptal", null)
+                    .setNegativeButton(getString(R.string.btn_cancel), null)
                     .show();
             });
         }
@@ -720,17 +748,15 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (btnShareInstagramStory != null) {
             btnShareInstagramStory.setOnClickListener(v -> {
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-                String shareText = "Lexio Hukuk Platformu Başarım Kartım ⚖️\n" +
-                        "Unvan: " + state.getCareerRankTitle() + "\n" +
-                        "Toplam Puan: " + userScore + "\n" +
-                        "Seri: 🔥 " + state.getDailyStreak() + " Gün\n" +
-                        (userInstagramHandle != null ? "Instagram: @" + userInstagramHandle + "\n" : "") +
-                        "www.lexio.app";
+                String shareText = getString(R.string.instagram_share_text,
+                        getCareerRankTitle(state.getAccumulatedScore()), userScore, state.getDailyStreak())
+                        + (userInstagramHandle != null ? getString(R.string.instagram_share_handle_line, userInstagramHandle) : "")
+                        + "www.lexio.app";
 
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("text/plain");
                 shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-                startActivity(Intent.createChooser(shareIntent, "Instagram Hikaye veya Sosyal Medyada Paylaş"));
+                startActivity(Intent.createChooser(shareIntent, getString(R.string.instagram_share_chooser_title)));
             });
         }
 
@@ -754,26 +780,20 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
 
         if (tvCountryValue != null) {
-            String country = state.getCountry();
-            if ("US".equals(country)) {
-                tvCountryValue.setText("🇺🇸 USA (US Code)");
-            } else if ("UK".equals(country)) {
-                tvCountryValue.setText("🇬🇧 UK (Common Law)");
-            } else if ("DE".equals(country)) {
-                tvCountryValue.setText("🇩🇪 Germany (BGB/StGB)");
-            } else {
-                tvCountryValue.setText("🇹🇷 Türkiye (TCK/Yargıtay)");
-            }
+            tvCountryValue.setText(jurisdictionDisplayName(state.getCountry()));
         }
 
         if (btnCountryToggle != null) {
             btnCountryToggle.setOnClickListener(v -> {
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-                String[] countries = new String[]{"🇹🇷 Türkiye (TCK/Yargıtay)", "🇺🇸 USA (US Code)", "🇬🇧 UK (Common Law)", "🇩🇪 Germany (BGB/StGB)"};
                 String[] codes = new String[]{"TR", "US", "UK", "DE"};
+                String[] countries = new String[]{
+                        jurisdictionDisplayName("TR"), jurisdictionDisplayName("US"),
+                        jurisdictionDisplayName("UK"), jurisdictionDisplayName("DE")
+                };
 
                 new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Hukuk Sistemi Seçin / Select Jurisdiction")
+                    .setTitle(getString(R.string.jurisdiction_dialog_title))
                     .setItems(countries, (dialog, which) -> {
                         store.dispatch(new AppEvent(AppEvent.Type.SELECT_COUNTRY, codes[which], true));
                     })
@@ -789,6 +809,21 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 store.dispatch(new AppEvent(AppEvent.Type.LOGOUT));
             });
         }
+    }
+
+    private String jurisdictionDisplayName(String code) {
+        if ("US".equals(code)) return getString(R.string.jurisdiction_us);
+        if ("UK".equals(code)) return getString(R.string.jurisdiction_uk);
+        if ("DE".equals(code)) return getString(R.string.jurisdiction_de);
+        return getString(R.string.jurisdiction_tr);
+    }
+
+    private String getCareerRankTitle(int accumulatedScore) {
+        if (accumulatedScore >= 1000) return getString(R.string.rank_supreme_justice);
+        if (accumulatedScore >= 500) return getString(R.string.rank_senior_judge);
+        if (accumulatedScore >= 200) return getString(R.string.rank_specialist_attorney);
+        if (accumulatedScore >= 50) return getString(R.string.rank_legal_intern);
+        return getString(R.string.rank_law_student);
     }
 
     private int quizCurrentQuestionIndex = 0;
@@ -809,7 +844,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
 
         if (tvStreak != null) {
-            tvStreak.setText("🔥 " + state.getDailyStreak() + " Gün Seri");
+            tvStreak.setText(getString(R.string.quiz_streak_badge, state.getDailyStreak()));
         }
 
         List<DailyQuizQuestion> questions = DailyQuizData.getQuestionsForJurisdiction(state.getCountry());
@@ -827,7 +862,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
 
         if (tvQNum != null) {
-            tvQNum.setText("Soru " + (quizCurrentQuestionIndex + 1) + " / " + questions.size());
+            tvQNum.setText(getString(R.string.quiz_question_num, quizCurrentQuestionIndex + 1, questions.size()));
         }
 
         if (tvQText != null) {
@@ -875,7 +910,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
                     if (cvExplanation != null && tvExplanationText != null) {
                         cvExplanation.setVisibility(View.VISIBLE);
-                        tvExplanationText.setText((isCorrect ? "✅ Doğru! " : "❌ Yanlış! ") + q.getExplanation());
+                        tvExplanationText.setText((isCorrect ? getString(R.string.quiz_correct_prefix) : getString(R.string.quiz_incorrect_prefix)) + q.getExplanation());
                     }
                 });
 
@@ -891,7 +926,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                     setupDailyQuizViews(state);
                 } else {
                     quizCurrentQuestionIndex = 0;
-                    Toast.makeText(MainActivity.this, "Tebrikler! Günlük Test Tamamlandı (+100 Puan)", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.quiz_completed_toast), Toast.LENGTH_LONG).show();
                     store.dispatch(new AppEvent(AppEvent.Type.COMPLETE_DAILY_QUIZ));
                 }
             });
@@ -945,10 +980,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 int activeIndex = state.getCurrentStepIndex();
                 List<Case.TrialStep> trialSteps = c.getTrialSteps();
 
+                boolean simIsTrCase = "TR".equals(c.getJurisdiction());
                 if (activeIndex < trialSteps.size()) {
                     Case.TrialStep currentTrialStep = trialSteps.get(activeIndex);
-                    tvInputLabel.setText((activeIndex + 1) + ". Aşama: " + currentTrialStep.getStepName());
-                    
+                    String stageLabel = simIsTrCase ? ". Aşama: " : ". Stage: ";
+                    tvInputLabel.setText((activeIndex + 1) + stageLabel + currentTrialStep.getStepName());
+
                     boolean isDefense = "savunma".equalsIgnoreCase(state.getSelectedRole());
                     List<Case.Choice> choices = isDefense ? currentTrialStep.getDefenseChoices() : currentTrialStep.getProsecutionChoices();
 
@@ -977,9 +1014,11 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                         llChoices.addView(choiceBtn);
                     }
                 } else {
-                    tvInputLabel.setText("Karar Açıklandı");
+                    tvInputLabel.setText(simIsTrCase ? "Karar Açıklandı" : "Verdict Announced");
                     TextView completedText = new TextView(this);
-                    completedText.setText("Duruşma tamamlandı. Mahkeme nihai hükmünü vermiştir.");
+                    completedText.setText(simIsTrCase
+                            ? "Duruşma tamamlandı. Mahkeme nihai hükmünü vermiştir."
+                            : "Trial completed. The court has rendered its final verdict.");
                     completedText.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
                     completedText.setTextSize(13);
                     completedText.setPadding(0, 12, 0, 12);

@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:text="Hukuk Kütüphanesi"
+            android:text="@string/study_portal_header_label"
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
     </RelativeLayout>
@@ -53,7 +53,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ders Çalışma Portalı"
+            android:text="@string/study_portal_eyebrow"
             android:textColor="@color/accent_primary"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Hukuk Bilgini Geliştir"
+            android:text="@string/study_portal_heading"
             android:textColor="@color/text_primary"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Duruşmalarda daha yüksek performans göstermek ve doğru kanun maddelerini seçebilmek için özet ders notlarımızı inceleyin."
+            android:text="@string/study_portal_subheading"
             android:textColor="@color/text_secondary"
             android:textSize="14sp"
             android:lineSpacingMultiplier="1.2" />

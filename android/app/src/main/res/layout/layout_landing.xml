@@ -16,7 +16,7 @@
             android:id="@+id/brandMark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lexio — AI Hukuk Simülasyonu"
+            android:text="@string/landing_brand_mark"
             android:textColor="@color/accent_primary"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -31,7 +31,7 @@
             android:id="@+id/heroTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Davayı\nSen Savun."
+            android:text="@string/landing_title"
             android:textColor="@color/text_primary"
             android:textSize="48sp"
             android:textStyle="bold"
@@ -46,7 +46,7 @@
             android:id="@+id/subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Gerçek Yargıtay kararlarından üretilmiş vakalar. AI karşı avukat. AI hakim.\nHukuku gerçek dava atmosferinde öğren."
+            android:text="@string/landing_subtitle"
             android:textColor="@color/text_secondary"
             android:textSize="16sp"
             android:lineSpacingMultiplier="1.2"
@@ -69,7 +69,7 @@
                 android:id="@+id/btnStart"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="Simülasyona Başla"
+                android:text="@string/btn_start_simulation"
                 android:textColor="@color/bg_dark"
                 android:textStyle="bold"
                 android:textSize="16sp"
@@ -83,7 +83,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="12dp"
-                android:text="Vakaları İncele →"
+                android:text="@string/btn_browse_cases"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:backgroundTint="@color/transparent"
@@ -117,7 +117,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10"
+                    android:text="@string/landing_stat_cases_count"
                     android:textColor="@color/text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -125,7 +125,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ceza Davası"
+                    android:text="@string/landing_stat_cases_label"
                     android:textColor="@color/text_muted"
                     android:textSize="12sp"
                     android:layout_marginTop="4dp" />
@@ -142,7 +142,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="AI"
+                    android:text="@string/landing_stat_ai_value"
                     android:textColor="@color/text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -150,7 +150,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Karşı Avukat"
+                    android:text="@string/landing_stat_ai_label"
                     android:textColor="@color/text_muted"
                     android:textSize="12sp"
                     android:layout_marginTop="4dp" />
@@ -167,7 +167,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TR"
+                    android:text="@string/landing_stat_jurisdiction_value"
                     android:textColor="@color/text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -175,7 +175,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yargıtay Bazlı"
+                    android:text="@string/landing_stat_jurisdiction_label"
                     android:textColor="@color/text_muted"
                     android:textSize="12sp"
                     android:layout_marginTop="4dp" />

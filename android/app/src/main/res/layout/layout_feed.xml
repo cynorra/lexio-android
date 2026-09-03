@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:text="Topluluk Akışı"
+            android:text="@string/feed_header_title"
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
     </RelativeLayout>
@@ -47,7 +47,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hukukçular Ağı"
+            android:text="@string/feed_eyebrow"
             android:textColor="@color/accent_primary"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Meslektaşların Neler Konuşuyor?"
+            android:text="@string/feed_heading"
             android:textColor="@color/text_primary"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -83,7 +83,7 @@
                     android:minLines="2"
                     android:maxLines="4"
                     android:background="@null"
-                    android:hint="Düşüncelerini veya bir hukuki soruyu meslektaşlarınla paylaş..."
+                    android:hint="@string/feed_composer_hint"
                     android:textColorHint="@color/text_muted"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp"
@@ -95,7 +95,7 @@
                     android:layout_height="36dp"
                     android:layout_gravity="end"
                     android:layout_marginTop="8dp"
-                    android:text="Paylaş 🚀"
+                    android:text="@string/btn_publish_post"
                     android:textSize="12sp"
                     android:textAllCaps="false"
                     app:cornerRadius="18dp"

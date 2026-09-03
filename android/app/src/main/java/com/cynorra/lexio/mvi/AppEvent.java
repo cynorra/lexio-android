@@ -62,6 +62,10 @@ public class AppEvent {
         this(type, null, null, null, selectedStudyTopic, null, null, null);
     }
 
+    public static AppEvent forLanguage(Type type, String language) {
+        return new AppEvent(type, null, null, null, null, null, null, language);
+    }
+
     private AppEvent(Type type, Case selectedCase, String role, Case.Choice selectedChoice, 
                      StudyTopic selectedStudyTopic, String leaderboardInterval, String userDisplayName, String language) {
         this.type = type;

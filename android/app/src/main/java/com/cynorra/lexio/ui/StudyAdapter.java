@@ -38,7 +38,7 @@ public class StudyAdapter extends RecyclerView.Adapter<StudyAdapter.ViewHolder> 
         holder.tvCategory.setText(topic.getCategory());
         holder.tvTitle.setText(topic.getTitle());
         holder.tvDesc.setText(topic.getShortDesc());
-        holder.tvTime.setText("⏱ " + topic.getReadTimeMinutes() + " min");
+        holder.tvTime.setText(holder.itemView.getContext().getString(R.string.study_card_read_time, topic.getReadTimeMinutes()));
 
         Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_slide_up);
         holder.itemView.startAnimation(animation);

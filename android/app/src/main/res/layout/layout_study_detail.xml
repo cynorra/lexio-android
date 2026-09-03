@@ -17,7 +17,7 @@
             android:id="@+id/btnBackToStudyPortal"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:text="← Derslere Dön"
+            android:text="@string/study_detail_back"
             android:textColor="@color/text_secondary"
             android:textSize="12sp"
             android:backgroundTint="@color/transparent"

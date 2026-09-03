@@ -19,14 +19,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="← Geri"
+            android:text="@string/quiz_back_btn"
             android:textColor="@color/text_secondary" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Günlük Hukuk Testi"
+            android:text="@string/daily_quiz_screen_title"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -135,7 +135,7 @@
                         android:id="@+id/tvExplanationHeader"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="💡 Hukuki Açıklama"
+                        android:text="@string/quiz_explanation_header"
                         android:textColor="@color/defense_green"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -155,7 +155,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
                         android:backgroundTint="@color/accent_primary"
-                        android:text="Sonraki Soru →"
+                        android:text="@string/btn_next_question"
                         android:textColor="@color/bg_dark" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

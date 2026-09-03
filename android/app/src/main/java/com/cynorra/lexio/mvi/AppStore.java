@@ -63,20 +63,28 @@ public class AppStore {
             case START_SIMULATION:
                 List<AppState.Message> introMessages = new ArrayList<>();
                 Case selectedCase = current.getSelectedCase();
+                boolean isTrCase = "TR".equals(selectedCase.getJurisdiction());
 
                 introMessages.add(new AppState.Message("system", "<strong>" + selectedCase.getTitle() + "</strong> — " + selectedCase.getRef()));
-                introMessages.add(new AppState.Message("system", "<strong>Vaka Özeti:</strong><br/>" + selectedCase.getFull()));
+                String summaryHeader = isTrCase ? "Vaka Özeti:" : "Case Summary:";
+                introMessages.add(new AppState.Message("system", "<strong>" + summaryHeader + "</strong><br/>" + selectedCase.getFull()));
 
-                StringBuilder evText = new StringBuilder("<strong>Dosyadaki Deliller:</strong><br/>");
+                String evidenceHeader = isTrCase ? "Dosyadaki Deliller:" : "Case Evidence:";
+                StringBuilder evText = new StringBuilder("<strong>" + evidenceHeader + "</strong><br/>");
                 for (String evidence : selectedCase.getEvidence()) {
                     evText.append("• ").append(evidence).append("<br/>");
                 }
                 introMessages.add(new AppState.Message("system", evText.toString()));
 
-                String opponentIntroRole = "savunma".equalsIgnoreCase(current.getSelectedRole()) ? "Savcı" : "Savunma Avukatı";
-                String opening = "savunma".equalsIgnoreCase(current.getSelectedRole())
-                    ? "Sayın Mahkeme, Savcılık sıfatıyla bu duruşmada müttehem aleyhine yeterli delil olduğunu ispatlayacağız. Deliller incelendiğinde eylemin yasal unsurları tam olarak taşıdığı görülecektir. Savunmanın argümanlarını bekliyoruz."
-                    : "Sayın Mahkeme, müdafi olarak şunu belirtmeliyim: İddianame yüzeysel değerlendirmeye dayanmaktadır. Delillerin bütünlüklü değerlendirilmesi müvekkilimin iddia edilen suçu işlemediğini ortaya koyacaktır.";
+                boolean userIsDefense = "savunma".equalsIgnoreCase(current.getSelectedRole());
+                String opponentIntroRole = trialRoleLabel(!userIsDefense, isTrCase);
+                String opening = userIsDefense
+                    ? (isTrCase
+                        ? "Sayın Mahkeme, Savcılık sıfatıyla bu duruşmada müttehem aleyhine yeterli delil olduğunu ispatlayacağız. Deliller incelendiğinde eylemin yasal unsurları tam olarak taşıdığı görülecektir. Savunmanın argümanlarını bekliyoruz."
+                        : "Your Honor, as the Prosecution, we will prove in this trial that there is sufficient evidence against the accused. Upon review of the evidence, it will be clear that the act meets every legal element of the offense. We await the defense's arguments.")
+                    : (isTrCase
+                        ? "Sayın Mahkeme, müdafi olarak şunu belirtmeliyim: İddianame yüzeysel değerlendirmeye dayanmaktadır. Delillerin bütünlüklü değerlendirilmesi müvekkilimin iddia edilen suçu işlemediğini ortaya koyacaktır."
+                        : "Your Honor, as defense counsel, I must state: the indictment rests on a superficial assessment. A full review of the evidence will show my client did not commit the alleged offense.");
 
                 introMessages.add(new AppState.Message("ai", opponentIntroRole, opening));
 
@@ -92,7 +100,10 @@ public class AppStore {
                 updatedMessages.add(new AppState.Message("user", choice.getText()));
 
                 // 2. Add opponent's scripted response corresponding to that choice
-                String opponentRole = "savunma".equalsIgnoreCase(current.getSelectedRole()) ? "Savcı" : "Savunma Avukatı";
+                Case selectedForChoice = current.getSelectedCase();
+                boolean choiceIsTrCase = selectedForChoice == null || "TR".equals(selectedForChoice.getJurisdiction());
+                boolean choiceUserIsDefense = "savunma".equalsIgnoreCase(current.getSelectedRole());
+                String opponentRole = trialRoleLabel(!choiceUserIsDefense, choiceIsTrCase);
                 updatedMessages.add(new AppState.Message("ai", opponentRole, choice.getAiResponse()));
 
                 int nextStepIndex = current.getCurrentStepIndex() + 1;
@@ -106,7 +117,8 @@ public class AppStore {
                     // Simulation complete!
                     boolean defenseWin = newScore >= 60;
                     String finalVerdict = defenseWin ? activeCase.getFinalVerdictDefenseWin() : activeCase.getFinalVerdictDefenseLose();
-                    updatedMessages.add(new AppState.Message("⚖️ Hakim Kararı", finalVerdict));
+                    String verdictHeader = "TR".equals(activeCase.getJurisdiction()) ? "⚖️ Hakim Kararı" : "⚖️ Judge's Verdict";
+                    updatedMessages.add(new AppState.Message(verdictHeader, finalVerdict));
                 }
 
                 return current.copyWith(null, null, null, updatedMessages, nextStepIndex, newScore, updatedStepScores, null, null, null, null, null, null, null, null, null);
@@ -158,5 +170,14 @@ public class AppStore {
             default:
                 return current;
         }
+    }
+
+    /** Trial dialogue role labels follow the case's own jurisdiction language, not the
+     *  app's UI language toggle, so a case's dialogue never mixes languages mid-trial. */
+    private static String trialRoleLabel(boolean isProsecutor, boolean isTrCase) {
+        if (isTrCase) {
+            return isProsecutor ? "Savcı" : "Savunma Avukatı";
+        }
+        return isProsecutor ? "Prosecutor" : "Defense Counsel";
     }
 }
