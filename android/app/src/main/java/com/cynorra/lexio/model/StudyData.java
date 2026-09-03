@@ -58,13 +58,6 @@ public class StudyData {
         return TOPICS;
     }
 
-    public static void setTopics(List<StudyTopic> newTopics) {
-        TOPICS.clear();
-        if (newTopics != null) {
-            TOPICS.addAll(newTopics);
-        }
-    }
-
     public static StudyTopic getTopicById(String id) {
         for (StudyTopic t : TOPICS) {
             if (t.getId().equals(id)) {

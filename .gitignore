@@ -4,4 +4,9 @@ node_modules/
 .env
 out/
 *.log
+client_secret.json
+android/**/client_secret.json
+hs_err_pid*.log
+replay_pid*.log
+graphify-out/
 

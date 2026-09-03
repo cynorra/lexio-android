@@ -33,7 +33,7 @@
     <string name="btn_exit_simulation">Exit</string>
     <string name="verdict_declared">Verdict Announced</string>
     <string name="trial_completed">Trial completed. The court has rendered its final verdict.</string>
-    <string name="judge_verdict_header">⚖️ Judge — AI Verdict</string>
+    <string name="judge_verdict_header">⚖️ Judge\'s Verdict</string>
     <string name="sim_step_suffix">. Stage: </string>
 
     <!-- Leaderboard -->

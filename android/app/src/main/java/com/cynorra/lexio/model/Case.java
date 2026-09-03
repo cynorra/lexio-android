@@ -51,11 +51,13 @@ public class Case {
     private final List<TrialStep> trialSteps;
     private final String finalVerdictDefenseWin;
     private final String finalVerdictDefenseLose;
+    private final String jurisdiction; // "TR", "US", "UK", "DE"
 
-    public Case(int id, String tag, String tagLabel, String title, String preview, 
-                String difficulty, String duration, String ref, String full, 
+    public Case(int id, String tag, String tagLabel, String title, String preview,
+                String difficulty, String duration, String ref, String full,
                 List<String> evidence, List<TrialStep> trialSteps,
-                String finalVerdictDefenseWin, String finalVerdictDefenseLose) {
+                String finalVerdictDefenseWin, String finalVerdictDefenseLose,
+                String jurisdiction) {
         this.id = id;
         this.tag = tag;
         this.tagLabel = tagLabel;
@@ -69,6 +71,7 @@ public class Case {
         this.trialSteps = trialSteps;
         this.finalVerdictDefenseWin = finalVerdictDefenseWin;
         this.finalVerdictDefenseLose = finalVerdictDefenseLose;
+        this.jurisdiction = jurisdiction != null ? jurisdiction : "TR";
     }
 
     public int getId() { return id; }
@@ -84,4 +87,5 @@ public class Case {
     public List<TrialStep> getTrialSteps() { return trialSteps; }
     public String getFinalVerdictDefenseWin() { return finalVerdictDefenseWin; }
     public String getFinalVerdictDefenseLose() { return finalVerdictDefenseLose; }
+    public String getJurisdiction() { return jurisdiction; }
 }

@@ -64,7 +64,6 @@ import com.cynorra.lexio.model.BadgeData;
 import com.cynorra.lexio.mvi.AppEvent;
 import com.cynorra.lexio.mvi.AppState;
 import com.cynorra.lexio.mvi.AppStore;
-import com.cynorra.lexio.service.ContentSyncService;
 import com.cynorra.lexio.ui.CasesAdapter;
 import com.cynorra.lexio.ui.ChatAdapter;
 import com.cynorra.lexio.ui.LeaderboardAdapter;
@@ -87,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     private AppStore store;
     private GoogleSignInClient googleSignInClient;
-    private ContentSyncService syncService;
     private LexioNotificationManager notificationManager;
     private AppState.Screen activeScreen = null;
     private ChatAdapter chatAdapter;
@@ -102,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         super.onCreate(savedInstanceState);
         
         store = new AppStore();
-        syncService = new ContentSyncService();
         notificationManager = new LexioNotificationManager(this);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -114,9 +111,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             }
         }
 
-        // Trigger daily quiz notification system setup
-        notificationManager.triggerDailyQuizPushNotification();
-
         // Configure Google Sign-In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("644546865365-r2j7da60f3tmcg46a6m6ts2hhcnudo7o.apps.googleusercontent.com")
@@ -124,15 +118,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 .requestProfile()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        // Start dynamic content syncing
-        syncService.syncContent(success -> {
-            if (success) {
-                Toast.makeText(MainActivity.this, "İçerikler güncellendi!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(MainActivity.this, "Çevrimdışı mod aktif.", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         // Subscribe to state updates
         store.subscribe(this);
@@ -190,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 break;
             case CASE_LIST:
                 setContentView(R.layout.layout_case_list);
-                setupCaseListViews();
+                setupCaseListViews(state.getCountry());
                 setupBottomNavigation();
                 loadBannerAd();
                 break;
@@ -356,12 +341,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         btnBrowse.setOnClickListener(v -> store.dispatch(new AppEvent(AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
     }
 
-    private void setupCaseListViews() {
+    private void setupCaseListViews(String jurisdiction) {
         RecyclerView rvCases = findViewById(R.id.rvCases);
         if (rvCases != null) {
             rvCases.setLayoutManager(new LinearLayoutManager(this));
-            
-            CasesAdapter adapter = new CasesAdapter(CasesData.getCases(), selectedCase -> {
+
+            CasesAdapter adapter = new CasesAdapter(CasesData.getCasesForJurisdiction(jurisdiction), selectedCase -> {
                 store.dispatch(new AppEvent(AppEvent.Type.SELECT_CASE, selectedCase));
             });
             rvCases.setAdapter(adapter);
@@ -602,7 +587,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 Map<String, Object> postMap = new HashMap<>();
                 postMap.put("authorName", author);
                 postMap.put("authorRole", "Hukukçu");
-                postMap.put("timestamp", "Az önce");
                 postMap.put("content", text);
                 postMap.put("likesCount", 0);
                 postMap.put("commentsCount", 0);
@@ -910,7 +894,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             if (c == null) return;
 
             if (chatAdapter != null) {
-                chatAdapter.setItems(state.getChatMessages(), state.getSelectedRole());
+                chatAdapter.setItems(state);
 
                 RecyclerView rvChat = findViewById(R.id.rvChat);
                 if (rvChat != null && chatAdapter.getItemCount() > 0) {

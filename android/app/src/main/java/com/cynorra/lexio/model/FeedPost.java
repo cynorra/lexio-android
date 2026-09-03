@@ -6,6 +6,7 @@ public class FeedPost {
     private String authorName;
     private String authorRole; // e.g. "Avukat", "Stajyer", "Öğrenci"
     private String timestamp;
+    private long createdAt;
     private String content;
     private int likesCount;
     private int commentsCount;
@@ -38,6 +39,9 @@ public class FeedPost {
 
     public String getTimestamp() { return timestamp; }
     public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
+
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }

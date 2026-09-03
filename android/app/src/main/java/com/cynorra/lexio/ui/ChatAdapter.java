@@ -15,8 +15,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.card.MaterialCardView;
 import com.cynorra.lexio.R;
+import com.cynorra.lexio.model.Case;
 import com.cynorra.lexio.mvi.AppState;
-import com.cynorra.lexio.service.GeminiService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,17 +26,32 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SYSTEM = 1;
     private static final int TYPE_VERDICT = 2;
 
+    /** A single performance metric shown on the verdict card, derived from the real
+     *  scoreEffect values earned during the simulation (not AI-generated). */
+    public static class MetricScore {
+        private final String label;
+        private final int value;
+
+        public MetricScore(String label, int value) {
+            this.label = label;
+            this.value = value;
+        }
+
+        public String getLabel() { return label; }
+        public int getValue() { return value; }
+    }
+
     public static class ChatItem {
         private final String type; // "user", "ai", "system", "verdict"
         private final String sender;
         private final String content;
-        private final List<GeminiService.VerdictScore> scores;
+        private final List<MetricScore> scores;
 
         public ChatItem(String type, String sender, String content) {
             this(type, sender, content, new ArrayList<>());
         }
 
-        public ChatItem(String type, String sender, String content, List<GeminiService.VerdictScore> scores) {
+        public ChatItem(String type, String sender, String content, List<MetricScore> scores) {
             this.type = type;
             this.sender = sender;
             this.content = content;
@@ -46,25 +61,19 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public String getType() { return type; }
         public String getSender() { return sender; }
         public String getContent() { return content; }
-        public List<GeminiService.VerdictScore> getScores() { return scores; }
+        public List<MetricScore> getScores() { return scores; }
     }
 
     private final List<ChatItem> items = new ArrayList<>();
 
-    public void setItems(List<AppState.Message> messages, String userRole) {
+    public void setItems(AppState state) {
+        List<AppState.Message> messages = state.getChatMessages();
         items.clear();
         for (AppState.Message m : messages) {
             if ("system".equalsIgnoreCase(m.getSender())) {
                 items.add(new ChatItem("system", "SİSTEM", m.getContent()));
             } else if (m.getSender().startsWith("⚖️ Hakim")) {
-                // If it is a verdict message, let's extract scores or fake them if not present.
-                // We'll pass the message as verdict.
-                List<GeminiService.VerdictScore> fakeScores = new ArrayList<>();
-                fakeScores.add(new GeminiService.VerdictScore("Hukuki Analiz", 65 + (int)(Math.random() * 25)));
-                fakeScores.add(new GeminiService.VerdictScore("Delil Kullanımı", 55 + (int)(Math.random() * 30)));
-                fakeScores.add(new GeminiService.VerdictScore("Argüman Gücü", 60 + (int)(Math.random() * 25)));
-                fakeScores.add(new GeminiService.VerdictScore("Mevzuat Hakimiyeti", 50 + (int)(Math.random() * 35)));
-                items.add(new ChatItem("verdict", m.getSender(), m.getContent(), fakeScores));
+                items.add(new ChatItem("verdict", m.getSender(), m.getContent(), computeMetricScores(state)));
             } else {
                 items.add(new ChatItem(
                     "user".equalsIgnoreCase(m.getSender()) ? "user" : "ai",
@@ -76,9 +85,42 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public void addVerdict(String verdict, List<GeminiService.VerdictScore> scores) {
-        items.add(new ChatItem("verdict", "⚖️ Hakim — AI Kararı", verdict, scores));
-        notifyItemInserted(items.size() - 1);
+    /**
+     * Derives the 4 performance metrics from the actual scoreEffect values earned per
+     * trial step, normalized against the best available choice in that step. This is a
+     * deterministic breakdown of real gameplay data, not an AI evaluation.
+     */
+    private static List<MetricScore> computeMetricScores(AppState state) {
+        Case selectedCase = state.getSelectedCase();
+        List<Integer> stepScores = state.getStepScores();
+        String[] labels = {"Argüman Gücü", "Delil Kullanımı", "Hukuki Analiz"};
+        List<Integer> percentages = new ArrayList<>();
+
+        if (selectedCase != null) {
+            List<Case.TrialStep> steps = selectedCase.getTrialSteps();
+            boolean isDefense = "savunma".equalsIgnoreCase(state.getSelectedRole());
+            for (int i = 0; i < stepScores.size() && i < steps.size(); i++) {
+                List<Case.Choice> choices = isDefense ? steps.get(i).getDefenseChoices() : steps.get(i).getProsecutionChoices();
+                int maxPossible = 1;
+                for (Case.Choice c : choices) {
+                    maxPossible = Math.max(maxPossible, c.getScoreEffect());
+                }
+                int pct = Math.round(stepScores.get(i) * 100f / maxPossible);
+                percentages.add(Math.max(0, Math.min(100, pct)));
+            }
+        }
+
+        int overall = 0;
+        for (int p : percentages) overall += p;
+        overall = percentages.isEmpty() ? 0 : overall / percentages.size();
+
+        List<MetricScore> result = new ArrayList<>();
+        for (int i = 0; i < labels.length; i++) {
+            int value = i < percentages.size() ? percentages.get(i) : overall;
+            result.add(new MetricScore(labels[i], value));
+        }
+        result.add(new MetricScore("Mevzuat Hakimiyeti", overall));
+        return result;
     }
 
     @Override
@@ -121,7 +163,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             VerdictViewHolder h = (VerdictViewHolder) holder;
             h.tvText.setText(Html.fromHtml(item.getContent().replace("\n", "<br/>"), Html.FROM_HTML_MODE_LEGACY));
             
-            List<GeminiService.VerdictScore> scores = item.getScores();
+            List<MetricScore> scores = item.getScores();
             if (scores.size() >= 4) {
                 h.tvScoreName1.setText(scores.get(0).getLabel());
                 h.tvScoreVal1.setText(scores.get(0).getValue() + "/100");

@@ -43,9 +43,9 @@ public class AppStore {
         switch (event.getType()) {
             case LOGIN_SUCCESS:
                 return current.copyWith(
-                    AppState.Screen.LANDING, 
-                    null, null, null, -1, -1, null, null, 
-                    true, 
+                    AppState.Screen.LANDING,
+                    null, null, null, -1, -1, null, null, null,
+                    true,
                     event.getUserDisplayName(),
                     null,
                     null, null, null, null
@@ -53,103 +53,105 @@ public class AppStore {
             case LOGOUT:
                 return AppState.initial();
             case NAVIGATE_TO_LANDING:
-                return current.copyWith(AppState.Screen.LANDING, null, null, new ArrayList<>(), 0, 0, null, "daily", null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.LANDING, null, null, new ArrayList<>(), 0, 0, null, null, "daily", null, null, null, null, null, null, null);
             case NAVIGATE_TO_CASE_LIST:
-                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null, null);
             case SELECT_CASE:
-                return current.copyWith(AppState.Screen.CASE_DETAIL, event.getSelectedCase(), null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.CASE_DETAIL, event.getSelectedCase(), null, null, -1, -1, null, null, null, null, null, null, null, null, null, null);
             case CHOOSE_ROLE:
-                return current.copyWith(null, null, event.getRole(), null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(null, null, event.getRole(), null, -1, -1, null, null, null, null, null, null, null, null, null, null);
             case START_SIMULATION:
                 List<AppState.Message> introMessages = new ArrayList<>();
                 Case selectedCase = current.getSelectedCase();
-                
+
                 introMessages.add(new AppState.Message("system", "<strong>" + selectedCase.getTitle() + "</strong> — " + selectedCase.getRef()));
                 introMessages.add(new AppState.Message("system", "<strong>Vaka Özeti:</strong><br/>" + selectedCase.getFull()));
-                
+
                 StringBuilder evText = new StringBuilder("<strong>Dosyadaki Deliller:</strong><br/>");
                 for (String evidence : selectedCase.getEvidence()) {
                     evText.append("• ").append(evidence).append("<br/>");
                 }
                 introMessages.add(new AppState.Message("system", evText.toString()));
 
-                String aiRole = "savunma".equalsIgnoreCase(current.getSelectedRole()) ? "Savcı" : "Savunma Avukatı";
+                String opponentIntroRole = "savunma".equalsIgnoreCase(current.getSelectedRole()) ? "Savcı" : "Savunma Avukatı";
                 String opening = "savunma".equalsIgnoreCase(current.getSelectedRole())
                     ? "Sayın Mahkeme, Savcılık sıfatıyla bu duruşmada müttehem aleyhine yeterli delil olduğunu ispatlayacağız. Deliller incelendiğinde eylemin yasal unsurları tam olarak taşıdığı görülecektir. Savunmanın argümanlarını bekliyoruz."
                     : "Sayın Mahkeme, müdafi olarak şunu belirtmeliyim: İddianame yüzeysel değerlendirmeye dayanmaktadır. Delillerin bütünlüklü değerlendirilmesi müvekkilimin iddia edilen suçu işlemediğini ortaya koyacaktır.";
-                
-                introMessages.add(new AppState.Message("ai", "AI " + aiRole, opening));
-                
-                return current.copyWith(AppState.Screen.SIMULATION, null, null, introMessages, 0, 0, null, null, null, null, null, null, null, null, null);
+
+                introMessages.add(new AppState.Message("ai", opponentIntroRole, opening));
+
+                return current.copyWith(AppState.Screen.SIMULATION, null, null, introMessages, 0, 0, new ArrayList<>(), null, null, null, null, null, null, null, null, null);
 
             case SELECT_CHOICE:
                 Case.Choice choice = event.getSelectedChoice();
                 if (choice == null) return current;
 
                 List<AppState.Message> updatedMessages = new ArrayList<>(current.getChatMessages());
-                
+
                 // 1. Add User Choice
-                String userLabel = "savunma".equalsIgnoreCase(current.getSelectedRole()) ? "Savunma Avukatı" : "Savcı";
                 updatedMessages.add(new AppState.Message("user", choice.getText()));
 
-                // 2. Add AI Response corresponding to that choice
-                String opponentRole = "savunma".equalsIgnoreCase(current.getSelectedRole()) ? "AI Savcı" : "AI Savunma Avukatı";
+                // 2. Add opponent's scripted response corresponding to that choice
+                String opponentRole = "savunma".equalsIgnoreCase(current.getSelectedRole()) ? "Savcı" : "Savunma Avukatı";
                 updatedMessages.add(new AppState.Message("ai", opponentRole, choice.getAiResponse()));
 
                 int nextStepIndex = current.getCurrentStepIndex() + 1;
                 int newScore = current.getAccumulatedScore() + choice.getScoreEffect();
+
+                List<Integer> updatedStepScores = new ArrayList<>(current.getStepScores());
+                updatedStepScores.add(choice.getScoreEffect());
 
                 Case activeCase = current.getSelectedCase();
                 if (activeCase != null && nextStepIndex >= activeCase.getTrialSteps().size()) {
                     // Simulation complete!
                     boolean defenseWin = newScore >= 60;
                     String finalVerdict = defenseWin ? activeCase.getFinalVerdictDefenseWin() : activeCase.getFinalVerdictDefenseLose();
-                    updatedMessages.add(new AppState.Message("⚖️ Hakim — AI Kararı", finalVerdict));
+                    updatedMessages.add(new AppState.Message("⚖️ Hakim Kararı", finalVerdict));
                 }
 
-                return current.copyWith(null, null, null, updatedMessages, nextStepIndex, newScore, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(null, null, null, updatedMessages, nextStepIndex, newScore, updatedStepScores, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_STUDY_PORTAL:
-                return current.copyWith(AppState.Screen.STUDY_PORTAL, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.STUDY_PORTAL, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null, null);
 
             case SELECT_STUDY_TOPIC:
-                return current.copyWith(AppState.Screen.STUDY_DETAIL, null, null, null, -1, -1, event.getSelectedStudyTopic(), null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.STUDY_DETAIL, null, null, null, -1, -1, null, event.getSelectedStudyTopic(), null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_LEADERBOARD:
-                return current.copyWith(AppState.Screen.LEADERBOARD, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.LEADERBOARD, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_FEED:
-                return current.copyWith(AppState.Screen.FEED, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.FEED, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_WORKSPACE:
-                return current.copyWith(AppState.Screen.WORKSPACE, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.WORKSPACE, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_PROFILE:
-                return current.copyWith(AppState.Screen.PROFILE, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.PROFILE, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null, null);
 
             case NAVIGATE_TO_DAILY_QUIZ:
-                return current.copyWith(AppState.Screen.DAILY_QUIZ, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null);
+                return current.copyWith(AppState.Screen.DAILY_QUIZ, null, null, null, -1, -1, null, null, null, null, null, null, null, null, null, null);
 
             case SELECT_COUNTRY:
-                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, null, event.getRole(), null, null);
+                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, null, null, event.getRole(), null, null);
 
             case COMPLETE_DAILY_QUIZ:
                 int updatedStreak = current.getDailyStreak() + 1;
                 int streakBonusScore = current.getAccumulatedScore() + 100;
-                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, streakBonusScore, null, null, null, null, null, null, null, updatedStreak, true);
+                return current.copyWith(AppState.Screen.CASE_LIST, null, null, null, -1, streakBonusScore, null, null, null, null, null, null, null, null, updatedStreak, true);
 
             case TOGGLE_THEME:
-                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, !current.isDarkTheme(), null, null, null, null);
+                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, !current.isDarkTheme(), null, null, null, null);
 
             case TOGGLE_LANGUAGE:
                 String newLang = "tr".equalsIgnoreCase(current.getLanguage()) ? "en" : "tr";
-                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, newLang, null, null, null);
+                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, null, newLang, null, null, null);
 
             case SET_LANGUAGE:
-                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, event.getLanguage(), null, null, null);
+                return current.copyWith(null, null, null, null, -1, -1, null, null, null, null, null, null, event.getLanguage(), null, null, null);
 
             case SET_LEADERBOARD_INTERVAL:
-                return current.copyWith(null, null, null, null, -1, -1, null, event.getLeaderboardInterval(), null, null, null, null, null, null, null);
+                return current.copyWith(null, null, null, null, -1, -1, null, null, event.getLeaderboardInterval(), null, null, null, null, null, null, null);
 
             case RESET:
                 return AppState.initial();

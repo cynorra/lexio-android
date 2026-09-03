@@ -33,7 +33,7 @@
     <string name="btn_exit_simulation">Ayrıl</string>
     <string name="verdict_declared">Karar Açıklandı</string>
     <string name="trial_completed">Duruşma tamamlandı. Mahkeme nihai hükmünü vermiştir.</string>
-    <string name="judge_verdict_header">⚖️ Hakim — AI Kararı</string>
+    <string name="judge_verdict_header">⚖️ Hakim Kararı</string>
     <string name="sim_step_suffix">. Aşama: </string>
 
     <!-- Leaderboard -->

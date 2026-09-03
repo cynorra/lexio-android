@@ -47,6 +47,7 @@ public class AppState {
     private final List<Message> chatMessages;
     private final int currentStepIndex;
     private final int accumulatedScore;
+    private final List<Integer> stepScores; // scoreEffect earned per trial step, in order
     private final StudyTopic selectedStudyTopic;
     private final String leaderboardInterval; // "daily", "weekly", "monthly"
     
@@ -63,8 +64,9 @@ public class AppState {
     private final int dailyStreak;
     private final boolean dailyQuizCompleted;
 
-    public AppState(Screen activeScreen, Case selectedCase, String selectedRole, 
+    public AppState(Screen activeScreen, Case selectedCase, String selectedRole,
                     List<Message> chatMessages, int currentStepIndex, int accumulatedScore,
+                    List<Integer> stepScores,
                     StudyTopic selectedStudyTopic, String leaderboardInterval,
                     boolean isAuthenticated, String userDisplayName, boolean isDarkTheme,
                     String language, String country, int dailyStreak, boolean dailyQuizCompleted) {
@@ -74,6 +76,7 @@ public class AppState {
         this.chatMessages = chatMessages;
         this.currentStepIndex = currentStepIndex;
         this.accumulatedScore = accumulatedScore;
+        this.stepScores = stepScores != null ? stepScores : new ArrayList<>();
         this.selectedStudyTopic = selectedStudyTopic;
         this.leaderboardInterval = leaderboardInterval;
         this.isAuthenticated = isAuthenticated;
@@ -86,7 +89,7 @@ public class AppState {
     }
 
     public static AppState initial() {
-        return new AppState(Screen.LOGIN, null, null, new ArrayList<>(), 0, 0, null, "daily", false, "Avukat", true, "tr", "TR", 3, false);
+        return new AppState(Screen.LOGIN, null, null, new ArrayList<>(), 0, 0, new ArrayList<>(), null, "daily", false, "Avukat", true, "tr", "TR", 3, false);
     }
 
     public Screen getActiveScreen() { return activeScreen; }
@@ -95,6 +98,7 @@ public class AppState {
     public List<Message> getChatMessages() { return chatMessages; }
     public int getCurrentStepIndex() { return currentStepIndex; }
     public int getAccumulatedScore() { return accumulatedScore; }
+    public List<Integer> getStepScores() { return stepScores; }
     public StudyTopic getSelectedStudyTopic() { return selectedStudyTopic; }
     public String getLeaderboardInterval() { return leaderboardInterval; }
     public boolean isAuthenticated() { return isAuthenticated; }
@@ -121,8 +125,9 @@ public class AppState {
         }
     }
 
-    public AppState copyWith(Screen activeScreen, Case selectedCase, String selectedRole, 
+    public AppState copyWith(Screen activeScreen, Case selectedCase, String selectedRole,
                              List<Message> chatMessages, int currentStepIndex, int accumulatedScore,
+                             List<Integer> stepScores,
                              StudyTopic selectedStudyTopic, String leaderboardInterval,
                              Boolean isAuthenticated, String userDisplayName, Boolean isDarkTheme,
                              String language, String country, Integer dailyStreak, Boolean dailyQuizCompleted) {
@@ -133,6 +138,7 @@ public class AppState {
             chatMessages != null ? chatMessages : this.chatMessages,
             currentStepIndex != -1 ? currentStepIndex : this.currentStepIndex,
             accumulatedScore != -1 ? accumulatedScore : this.accumulatedScore,
+            stepScores != null ? stepScores : this.stepScores,
             selectedStudyTopic != null ? selectedStudyTopic : this.selectedStudyTopic,
             leaderboardInterval != null ? leaderboardInterval : this.leaderboardInterval,
             isAuthenticated != null ? isAuthenticated : this.isAuthenticated,

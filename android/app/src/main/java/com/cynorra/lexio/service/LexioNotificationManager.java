@@ -51,7 +51,8 @@ public class LexioNotificationManager {
     }
 
     /**
-     * Sends a System Push Tray Notification (Works even when app is CLOSED / Background)
+     * Posts a system tray notification. Safe to call from any process state (foreground,
+     * background, or from a WorkManager job with no running Activity).
      */
     public void sendBackgroundPushNotification(int notificationId, String title, String message, String channelId) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -82,7 +83,9 @@ public class LexioNotificationManager {
     }
 
     /**
-     * Send Daily Quiz Reminder Push (App Closed / Background)
+     * Sends the daily quiz streak reminder. Scheduled once a day by
+     * {@link com.cynorra.lexio.service.DailyQuizReminderWorker} via WorkManager
+     * (see LexioApplication.scheduleDailyQuizReminder) — not meant to be called on app open.
      */
     public void triggerDailyQuizPushNotification() {
         sendBackgroundPushNotification(
@@ -94,7 +97,9 @@ public class LexioNotificationManager {
     }
 
     /**
-     * Send Legal Warning / Precedent Alert Push (App Closed / Background)
+     * Sends a legal precedent/warning alert. Not currently wired to any automatic
+     * trigger — there is no content pipeline producing these alerts yet. Available for
+     * a future scheduler or push-message handler to call once that pipeline exists.
      */
     public void triggerLegalWarningPushNotification(String title, String details) {
         sendBackgroundPushNotification(

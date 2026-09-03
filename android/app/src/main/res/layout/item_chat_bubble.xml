@@ -12,7 +12,7 @@
         android:id="@+id/tvMsgSender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="AI Savcı"
+        android:text="Savcı"
         android:textColor="@color/text_muted"
         android:textSize="11sp"
         android:textStyle="bold"

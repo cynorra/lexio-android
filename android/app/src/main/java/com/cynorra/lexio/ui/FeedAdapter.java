@@ -36,7 +36,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         FeedPost post = posts.get(position);
         holder.tvAuthorName.setText(post.getAuthorName());
         holder.tvAuthorRole.setText(post.getAuthorRole());
-        holder.tvTimestamp.setText(post.getTimestamp());
+        holder.tvTimestamp.setText(formatRelativeTime(post));
         holder.tvContent.setText(post.getContent());
         holder.tvLikes.setText("❤️ " + post.getLikesCount() + " Beğeni");
         holder.tvComments.setText("💬 " + post.getCommentsCount() + " Yorum");
@@ -51,6 +51,27 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return posts.size();
+    }
+
+    /** Computes a live relative-time label from createdAt; falls back to the stored
+     *  timestamp string for legacy posts that predate the createdAt field. */
+    private static String formatRelativeTime(FeedPost post) {
+        long createdAt = post.getCreatedAt();
+        if (createdAt <= 0) {
+            String fallback = post.getTimestamp();
+            return fallback != null ? fallback : "";
+        }
+
+        long diffMs = System.currentTimeMillis() - createdAt;
+        long minutes = diffMs / (60 * 1000);
+        if (minutes < 1) return "Az önce";
+        if (minutes < 60) return minutes + " dk önce";
+        long hours = minutes / 60;
+        if (hours < 24) return hours + " sa önce";
+        long days = hours / 24;
+        if (days < 7) return days + " gün önce";
+        long weeks = days / 7;
+        return weeks + " hafta önce";
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
