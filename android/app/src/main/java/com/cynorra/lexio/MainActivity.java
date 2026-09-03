@@ -119,6 +119,15 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        // Resume an existing Firebase session instead of forcing sign-in again on every
+        // launch. getCurrentUser() reads the locally persisted session and needs no
+        // network, so this also works offline for a returning user.
+        FirebaseUser existingUser = mAuth.getCurrentUser();
+        if (existingUser != null) {
+            String name = existingUser.getDisplayName() != null ? existingUser.getDisplayName() : "Hukukçu";
+            store.dispatch(new AppEvent(AppEvent.Type.LOGIN_SUCCESS, name));
+        }
+
         // Subscribe to state updates
         store.subscribe(this);
     }
@@ -373,7 +382,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         View btnProsecution = findViewById(R.id.btnChooseProsecution);
 
         tvTitle.setText(c.getTitle());
-        tvRef.setText("Yargıtay Emsal Kararı — " + c.getRef());
+        String refLabel = "TR".equals(c.getJurisdiction()) ? "İlgili Mevzuat" : "Legal Basis";
+        tvRef.setText(refLabel + " — " + c.getRef());
         tvFullText.setText(c.getFull());
 
         llEvidence.removeAllViews();

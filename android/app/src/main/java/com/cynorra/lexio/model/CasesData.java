@@ -565,7 +565,7 @@ public class CasesData {
             "Police searched the defendant's car after a routine traffic stop and found narcotics in the trunk. Was the search constitutional, or must the evidence be suppressed?",
             "Medium",
             "~5 min",
-            "U.S. Const. amend. IV; Terry v. Ohio, 392 U.S. 1 (1968); Rodriguez v. United States, 575 U.S. 348 (2015)",
+            "U.S. Const. amend. IV",
             "Defendant was pulled over for a broken taillight. During the stop, the officer asked the defendant to step out of the vehicle and subsequently searched the trunk, recovering a significant quantity of narcotics. The officer claims he smelled marijuana and that the defendant gestured toward the trunk without objection. The defense claims no odor was mentioned until after the search began, based on the dashcam recording, and that the stop was unlawfully prolonged.",
             Arrays.asList(
                 "Dashcam footage: no mention of odor until 90 seconds after the trunk was opened",
@@ -679,7 +679,7 @@ public class CasesData {
             "A homeowner struck a nighttime intruder twice with a cricket bat; the intruder later died of his injuries. Was this lawful self-defence, or did the force used cross into unlawful violence?",
             "Hard",
             "~5 min",
-            "Criminal Justice and Immigration Act 2008, s.76; R v Martin (Anthony) [2002] EWCA Crim 2245; Palmer v The Queen [1971] AC 814",
+            "CJIA 2008, s.76",
             "The defendant awoke to find an intruder in his home at approximately 2am. He confronted the intruder with a cricket bat, striking him once. Forensic evidence shows a second blow was struck to the back of the intruder's head, who died of his injuries. The defence argues this was a continuous, honestly-believed act of self-defence under the 'householder case' provisions; the prosecution argues the second blow was struck after the intruder had already begun retreating, making it unlawful.",
             Arrays.asList(
                 "Forensic report: second blow struck to the back of the head, consistent with the intruder turning away",
@@ -793,7 +793,7 @@ public class CasesData {
             "The defendant pulled a bag from a pedestrian's shoulder; she fell and was injured. Was this Diebstahl (theft, §242 StGB) or Raub (robbery, §249 StGB)?",
             "Medium",
             "~5 min",
-            "StGB §242 (Diebstahl); StGB §249 (Raub); Bundesgerichtshof case law on Gewalt gegen eine Person",
+            "StGB §242, §249",
             "The defendant pulled a shoulder bag from the victim as she walked down the street. She held on briefly before losing her grip and falling, spraining her wrist in the process. The defendant fled with the bag. The defence argues this was opportunistic theft with no force directed at the victim's person; the prosecution argues the forceful pulling against the victim's grip constitutes the Gewalt (force) element that elevates the offence to Raub.",
             Arrays.asList(
                 "Medical report: wrist sprain consistent with forceful pulling",
