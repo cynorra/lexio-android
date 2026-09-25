@@ -140,6 +140,10 @@
     <string name="language_label">Uygulama Dili / Language</string>
     <string name="language_turkish">Türkçe 🇹🇷</string>
     <string name="language_english">English 🇬🇧</string>
+    <string name="language_german" translatable="false">Deutsch 🇩🇪</string>
+    <string name="language_french" translatable="false">Français 🇫🇷</string>
+    <string name="language_spanish" translatable="false">Español 🇪🇸</string>
+    <string name="language_italian" translatable="false">Italiano 🇮🇹</string>
     <string name="btn_sign_out">Çıkış Yap</string>
     <string name="btn_share_instagram">📸 Instagram Hikayede Paylaş</string>
     <string name="instagram_handle_placeholder">📸 Instagram Ekleyin</string>

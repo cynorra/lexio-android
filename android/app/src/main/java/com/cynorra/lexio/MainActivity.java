@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     private static final String PREFS_NAME = "lexio_prefs";
     private static final String PREF_LANGUAGE = "language";
+    /** Languages the UI is translated into; Firestore content falls back to English for the ones it lacks. */
+    private static final String[] LANGUAGE_CODES = {"tr", "en", "de", "fr", "es", "it"};
     private static final String PREF_DARK_THEME = "dark_theme";
     private static final String PREF_COUNTRY = "country";
 
@@ -229,9 +231,11 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private void restorePreferences() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         // First launch: follow the device language (Turkish or English) and start on the US.
-        String defaultLanguage = "tr".equals(Locale.getDefault().getLanguage()) ? "tr" : "en";
+        String deviceLanguage = Locale.getDefault().getLanguage();
+        String defaultLanguage = isSupportedLanguage(deviceLanguage) ? deviceLanguage : "en";
         String country = prefs.getString(PREF_COUNTRY, Jurisdictions.DEFAULT);
-        store.dispatch(AppEvent.setLanguage(prefs.getString(PREF_LANGUAGE, defaultLanguage)));
+        String language = prefs.getString(PREF_LANGUAGE, defaultLanguage);
+        store.dispatch(AppEvent.setLanguage(isSupportedLanguage(language) ? language : defaultLanguage));
         store.dispatch(AppEvent.setDarkTheme(prefs.getBoolean(PREF_DARK_THEME, true)));
         store.dispatch(AppEvent.selectCountry(Jurisdictions.isSupported(country) ? country : Jurisdictions.DEFAULT));
     }
@@ -1137,7 +1141,14 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (btnLanguageToggle != null) {
             btnLanguageToggle.setOnClickListener(v -> {
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-                store.dispatch(AppEvent.of(AppEvent.Type.TOGGLE_LANGUAGE));
+                String[] names = new String[LANGUAGE_CODES.length];
+                for (int i = 0; i < names.length; i++) {
+                    names[i] = languageDisplayName(LANGUAGE_CODES[i]);
+                }
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.language_label))
+                        .setItems(names, (dialog, which) -> store.dispatch(AppEvent.setLanguage(LANGUAGE_CODES[which])))
+                        .show();
             });
         }
 
@@ -1244,8 +1255,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
 
         if (tvLanguageValue != null) {
-            boolean isTurkish = "tr".equalsIgnoreCase(state.getLanguage());
-            tvLanguageValue.setText(isTurkish ? getString(R.string.language_turkish) : getString(R.string.language_english));
+            tvLanguageValue.setText(languageDisplayName(state.getLanguage()));
         }
         if (tvCountryValue != null) tvCountryValue.setText(jurisdictionDisplayName(state.getCountry()));
     }
@@ -1282,6 +1292,22 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
         startActivity(Intent.createChooser(shareIntent, getString(R.string.instagram_share_chooser_title)));
+    }
+
+    private static boolean isSupportedLanguage(String code) {
+        for (String supported : LANGUAGE_CODES) {
+            if (supported.equals(code)) return true;
+        }
+        return false;
+    }
+
+    private String languageDisplayName(String code) {
+        if ("de".equals(code)) return getString(R.string.language_german);
+        if ("fr".equals(code)) return getString(R.string.language_french);
+        if ("es".equals(code)) return getString(R.string.language_spanish);
+        if ("it".equals(code)) return getString(R.string.language_italian);
+        if ("tr".equals(code)) return getString(R.string.language_turkish);
+        return getString(R.string.language_english);
     }
 
     private String jurisdictionDisplayName(String code) {
