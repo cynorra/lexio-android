@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lexio</string>
 
@@ -212,6 +212,6 @@
     <string name="delete_account_failed">Hesap silinemedi. Bağlantını kontrol edip tekrar dene.</string>
     <string name="delete_account_partial">Verilerin silindi ancak giriş hesabı kaldırılamadı. Destek için bize yaz.</string>
     <string name="btn_privacy_policy">Gizlilik Politikası</string>
-    <string name="privacy_policy_url" translatable="false"></string>
+    <string name="privacy_policy_url" translatable="false">https://cynorra.github.io/lexio/privacy-policy.html</string>
     <string name="legal_disclaimer">Lexio bir eğitim uygulamasıdır. İçerikler genel bilgilendirme ve öğrenme amaçlıdır; hukuki tavsiye değildir ve bir avukatın görüşü yerine geçmez. İçeriklerin bir kısmı yapay zeka desteğiyle hazırlanır ve hata içerebilir.</string>
 </resources>
