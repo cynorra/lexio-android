@@ -5,6 +5,9 @@ on:
     tags: ['v*']
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,6 +38,18 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew bundleRelease --no-daemon
+
+      - name: Rename AAB
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          [ "${GITHUB_REF_TYPE}" = "tag" ] || VERSION="build-${GITHUB_RUN_NUMBER}"
+          mv app/build/outputs/bundle/release/*.aab "app/build/outputs/bundle/release/lexio-${VERSION}.aab"
+
+      - name: Attach AAB to GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: android/app/build/outputs/bundle/release/*.aab
 
       - uses: actions/upload-artifact@v4
         with:
