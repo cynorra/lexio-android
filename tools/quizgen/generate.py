@@ -28,6 +28,7 @@ import datetime as dt
 import json
 import os
 import random
+import re
 import sys
 import time
 
@@ -44,6 +45,10 @@ MAX_ATTEMPTS = 3
 
 client = genai.Client()  # reads GEMINI_API_KEY (or GOOGLE_API_KEY) from the environment
 CALL_ATTEMPTS = 5
+
+
+class QuotaExhausted(Exception):
+    """The API key's daily quota is used up; retrying cannot help until it resets or billing is enabled."""
 
 
 def log(msg):
@@ -263,8 +268,14 @@ def call_json(system, user, schema, thinking="medium", max_tokens=16000, model=N
             return json.loads(text)  # truncated output fails here and is retried
         except Exception as e:  # SDK error classes vary by version; treat all as retryable
             last_error = e
+            message = str(e)
+            if re.search(r"per day|PerDay", message, re.IGNORECASE):
+                raise QuotaExhausted(message[:300]) from e
             delay = min(2 ** attempt * 3 + random.uniform(0, 2), 90)
-            log(f"  model call failed ({type(e).__name__}: {str(e)[:200]}); retry {attempt + 1}/{CALL_ATTEMPTS} in {delay:.0f}s")
+            hint = re.search(r"retry in (\d+(?:\.\d+)?)s", message)  # the API says how long to wait
+            if hint:
+                delay = min(float(hint.group(1)) + 2, 120)
+            log(f"  model call failed ({type(e).__name__}: {message[:200]}); retry {attempt + 1}/{CALL_ATTEMPTS} in {delay:.0f}s")
             time.sleep(delay)
     raise RuntimeError(f"model call failed after {CALL_ATTEMPTS} attempts: {last_error}")
 
@@ -477,6 +488,8 @@ def run_job(kind, country, date, store, force):
                 return label, "skipped (exists)"
             store.save_study(build_study_set(country, date))
         return label, "ok"
+    except QuotaExhausted as e:
+        return label, f"QUOTA EXHAUSTED: {e}"
     except Exception as e:  # keep going: one bad country/day must not block the rest
         return label, f"FAILED: {type(e).__name__}: {e}"
 
@@ -511,14 +524,19 @@ def main():
     log(f"model={MODEL} verify_model={VERIFY_MODEL} jobs={len(jobs)} today(UTC)={today}")
     started = time.time()
     failures = 0
+    quota_hit = False
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
         futures = [pool.submit(run_job, k, c, d, store, args.force) for k, c, d in jobs]
         for f in concurrent.futures.as_completed(futures):
             label, status = f.result()
             log(f"{label}: {status}")
-            failures += status.startswith("FAILED")
+            failures += status.startswith(("FAILED", "QUOTA"))
+            quota_hit = quota_hit or status.startswith("QUOTA")
 
     log(f"done in {time.time() - started:.0f}s, {failures} failure(s)")
+    if quota_hit:
+        log("The Gemini API quota is exhausted. The free tier allows only ~20 requests/day, far below what "
+            "one run needs: enable billing on the Google Cloud project behind GEMINI_API_KEY.")
     # A non-zero exit marks the workflow run red so failures are noticed; successfully generated
     # content has already been written, and the next run retries whatever is still missing.
     sys.exit(1 if failures else 0)
