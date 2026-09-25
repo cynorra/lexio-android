@@ -32,6 +32,8 @@ Environment:
   QUIZGEN_MODEL                     optional, model that writes the content (default gemini-3.5-flash-lite)
   QUIZGEN_VERIFY_MODEL              optional, model that checks it (default: same as QUIZGEN_MODEL)
   QUIZGEN_MIN_INTERVAL              optional, seconds between model calls (default 4; 0 on a paid key)
+  QUIZGEN_RESEARCH_MODEL            optional, model used for search-grounded research (default gemini-2.5-flash,
+                                    "off" disables research)
   DEEPL_API_KEY                     optional, Turkish translation via DeepL (see translate.py for alternatives)
 """
 import argparse
@@ -53,6 +55,9 @@ from translate import Translator
 # `or` (not a get() default) so an empty value passed by the workflow falls back to the default.
 MODEL = os.environ.get("QUIZGEN_MODEL") or "gemini-3.5-flash-lite"
 VERIFY_MODEL = os.environ.get("QUIZGEN_VERIFY_MODEL") or MODEL
+# Search grounding is billed per search query on Gemini 3 (unavailable on free keys) but per prompt on the
+# 2.5 family, so the research step defaults to a 2.5 model. Set to "off" to skip research entirely.
+RESEARCH_MODEL = os.environ.get("QUIZGEN_RESEARCH_MODEL") or "gemini-2.5-flash"
 
 QUESTIONS_PER_QUIZ = 5
 QUESTIONS_PER_STUDY_SET = 5
@@ -108,7 +113,8 @@ def _call(system, user, *, schema=None, tools=None, thinking="medium", max_token
                 model=model or MODEL,
                 system_instruction=system,
                 input=user,
-                generation_config={"temperature": 0.6, "max_output_tokens": max_tokens, "thinking_level": thinking},
+                generation_config={"temperature": 0.6, "max_output_tokens": max_tokens,
+                                   **({"thinking_level": thinking} if thinking else {})},
                 store=False,  # stateless: nothing here needs to be kept on Google's side
             )
             if schema is not None:
@@ -350,7 +356,7 @@ class Research:
 
     def __init__(self, store):
         self.store = store
-        self.grounding = True  # switched off for the run if the search tool proves unusable
+        self.grounding = RESEARCH_MODEL.lower() != "off"  # also switched off if the search tool proves unusable
         self._memory = {}
         self._lock = threading.Lock()
 
@@ -371,7 +377,8 @@ class Research:
     def _fetch(self, country, topic, today):
         try:
             text = _call("You are a careful legal researcher.", research_prompt(country, topic, today),
-                         tools=[{"type": "google_search"}], thinking="medium", max_tokens=6000,
+                         tools=[{"type": "google_search"}], thinking=None, max_tokens=6000,
+                         model=RESEARCH_MODEL,
                          attempts=2)  # search grounding is optional: fail over quickly instead of stalling the run
             if len(text.strip()) < 300:
                 raise ValueError("research notes too short")
@@ -739,7 +746,7 @@ def main():
         for offset in range(-args.days_back, 1):  # study sets are only published for today and backfill
             jobs.append(("study", country, today + dt.timedelta(days=offset)))
 
-    log(f"model={MODEL} verify_model={VERIFY_MODEL} translator={translator.name} jobs={len(jobs)} today(UTC)={today}")
+    log(f"model={MODEL} verify_model={VERIFY_MODEL} research_model={RESEARCH_MODEL} translator={translator.name} jobs={len(jobs)} today(UTC)={today}")
     started = time.time()
     failures, quota_hit = 0, False
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:

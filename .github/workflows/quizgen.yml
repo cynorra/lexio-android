@@ -17,6 +17,10 @@ on:
         description: 'Model that writes the content (empty = gemini-3.5-flash-lite), e.g. gemini-3.8-flash'
         required: false
         default: ''
+      research_model:
+        description: 'Model for search-grounded research (empty = gemini-2.5-flash, "off" = skip research)'
+        required: false
+        default: ''
       min_interval:
         description: 'Seconds between model calls (empty = 4; use 0 on a paid key)'
         required: false
@@ -66,6 +70,7 @@ jobs:
           QUIZGEN_MODEL: ${{ inputs.model }}
           QUIZGEN_VERIFY_MODEL: ${{ inputs.verify_model }}
           QUIZGEN_MIN_INTERVAL: ${{ inputs.min_interval }}
+          QUIZGEN_RESEARCH_MODEL: ${{ inputs.research_model }}
           FORCE: ${{ inputs.force }}
         run: |
           ARGS=""
