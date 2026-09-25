@@ -37,8 +37,8 @@ def make_question(topic, tag="a"):
 class FakeTranslator:
     name = "fake"
 
-    def translate(self, texts, is_html=False):
-        return [f"TR:{t}" for t in texts]
+    def translate(self, texts, is_html=False, lang="tr"):
+        return [f"{lang.upper()}:{t}" for t in texts]
 
 
 class FakeStore:
@@ -147,7 +147,8 @@ class PipelineTests(unittest.TestCase):
         research = self.install(FakeModel())
         doc = g.build_daily_quiz("TR", DAY, research, DAY.isoformat(), FakeTranslator())
         q = doc["questions"][0]
-        self.assertEqual({"id", "topic", "correct_index", "en", "tr"}, set(q))
+        self.assertEqual({"id", "topic", "correct_index", "en", "tr", "de", "fr", "es", "it"}, set(q))
+        self.assertEqual([f"DE:{o}" for o in q["en"]["options"]], q["de"]["options"])
         self.assertEqual([f"TR:{o}" for o in q["en"]["options"]], q["tr"]["options"])
         self.assertEqual("TR:" + q["en"]["question"], q["tr"]["question"])
         self.assertEqual("fake", doc["translatedBy"])
@@ -159,7 +160,8 @@ class PipelineTests(unittest.TestCase):
         research = self.install(fake)
         doc = g.build_study_set("DE", DAY, research, DAY.isoformat(), FakeTranslator())
         self.assertEqual(second[0], doc["slug"])
-        self.assertEqual({"en", "tr"}, set(doc["lesson"]))
+        self.assertEqual({"en", "tr", "de", "fr", "es", "it"}, set(doc["lesson"]))
+        self.assertEqual("IT:<p>text</p>", doc["lesson"]["it"])
         self.assertEqual("TR:<p>text</p>", doc["lesson"]["tr"])
         self.assertEqual(5, len(doc["questions"]))
 
@@ -194,9 +196,69 @@ class PipelineTests(unittest.TestCase):
         g._call = boom
         g.sources.fetch_candidates = lambda *a, **k: [{"lang": "en", "title": "T", "url": "u", "text": "x" * 700}]
         store = FakeStore()
-        store.quiz_exists = lambda c, d: False
+        store.get_quiz = lambda c, d: None
         label, status = g.run_job("quiz", "US", DAY, store, g.Research(store), FakeTranslator(), DAY.isoformat(), False)
         self.assertTrue(status.startswith("QUOTA EXHAUSTED"))
+
+
+class LanguageTests(unittest.TestCase):
+    class FlakyTranslator(FakeTranslator):
+        def __init__(self, broken):
+            self.broken = broken
+
+        def translate(self, texts, is_html=False, lang="tr"):
+            if lang in self.broken:
+                raise RuntimeError("engine down")
+            return super().translate(texts, is_html, lang)
+
+    def quiz_doc(self):
+        return {"questions": g.assign_ids("US-x", g.translate_questions(FakeTranslator(), [make_question("t")], ["tr"]))}
+
+    def test_failing_optional_language_is_skipped_not_fatal(self):
+        out = g.translate_questions(self.FlakyTranslator({"fr"}), [make_question("t")])
+        self.assertNotIn("fr", out[0])
+        self.assertIn("de", out[0])
+
+    def test_failing_turkish_is_fatal(self):
+        with self.assertRaises(RuntimeError):
+            g.translate_questions(self.FlakyTranslator({"tr"}), [make_question("t")])
+
+    def test_quota_is_never_swallowed_as_a_skipped_language(self):
+        class Quota(FakeTranslator):
+            def translate(self, texts, is_html=False, lang="tr"):
+                raise g.QuotaExhausted("per day")
+
+        with self.assertRaises(g.QuotaExhausted):
+            g.translate_questions(Quota(), [make_question("t")])
+
+    def test_old_quiz_gets_only_its_missing_languages(self):
+        doc = self.quiz_doc()
+        self.assertTrue(g.complete_quiz_languages(doc, FakeTranslator()))
+        q = doc["questions"][0]
+        self.assertEqual("TR:" + q["en"]["question"], q["tr"]["question"])  # untouched
+        self.assertEqual("ES:" + q["en"]["question"], q["es"]["question"])
+        self.assertFalse(g.complete_quiz_languages(doc, FakeTranslator()))  # nothing left to do
+
+    def test_old_study_set_is_completed_including_lesson(self):
+        fields = {"title": "T", "category": "C", "summary": "S"}
+        doc = dict(g.localized_fields(FakeTranslator(), fields, "<p>x</p>", ["tr"]),
+                   questions=self.quiz_doc()["questions"])
+        self.assertTrue(g.complete_study_languages(doc, FakeTranslator()))
+        self.assertEqual("FR:<p>x</p>", doc["lesson"]["fr"])
+        self.assertEqual("TR:T", doc["title"]["tr"])
+        self.assertIn("it", doc["questions"][0])
+
+    def test_study_language_needs_both_short_texts_and_lesson(self):
+        class NoHtml(FakeTranslator):
+            def translate(self, texts, is_html=False, lang="tr"):
+                if is_html and lang == "de":
+                    raise RuntimeError("html failed")
+                return super().translate(texts, is_html, lang)
+
+        out = g.localized_fields(NoHtml(), {"title": "T"}, "<p>x</p>")
+        self.assertNotIn("de", out["title"])
+        self.assertNotIn("de", out["lesson"])
+        self.assertIn("fr", out["lesson"])
 
 
 class TranslatorTests(unittest.TestCase):
@@ -206,11 +268,11 @@ class TranslatorTests(unittest.TestCase):
         def __init__(self, status):
             self.status = status
 
-        def translate(self, texts, is_html=False):
+        def translate(self, texts, is_html=False, lang="tr"):
             raise translate.TranslationError(self.status, "quota")
 
     def make(self, primary):
-        t = translate.Translator(lambda texts, is_html: [f"G:{x}" for x in texts], lambda m: None)
+        t = translate.Translator(lambda texts, is_html, lang: [f"G:{x}" for x in texts], lambda m: None)
         t.primary, t._primary_ok, t.name = primary, primary is not None, primary.name if primary else "gemini"
         return t
 
@@ -227,7 +289,7 @@ class TranslatorTests(unittest.TestCase):
     def test_without_credentials_gemini_is_the_engine(self):
         for var in ("DEEPL_API_KEY", "QUIZGEN_TRANSLATOR"):
             os.environ.pop(var, None)
-        t = translate.Translator(lambda texts, is_html: ["x"] * len(texts), lambda m: None)
+        t = translate.Translator(lambda texts, is_html, lang: ["x"] * len(texts), lambda m: None)
         self.assertEqual("gemini", t.name)
 
 

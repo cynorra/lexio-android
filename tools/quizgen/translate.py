@@ -1,4 +1,4 @@
-"""English -> Turkish translation for quizgen, done by a dedicated translation engine instead of the LLM.
+"""English -> Turkish/German/French/Spanish/Italian translation for quizgen, done by a dedicated translation engine instead of the LLM.
 
 Why: the LLM only has to write and fact-check ONE language, and translation of already-verified
 text is a solved, cheap, deterministic problem. Options are translated as separate strings, so
@@ -18,7 +18,8 @@ import time
 import urllib.error
 import urllib.request
 
-SOURCE, TARGET = "en", "tr"
+SOURCE = "en"
+FORMALITY_LANGS = {"de", "fr", "es", "it"}  # DeepL rejects the formality option for the other targets (e.g. Turkish)
 BATCH = 40  # DeepL accepts up to 50 texts per request
 
 
@@ -56,12 +57,13 @@ class DeepL:
         host = "api-free.deepl.com" if key.endswith(":fx") else "api.deepl.com"
         self.url = f"https://{host}/v2/translate"
 
-    def translate(self, texts, is_html=False):
+    def translate(self, texts, is_html=False, lang="tr"):
         out = []
         for i in range(0, len(texts), BATCH):
             chunk = texts[i:i + BATCH]
-            payload = {"text": chunk, "source_lang": SOURCE.upper(), "target_lang": TARGET.upper(),
-                       "formality": "prefer_more"}
+            payload = {"text": chunk, "source_lang": SOURCE.upper(), "target_lang": lang.upper()}
+            if lang in FORMALITY_LANGS:
+                payload["formality"] = "prefer_more"
             if is_html:
                 payload["tag_handling"] = "html"
             data = _post(self.url, payload, {"Authorization": f"DeepL-Auth-Key {self.key}"})
@@ -85,11 +87,11 @@ class GoogleCloud:
             self._creds.refresh(self._request)
         return self._creds.token
 
-    def translate(self, texts, is_html=False):
+    def translate(self, texts, is_html=False, lang="tr"):
         out = []
         for i in range(0, len(texts), BATCH):
             chunk = texts[i:i + BATCH]
-            data = _post(self.URL, {"q": chunk, "source": SOURCE, "target": TARGET,
+            data = _post(self.URL, {"q": chunk, "source": SOURCE, "target": lang,
                                     "format": "html" if is_html else "text"},
                          {"Authorization": f"Bearer {self._token()}"})
             # The API returns HTML entities (&#39; ...) even for plain text.
@@ -98,7 +100,7 @@ class GoogleCloud:
 
 
 class Translator:
-    """Primary engine with a Gemini fallback. `gemini_translate(texts, is_html)` is injected."""
+    """Primary engine with a Gemini fallback. `gemini_translate(texts, is_html, lang)` is injected."""
 
     def __init__(self, gemini_translate, log=print):
         self._gemini = gemini_translate
@@ -115,12 +117,12 @@ class Translator:
         self.name = self.primary.name if self.primary else "gemini"
         self._primary_ok = self.primary is not None
 
-    def translate(self, texts, is_html=False):
+    def translate(self, texts, is_html=False, lang="tr"):
         if not texts:
             return []
         if self._primary_ok:
             try:
-                result = self.primary.translate(texts, is_html)
+                result = self.primary.translate(texts, is_html, lang)
                 if len(result) == len(texts) and all(isinstance(t, str) and t.strip() for t in result):
                     return result
                 raise TranslationError(0, "engine returned a malformed result")
@@ -130,4 +132,4 @@ class Translator:
                     self._primary_ok = False
                 self._log(f"  translation engine '{self.primary.name}' failed ({e}); using Gemini for this text"
                           + ("" if self._primary_ok else " and for the rest of the run"))
-        return self._gemini(texts, is_html)
+        return self._gemini(texts, is_html, lang)

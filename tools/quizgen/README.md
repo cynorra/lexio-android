@@ -6,8 +6,8 @@
 
 | Path | Content |
 |---|---|
-| `dailyQuizzes/{CC}/days/{YYYY-MM-DD}` | 5 questions (one per curriculum topic), English + Turkish |
-| `studySets/{CC}/sets/{slug}` | one constitution / basic-law lesson + 5 questions per day, English + Turkish |
+| `dailyQuizzes/{CC}/days/{YYYY-MM-DD}` | 5 questions (one per curriculum topic), English + Turkish, German, French, Spanish, Italian |
+| `studySets/{CC}/sets/{slug}` | one constitution / basic-law lesson + 5 questions per day, English + Turkish, German, French, Spanish, Italian |
 
 Countries (product priority order): `US, UK, DE, FR, ES, IT, TR`. Topics live in `curriculum.py`
 and are walked round-robin, so every topic comes back (freshly rewritten) each cycle.
@@ -25,7 +25,7 @@ Add topics or countries there; the app picks them up with no release.
 4. **Repair** - failing questions are rewritten with the checker's feedback; a lesson gets two targeted
    rewrites and then a conservative version. A topic that still can't be fixed is swapped for another,
    so every day gets content and one hard topic never blocks a run.
-5. **Translate** - the verified English is translated to Turkish by a translation engine, not the LLM
+5. **Translate** - the verified English is translated to Turkish, German, French, Spanish and Italian by a translation engine, not the LLM. A language other than Turkish that fails is skipped (the app shows English) and a later run adds it: every run also completes missing languages on the quizzes/lessons it would otherwise skip. Set `QUIZGEN_LANGS=tr,de` to translate into fewer languages
    (`translate.py`). Options are translated as separate strings, so `correct_index` stays valid.
 
 The workflow only turns red if today's or tomorrow's quiz is missing for some country, so a red run
@@ -50,7 +50,7 @@ always means "look at this".
 
 | Engine | How | Notes |
 |---|---|---|
-| **DeepL** | add secret `DEEPL_API_KEY` (free keys end in `:fx`) | best Turkish quality; free tier 500k chars/month, a full daily run is roughly 40k chars |
+| **DeepL** | add secret `DEEPL_API_KEY` (free keys end in `:fx`) | best quality; free tier is 500k chars/month, but a full daily run is roughly 40k chars PER LANGUAGE (about 200k for all five), so the free tier lasts a few days; the run then falls back to Gemini automatically |
 | **Google Cloud Translation** | set env `QUIZGEN_TRANSLATOR=google` | uses the Firebase service account; enable "Cloud Translation API" and billing on the project |
 | **Gemini** (default) | nothing to set | works out of the box but uses LLM quota |
 

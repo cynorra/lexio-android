@@ -12,7 +12,7 @@ Pipeline for every topic
   2. WRITE      Questions / lessons written ONLY from those notes, in English.
   3. CHECK      An independent pass against the notes. Only material errors block publishing
                 (wrong answer key, false legal statement, ambiguous answer); style or nuance is ignored.
-  3b. TRANSLATE The verified English is translated to Turkish by a dedicated engine (DeepL / Google
+  3b. TRANSLATE The verified English is translated to Turkish, German, French, Spanish and Italian by a dedicated engine (DeepL / Google
                 Cloud Translation, see translate.py), not by the LLM.
   4. REPAIR     Failing items are rewritten with the checker's feedback, not thrown away. A topic
                 that still cannot be made correct is swapped for another one, so every day gets
@@ -58,6 +58,11 @@ MODEL = os.environ.get("QUIZGEN_MODEL") or "gemini-3.5-flash-lite"
 VERIFY_MODEL = os.environ.get("QUIZGEN_VERIFY_MODEL") or MODEL
 RESEARCH_ENABLED = (os.environ.get("QUIZGEN_RESEARCH") or "on").lower() != "off"
 
+# Languages every question/lesson is translated into (English is always the source). Turkish is required,
+# the others are best effort. Override with e.g. QUIZGEN_LANGS=tr,de to save translation quota.
+LANG_NAMES = {"tr": "Turkish", "de": "German", "fr": "French", "es": "Spanish", "it": "Italian"}
+LANGS = tuple(l for l in (os.environ.get("QUIZGEN_LANGS") or "tr,de,fr,es,it").replace(" ", "").split(",")
+              if l in LANG_NAMES) or ("tr",)
 QUESTIONS_PER_QUIZ = 5
 QUESTIONS_PER_STUDY_SET = 5
 MIN_QUESTIONS = 4        # a quiz/study set with fewer verified questions than this is not published
@@ -497,37 +502,109 @@ def make_lesson(country, topic, notes):
 
 # --------------------------------------------------------------------------- translation
 
-def gemini_translate(texts, is_html):
+def gemini_translate(texts, is_html, lang="tr"):
     """Fallback translator: the LLM, one JSON list in, one JSON list out."""
+    language = LANG_NAMES[lang]
     schema = {"type": "object", "properties": {"translations": {"type": "array", "items": {"type": "string"}}},
               "required": ["translations"], "additionalProperties": False}
     kind = "HTML fragments (keep every tag exactly as is)" if is_html else "plain strings"
     data = call_json(
-        "You are a professional English-to-Turkish legal translator. Use the official Turkish legal terminology "
-        "(e.g. kuvvetler ayrılığı, yargısal denetim, temel haklar). Return one translation per input, same order.",
-        f"Translate these {len(texts)} {kind} into natural Turkish:\n{json.dumps(texts, ensure_ascii=False)}",
+        f"You are a professional English-to-{language} legal translator. Use the official {language} legal "
+        "terminology of the country's own legal system where one exists. Keep the friendly, clear tone of a study "
+        "app. Return one translation per input, same order.",
+        f"Translate these {len(texts)} {kind} into natural {language}:\n{json.dumps(texts, ensure_ascii=False)}",
         schema, thinking="low", max_tokens=16000)
     if len(data["translations"]) != len(texts):
         raise ValueError("translation count mismatch")
     return data["translations"]
 
 
-def translate_questions(translator, questions):
-    """English questions -> stored form {topic, correct_index, en:{...}, tr:{...}}."""
+def translate_many(translator, texts, is_html=False, langs=None):
+    """{lang: translations} for every target language. Turkish is required; another language that fails
+    for a non-quota reason is skipped (the app falls back to English and a later run backfills it)."""
+    out = {}
+    for lang in (langs if langs is not None else LANGS):
+        try:
+            out[lang] = translator.translate(texts, is_html, lang)
+        except QuotaExhausted:
+            raise
+        except Exception as e:
+            if lang == "tr":
+                raise
+            log(f"  translation to {lang} failed ({type(e).__name__}: {e}); skipping it for now")
+    return out
+
+
+def translate_questions(translator, questions, langs=None):
+    """English questions -> stored form {topic, correct_index, en:{...}, tr:{...}, de:{...}, ...}."""
     flat = []
     for q in questions:
         flat += [q["question"], *q["options"], q["explanation"]]
-    translated = translator.translate(flat)
+    translated = translate_many(translator, flat, False, langs)
     out, n = [], 6  # question + 4 options + explanation per question
     for k, q in enumerate(questions):
-        chunk = translated[k * n:(k + 1) * n]
-        out.append({
+        item = {
             "topic": q["topic"],
             "correct_index": q["correct_index"],
             "en": {"question": q["question"], "options": q["options"], "explanation": q["explanation"]},
-            "tr": {"question": chunk[0], "options": chunk[1:5], "explanation": chunk[5]},
-        })
+        }
+        for lang, texts in translated.items():
+            chunk = texts[k * n:(k + 1) * n]
+            item[lang] = {"question": chunk[0], "options": chunk[1:5], "explanation": chunk[5]}
+        out.append(item)
     return out
+
+
+def localized_fields(translator, fields, lesson_html, langs=None):
+    """{'title': {'en':..,'tr':..}, ...} for the short fields plus the HTML lesson."""
+    keys = list(fields)
+    result = {k: {"en": fields[k]} for k in keys}
+    result["lesson"] = {"en": lesson_html}
+    short = translate_many(translator, [fields[k] for k in keys], False, langs)
+    long = translate_many(translator, [lesson_html], True, langs)
+    for lang in short:
+        if lang not in long:
+            continue  # only publish a language whose short texts AND lesson both arrived
+        for k, text in zip(keys, short[lang]):
+            result[k][lang] = text
+        result["lesson"][lang] = long[lang][0]
+    return result
+
+
+def missing_langs(item):
+    return [lang for lang in LANGS if lang not in item]
+
+
+def complete_quiz_languages(doc, translator):
+    """Adds translations a stored quiz lacks (new language, or one that failed earlier). True if changed."""
+    questions = doc.get("questions", [])
+    langs = sorted({lang for q in questions for lang in missing_langs(q)}, key=LANGS.index)
+    if not langs:
+        return False
+    fresh = translate_questions(translator, [dict(q["en"], topic=q.get("topic"), correct_index=q["correct_index"])
+                                             for q in questions], langs)
+    changed = False
+    for q, f in zip(questions, fresh):
+        for lang in langs:
+            if lang in f and lang not in q:
+                q[lang] = f[lang]
+                changed = True
+    return changed
+
+
+def complete_study_languages(doc, translator):
+    """Same for a stored study set (lesson fields and its questions). True if changed."""
+    fields = ("title", "category", "summary")
+    langs = [lang for lang in LANGS if any(lang not in doc[k] for k in (*fields, "lesson"))]
+    changed = False
+    if langs:
+        fresh = localized_fields(translator, {k: doc[k]["en"] for k in fields}, doc["lesson"]["en"], langs)
+        for k in (*fields, "lesson"):
+            for lang in langs:
+                if lang in fresh[k] and lang not in doc[k]:
+                    doc[k][lang] = fresh[k][lang]
+                    changed = True
+    return complete_quiz_languages(doc, translator) or changed
 
 
 # --------------------------------------------------------------------------- content builders
@@ -600,9 +677,8 @@ def build_study_set(country, date, research, today, translator):
             questions = gather_questions(country, slots, lambda t: notes, lambda t: None)
             if len(questions) < MIN_QUESTIONS:
                 raise Rejected(f"only {len(questions)} verified question(s) for study set {topic[0]}")
-            title_tr, category_tr, summary_tr = translator.translate(
-                [lesson["title"], lesson["category"], lesson["summary"]])
-            lesson_tr = translator.translate([lesson["lesson"]], is_html=True)[0]
+            texts = localized_fields(translator, {"title": lesson["title"], "category": lesson["category"],
+                                                  "summary": lesson["summary"]}, lesson["lesson"])
             published_at = int(dt.datetime(date.year, date.month, date.day, tzinfo=dt.timezone.utc).timestamp() * 1000)
             return {
                 "country": country,
@@ -610,10 +686,10 @@ def build_study_set(country, date, research, today, translator):
                 "date": date.isoformat(),
                 "publishedAt": published_at,
                 "reference": topic[2],
-                "title": {"en": lesson["title"], "tr": title_tr},
-                "category": {"en": lesson["category"], "tr": category_tr},
-                "summary": {"en": lesson["summary"], "tr": summary_tr},
-                "lesson": {"en": lesson["lesson"], "tr": lesson_tr},
+                "title": texts["title"],
+                "category": texts["category"],
+                "summary": texts["summary"],
+                "lesson": texts["lesson"],
                 "minutes": max(1, int(lesson["minutes"])),
                 "questions": assign_ids(topic[0], translate_questions(translator, questions)),
                 "translatedBy": translator.name,
@@ -650,11 +726,18 @@ class Store:
     def quiz_exists(self, country, date):
         return not self.dry_run and self.quiz_ref(country, date).get().exists
 
-    def study_exists_for(self, country, date):
+    def get_quiz(self, country, date):
         if self.dry_run:
-            return False
-        docs = self.sets_ref(country).where("date", "==", date.isoformat()).limit(1).get()
-        return len(list(docs)) > 0
+            return None
+        snap = self.quiz_ref(country, date).get()
+        return snap.to_dict() if snap.exists else None
+
+    def get_study_for(self, country, date):
+        if self.dry_run:
+            return None
+        for d in self.sets_ref(country).where("date", "==", date.isoformat()).limit(1).get():
+            return d.to_dict()
+        return None
 
     def latest_study_date(self, country):
         if self.dry_run:
@@ -699,12 +782,22 @@ def run_job(kind, country, date, store, research, translator, today, force):
     label = f"{kind} {country} {date}"
     try:
         if kind == "quiz":
-            if not force and store.quiz_exists(country, date):
-                return label, "skipped (exists)"
+            existing = None if force else store.get_quiz(country, date)
+            if existing is not None:
+                if not complete_quiz_languages(existing, translator):
+                    return label, "skipped (exists)"
+                existing.pop("generatedAt", None)
+                store.save_quiz(existing)
+                return label, "ok (added missing languages)"
             store.save_quiz(build_daily_quiz(country, date, research, today, translator))
         else:
-            if not force and store.study_exists_for(country, date):
-                return label, "skipped (exists)"
+            existing = None if force else store.get_study_for(country, date)
+            if existing is not None:
+                if not complete_study_languages(existing, translator):
+                    return label, "skipped (exists)"
+                existing.pop("generatedAt", None)
+                store.save_study(existing)
+                return label, "ok (added missing languages)"
             store.save_study(build_study_set(country, date, research, today, translator))
         return label, "ok"
     except QuotaExhausted as e:
@@ -760,8 +853,9 @@ def check_content(store, countries, today):
             doc = snap.to_dict()
             questions = doc.get("questions", [])
             bad = [q.get("id") for q in questions if not _valid_localized_question(q)]
+            have = [lang for lang in LANGS if questions and all(lang in q for q in questions)]
             log(f"[{country}] quiz {day}: {len(questions)} questions, invalid={len(bad)}, model={doc.get('model')}, "
-                f"translatedBy={doc.get('translatedBy')}, grounded={doc.get('grounded')}")
+                f"translatedBy={doc.get('translatedBy')}, grounded={doc.get('grounded')}, languages=en,{','.join(have)}")
             problems += bool(bad) + (len(questions) < MIN_QUESTIONS)
             if offset == 0 and questions and country in ("US", "TR"):
                 q = questions[0]
