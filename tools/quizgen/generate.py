@@ -31,6 +31,7 @@ Environment:
   GOOGLE_APPLICATION_CREDENTIALS    path to a Firebase service-account JSON (required unless --dry-run)
   QUIZGEN_MODEL                     optional, model that writes the content (default gemini-3.5-flash-lite)
   QUIZGEN_VERIFY_MODEL              optional, model that checks it (default: same as QUIZGEN_MODEL)
+  QUIZGEN_MIN_INTERVAL              optional, seconds between model calls (default 4; 0 on a paid key)
   DEEPL_API_KEY                     optional, Turkish translation via DeepL (see translate.py for alternatives)
 """
 import argparse
@@ -61,6 +62,11 @@ LESSON_REVISIONS = 2     # targeted lesson rewrites before falling back to a con
 STUDY_TOPIC_FALLBACKS = 3  # how many different topics to try for one study slot
 NOTES_TTL_DAYS = 30
 CALL_ATTEMPTS = 5
+# Minimum seconds between model calls across all threads. Free-tier keys have per-minute limits
+# (a few requests/minute), so calls are paced instead of fired in bursts. Set 0 on a paid key.
+MIN_INTERVAL = float(os.environ.get("QUIZGEN_MIN_INTERVAL") or 4)
+_pace_lock = threading.Lock()
+_last_call = [0.0]
 
 client = genai.Client()  # reads GEMINI_API_KEY (or GOOGLE_API_KEY) from the environment
 
@@ -81,6 +87,14 @@ def log(msg):
 
 # --------------------------------------------------------------------------- model access
 
+def _pace():
+    with _pace_lock:
+        wait = _last_call[0] + MIN_INTERVAL - time.monotonic()
+        if wait > 0:
+            time.sleep(wait)
+        _last_call[0] = time.monotonic()
+
+
 def _call(system, user, *, schema=None, tools=None, thinking="medium", max_tokens=16000, model=None, parse=None,
           attempts=None):
     """One model call with retries. `parse` runs inside the retry loop, so truncated or malformed
@@ -89,6 +103,7 @@ def _call(system, user, *, schema=None, tools=None, thinking="medium", max_token
     last_error = None
     for attempt in range(attempts):
         try:
+            _pace()
             kwargs = dict(
                 model=model or MODEL,
                 system_instruction=system,

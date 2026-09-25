@@ -17,6 +17,10 @@ on:
         description: 'Model that writes the content (empty = gemini-3.5-flash-lite), e.g. gemini-3.8-flash'
         required: false
         default: ''
+      min_interval:
+        description: 'Seconds between model calls (empty = 4; use 0 on a paid key)'
+        required: false
+        default: ''
       verify_model:
         description: 'Model that fact-checks it (empty = same as model)'
         required: false
@@ -61,6 +65,7 @@ jobs:
           COUNTRIES: ${{ inputs.countries }}
           QUIZGEN_MODEL: ${{ inputs.model }}
           QUIZGEN_VERIFY_MODEL: ${{ inputs.verify_model }}
+          QUIZGEN_MIN_INTERVAL: ${{ inputs.min_interval }}
           FORCE: ${{ inputs.force }}
         run: |
           ARGS=""
