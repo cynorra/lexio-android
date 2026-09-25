@@ -36,8 +36,9 @@ from google import genai
 
 from curriculum import COUNTRIES, COUNTRY_ORDER, CURRICULUM
 
-MODEL = os.environ.get("QUIZGEN_MODEL", "gemini-3.8-flash")
-VERIFY_MODEL = os.environ.get("QUIZGEN_VERIFY_MODEL", MODEL)
+# `or` (not a get() default) so an empty value passed by the workflow falls back to the default.
+MODEL = os.environ.get("QUIZGEN_MODEL") or "gemini-3.8-flash"
+VERIFY_MODEL = os.environ.get("QUIZGEN_VERIFY_MODEL") or MODEL
 QUESTIONS_PER_QUIZ = 5
 QUESTIONS_PER_STUDY_SET = 5
 MIN_QUESTIONS = 4  # a quiz with fewer surviving questions than this is rejected

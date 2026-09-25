@@ -13,6 +13,14 @@ on:
         description: 'Regenerate content that already exists'
         type: boolean
         default: false
+      model:
+        description: 'Model that writes the content (empty = gemini-3.8-flash), e.g. gemini-3.5-flash-lite'
+        required: false
+        default: ''
+      verify_model:
+        description: 'Model that fact-checks it (empty = same as model)'
+        required: false
+        default: ''
 
 concurrency:
   group: quizgen
@@ -47,6 +55,8 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           COUNTRIES: ${{ inputs.countries }}
+          QUIZGEN_MODEL: ${{ inputs.model }}
+          QUIZGEN_VERIFY_MODEL: ${{ inputs.verify_model }}
           FORCE: ${{ inputs.force }}
         run: |
           ARGS=""
