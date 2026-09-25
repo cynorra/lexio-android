@@ -81,11 +81,13 @@ def log(msg):
 
 # --------------------------------------------------------------------------- model access
 
-def _call(system, user, *, schema=None, tools=None, thinking="medium", max_tokens=16000, model=None, parse=None):
+def _call(system, user, *, schema=None, tools=None, thinking="medium", max_tokens=16000, model=None, parse=None,
+          attempts=None):
     """One model call with retries. `parse` runs inside the retry loop, so truncated or malformed
     output is retried like any other transient failure. Daily-quota errors fail fast."""
+    attempts = attempts or CALL_ATTEMPTS
     last_error = None
-    for attempt in range(CALL_ATTEMPTS):
+    for attempt in range(attempts):
         try:
             kwargs = dict(
                 model=model or MODEL,
@@ -111,9 +113,9 @@ def _call(system, user, *, schema=None, tools=None, thinking="medium", max_token
             hint = re.search(r"retry in (\d+(?:\.\d+)?)s", message)  # the API says how long to wait
             if hint:
                 delay = min(float(hint.group(1)) + 2, 120)
-            log(f"  model call failed ({type(e).__name__}: {message[:200]}); retry {attempt + 1}/{CALL_ATTEMPTS} in {delay:.0f}s")
+            log(f"  model call failed ({type(e).__name__}: {message[:200]}); retry {attempt + 1}/{attempts} in {delay:.0f}s")
             time.sleep(delay)
-    raise RuntimeError(f"model call failed after {CALL_ATTEMPTS} attempts: {last_error}")
+    raise RuntimeError(f"model call failed after {attempts} attempts: {last_error}")
 
 
 def call_json(system, user, schema, **kw):
@@ -354,7 +356,8 @@ class Research:
     def _fetch(self, country, topic, today):
         try:
             text = _call("You are a careful legal researcher.", research_prompt(country, topic, today),
-                         tools=[{"type": "google_search"}], thinking="medium", max_tokens=6000)
+                         tools=[{"type": "google_search"}], thinking="medium", max_tokens=6000,
+                         attempts=2)  # search grounding is optional: fail over quickly instead of stalling the run
             if len(text.strip()) < 300:
                 raise ValueError("research notes too short")
             return text.strip()
