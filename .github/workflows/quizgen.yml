@@ -1,8 +1,10 @@
-name: Daily quiz generation
+﻿name: Daily quiz generation
 
 on:
   schedule:
-    - cron: '15 2 * * *'   # every day, 02:15 UTC
+    # 09:15 UTC = 02:15 Pacific: after Gemini's daily free quota resets (midnight Pacific), so a run never
+    # starts on yesterday's exhausted quota.
+    - cron: '15 9 * * *'
   workflow_dispatch:
     inputs:
       countries:
