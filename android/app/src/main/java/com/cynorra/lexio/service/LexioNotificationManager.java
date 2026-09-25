@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.cynorra.lexio.MainActivity;
@@ -20,6 +21,8 @@ import java.util.Locale;
 public class LexioNotificationManager {
     public static final String CHANNEL_DAILY_QUIZ = "channel_daily_quiz";
     private static final int NOTIFICATION_DAILY_QUIZ = 1001;
+    /** Intent extra that makes MainActivity open the daily quiz (once signed in). */
+    public static final String EXTRA_OPEN_DAILY_QUIZ = "open_daily_quiz";
 
     /** Same preference file/key MainActivity writes the user's language choice to. */
     private static final String PREFS_NAME = "lexio_prefs";
@@ -65,15 +68,19 @@ public class LexioNotificationManager {
      * called on app open. Safe to call with no running Activity.
      */
     public void triggerDailyQuizPushNotification() {
+        // Opens the app straight on the daily quiz. No CLEAR_TASK: if the app is already open, its
+        // state is kept and MainActivity (singleTop) just receives the new intent.
         Intent intent = new Intent(context, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra(EXTRA_OPEN_DAILY_QUIZ, true);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         String message = context.getString(R.string.notif_quiz_body);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_DAILY_QUIZ)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_stat_lexio)
+                .setColor(ContextCompat.getColor(context, R.color.accent_primary))
                 .setContentTitle(context.getString(R.string.notif_quiz_title))
                 .setContentText(message)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))

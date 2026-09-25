@@ -152,7 +152,37 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             }
         }
 
+        // A recreate re-delivers the original intent; only a real launch may trigger the quiz shortcut.
+        if (savedInstanceState == null) {
+            captureLaunchIntent(getIntent());
+        }
+
         store.subscribe(this);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        captureLaunchIntent(intent);
+        openPendingQuiz(store.getState());
+    }
+
+    /** The reminder notification asks to land on the daily quiz. */
+    private void captureLaunchIntent(@Nullable Intent intent) {
+        if (intent != null && intent.getBooleanExtra(LexioNotificationManager.EXTRA_OPEN_DAILY_QUIZ, false)) {
+            holder.openQuizPending = true;
+            intent.removeExtra(LexioNotificationManager.EXTRA_OPEN_DAILY_QUIZ);
+        }
+    }
+
+    /** Opens the quiz once the user is signed in (immediately if they already are). */
+    private void openPendingQuiz(AppState state) {
+        if (!holder.openQuizPending || !state.isAuthenticated() || state.getActiveScreen() == AppState.Screen.LOGIN) {
+            return;
+        }
+        holder.openQuizPending = false;
+        store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_DAILY_QUIZ));
     }
 
     @Override
@@ -321,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
         updateScreenState(activeScreen, state);
         syncProgress(state);
+        openPendingQuiz(state);
     }
 
     @SuppressWarnings("deprecation")

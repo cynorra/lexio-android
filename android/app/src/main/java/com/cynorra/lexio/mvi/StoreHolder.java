@@ -21,6 +21,9 @@ public class StoreHolder extends ViewModel {
     /** Last progress persisted to local cache / server, so unchanged state isn't re-written. */
     public UserProgress lastSynced = null;
 
+    /** Set by the reminder notification; consumed once the user is signed in. */
+    public boolean openQuizPending = false;
+
     // Daily quiz content for the screen. Kept here (not in AppState) because it is bulky server
     // data, and it must survive recreation of the Activity.
     public List<DailyQuizQuestion> quiz = null;
