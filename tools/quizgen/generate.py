@@ -519,11 +519,36 @@ def gemini_translate(texts, is_html, lang="tr"):
     return data["translations"]
 
 
+def gemini_translate_multi(texts, is_html, langs):
+    """All target languages in ONE request: {lang: [translation per input]}."""
+    schema = {"type": "object", "properties": {lang: {"type": "array", "items": {"type": "string"}} for lang in langs},
+              "required": list(langs), "additionalProperties": False}
+    kind = "HTML fragments (keep every tag exactly as is)" if is_html else "plain strings"
+    names = ", ".join(f"{lang} = {LANG_NAMES[lang]}" for lang in langs)
+    data = call_json(
+        "You are a professional English-to-multilingual legal translator. Use the official legal terminology of each "
+        "target language's own legal system where one exists. Keep the friendly, clear tone of a study app. For every "
+        "language key return exactly one translation per input, in the same order.",
+        f"Translate these {len(texts)} {kind} into each of these languages ({names}). Return an object keyed by "
+        f"language code.\n{json.dumps(texts, ensure_ascii=False)}",
+        schema, thinking="low", max_tokens=32000)
+    return {lang: data[lang] for lang in langs if isinstance(data.get(lang), list)}
+
+
 def translate_many(translator, texts, is_html=False, langs=None):
     """{lang: translations} for every target language. Turkish is required; another language that fails
     for a non-quota reason is skipped (the app falls back to English and a later run backfills it)."""
+    langs = list(langs if langs is not None else LANGS)
+    if hasattr(translator, "translate_multi"):
+        out = translator.translate_multi(texts, is_html, langs)
+        if "tr" in langs and "tr" not in out:
+            raise ValueError("Turkish translation missing")
+        for lang in langs:
+            if lang not in out:
+                log(f"  translation to {lang} missing; skipping it for now")
+        return out
     out = {}
-    for lang in (langs if langs is not None else LANGS):
+    for lang in langs:
         try:
             out[lang] = translator.translate(texts, is_html, lang)
         except QuotaExhausted:
@@ -904,7 +929,7 @@ def main():
 
     store = Store(args.dry_run)
     research = Research(store)
-    translator = Translator(gemini_translate, log)
+    translator = Translator(gemini_translate, log, gemini_translate_multi, fatal=(QuotaExhausted,))
 
     jobs = []
     for country in countries:

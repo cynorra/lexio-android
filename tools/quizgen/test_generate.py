@@ -261,6 +261,53 @@ class LanguageTests(unittest.TestCase):
         self.assertIn("fr", out["lesson"])
 
 
+class MultiTranslateTests(unittest.TestCase):
+    def make(self, multi, single=None):
+        os.environ.pop("DEEPL_API_KEY", None)
+        os.environ.pop("QUIZGEN_TRANSLATOR", None)
+        return translate.Translator(single or (lambda texts, is_html, lang: [f"{lang}:{x}" for x in texts]),
+                                    lambda m: None, multi, fatal=(g.QuotaExhausted,))
+
+    def test_all_languages_in_one_request(self):
+        calls = []
+
+        def multi(texts, is_html, langs):
+            calls.append(langs)
+            return {lang: [f"{lang}:{x}" for x in texts] for lang in langs}
+
+        out = g.translate_many(self.make(multi), ["a", "b"])
+        self.assertEqual(1, len(calls))
+        self.assertEqual({"tr", "de", "fr", "es", "it"}, set(out))
+        self.assertEqual(["de:a", "de:b"], out["de"])
+
+    def test_language_with_wrong_count_is_dropped_others_kept(self):
+        def multi(texts, is_html, langs):
+            return {lang: ["only one"] if lang == "fr" else [f"{lang}:{x}" for x in texts] for lang in langs}
+
+        out = g.translate_many(self.make(multi), ["a", "b"])
+        self.assertNotIn("fr", out)
+        self.assertIn("es", out)
+
+    def test_missing_turkish_is_fatal(self):
+        multi = lambda texts, is_html, langs: {"de": ["x"] * len(texts)}
+        with self.assertRaises(ValueError):
+            g.translate_many(self.make(multi), ["a"])
+
+    def test_failed_batch_falls_back_to_one_request_per_language(self):
+        def multi(texts, is_html, langs):
+            raise RuntimeError("bad json")
+
+        out = g.translate_many(self.make(multi), ["a"])
+        self.assertEqual({"tr", "de", "fr", "es", "it"}, set(out))
+
+    def test_quota_in_batch_request_stops_the_job(self):
+        def multi(texts, is_html, langs):
+            raise g.QuotaExhausted("per day")
+
+        with self.assertRaises(g.QuotaExhausted):
+            g.translate_many(self.make(multi), ["a"])
+
+
 class TranslatorTests(unittest.TestCase):
     class Broken:
         name = "deepl"

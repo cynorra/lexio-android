@@ -102,8 +102,10 @@ class GoogleCloud:
 class Translator:
     """Primary engine with a Gemini fallback. `gemini_translate(texts, is_html, lang)` is injected."""
 
-    def __init__(self, gemini_translate, log=print):
+    def __init__(self, gemini_translate, log=print, gemini_multi=None, fatal=()):
         self._gemini = gemini_translate
+        self._fatal = tuple(fatal)  # exceptions (e.g. a daily quota) that must stop the job, never be skipped
+        self._gemini_multi = gemini_multi  # optional: (texts, is_html, langs) -> {lang: texts} in ONE request
         self._log = log
         self.primary = None
         deepl_key = os.environ.get("DEEPL_API_KEY")
@@ -116,6 +118,32 @@ class Translator:
                 log(f"Google Cloud Translation unavailable ({e}); using Gemini for translation")
         self.name = self.primary.name if self.primary else "gemini"
         self._primary_ok = self.primary is not None
+
+    def translate_multi(self, texts, is_html, langs):
+        """{lang: translations}. Without a working dedicated engine all languages go out in a single Gemini
+        request (5x fewer requests than one per language); languages missing from its answer are omitted."""
+        if not texts:
+            return {lang: [] for lang in langs}
+        if not self._primary_ok and self._gemini_multi is not None:
+            try:
+                got = self._gemini_multi(texts, is_html, langs)
+                return {lang: got[lang] for lang in langs
+                        if lang in got and len(got[lang]) == len(texts) and all(t.strip() for t in got[lang])}
+            except self._fatal:
+                raise
+            except Exception as e:
+                self._log(f"  one-request translation failed ({e}); translating language by language")
+        out = {}
+        for lang in langs:
+            try:
+                out[lang] = self.translate(texts, is_html, lang)
+            except self._fatal:
+                raise
+            except Exception as e:
+                if lang == "tr":
+                    raise
+                self._log(f"  translation to {lang} failed ({e}); skipping it for now")
+        return out
 
     def translate(self, texts, is_html=False, lang="tr"):
         if not texts:
