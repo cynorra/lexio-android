@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -33,6 +34,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.cynorra.lexio.data.AccountRepository;
 import com.cynorra.lexio.data.ContentRepository;
 import com.cynorra.lexio.data.DateKeys;
 import com.cynorra.lexio.data.LeaderboardRepository;
@@ -86,6 +88,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements AppStore.Observer {
     private static final int RC_SIGN_IN = 9001;
+    private static final int RC_REAUTH = 9002; // re-sign-in required before deleting the account
     private static final int RC_NOTIFICATIONS = 101;
 
     private static final String PREFS_NAME = "lexio_prefs";
@@ -101,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private ProgressRepository progressRepo;
     private LeaderboardRepository leaderboardRepo;
     private ContentRepository contentRepo;
+    private AccountRepository accountRepo;
 
     private AppState.Screen activeScreen = null;
     private String currentLanguage = null;
@@ -128,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         progressRepo = new ProgressRepository(this);
         leaderboardRepo = new LeaderboardRepository();
         contentRepo = new ContentRepository();
+        accountRepo = new AccountRepository();
         // Creates the notification channels; the reminder itself is scheduled by LexioApplication.
         new LexioNotificationManager(this);
 
@@ -304,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     /** Persists changed progress and credits newly earned points to the period leaderboards. */
     private void syncProgress(AppState state) {
+        if (holder.deletingAccount) return; // never write a user's data back while deleting their account
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null || !state.isAuthenticated() || !state.isProgressLoaded()) {
             lastProgressEpoch = -1;
@@ -467,6 +473,105 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
+        } else if (requestCode == RC_REAUTH && resultCode == RESULT_OK) {
+            handleReauthResult(GoogleSignIn.getSignedInAccountFromIntent(data));
+        }
+    }
+
+    // ---------------------------------------------------------------- account deletion
+
+    private void confirmAccountDeletion() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete_account_title)
+                .setMessage(R.string.delete_account_message)
+                .setPositiveButton(R.string.delete_account_confirm, (dialog, which) -> startReauth())
+                .setNegativeButton(R.string.btn_cancel, null)
+                .show();
+    }
+
+    /** Deleting an account is a sensitive operation: Firebase wants a fresh sign-in first. */
+    @SuppressWarnings("deprecation")
+    private void startReauth() {
+        startActivityForResult(googleSignInClient.getSignInIntent(), RC_REAUTH);
+    }
+
+    private void handleReauthResult(Task<GoogleSignInAccount> completedTask) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            if (account == null) return;
+            AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+            user.reauthenticate(credential).addOnCompleteListener(this, task -> {
+                if (task.isSuccessful()) {
+                    deleteAccountNow(user);
+                } else {
+                    Toast.makeText(this, getString(R.string.delete_account_reauth_failed), Toast.LENGTH_LONG).show();
+                }
+            });
+        } catch (ApiException e) {
+            Toast.makeText(this, getString(R.string.google_sign_in_failed) + " " + e.getStatusCode(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /** Firestore data first, then the sign-in account, then everything cached on the device. */
+    private void deleteAccountNow(FirebaseUser user) {
+        holder.deletingAccount = true;
+        final String uid = user.getUid();
+        final AlertDialog progress = new AlertDialog.Builder(this)
+                .setMessage(R.string.deleting_account)
+                .setCancelable(false)
+                .show();
+
+        accountRepo.deleteUserData(uid, new AccountRepository.Callback() {
+            @Override
+            public void onDone() {
+                // No activity-scoped listener here: it would be dropped if the app goes to the background.
+                user.delete().addOnCompleteListener(task -> {
+                    dismissQuietly(progress);
+                    finishAccountDeletion(uid, task.isSuccessful());
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                dismissQuietly(progress);
+                holder.deletingAccount = false;
+                if (!isUiGone()) {
+                    Toast.makeText(MainActivity.this, getString(R.string.delete_account_failed), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void finishAccountDeletion(String uid, boolean authDeleted) {
+        progressRepo.clearLocal(uid);
+        googleSignInClient.revokeAccess();
+        mAuth.signOut();
+        holder.remoteSynced = false;
+        holder.lastSynced = null;
+        holder.deletingAccount = false;
+        store.dispatch(AppEvent.of(AppEvent.Type.LOGOUT));
+        if (!isUiGone()) {
+            // If only the sign-in account could not be removed, the user's data is already gone.
+            Toast.makeText(this, getString(authDeleted ? R.string.account_deleted_toast : R.string.delete_account_partial),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void dismissQuietly(AlertDialog dialog) {
+        try {
+            if (dialog.isShowing()) dialog.dismiss();
+        } catch (RuntimeException ignored) {
+            // The window is already gone (activity destroyed); nothing to dismiss.
+        }
+    }
+
+    private void openPrivacyPolicy() {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_policy_url))));
+        } catch (RuntimeException e) {
+            // No browser installed; nothing sensible to do.
         }
     }
 
@@ -1042,6 +1147,21 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 holder.lastSynced = null;
                 store.dispatch(AppEvent.of(AppEvent.Type.LOGOUT));
             });
+        }
+
+        View btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
+        if (btnDeleteAccount != null) {
+            btnDeleteAccount.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                confirmAccountDeletion();
+            });
+        }
+
+        // The privacy-policy row only appears once a policy URL is configured (strings.xml: privacy_policy_url).
+        View btnPrivacyPolicy = findViewById(R.id.btnPrivacyPolicy);
+        if (btnPrivacyPolicy != null && !getString(R.string.privacy_policy_url).isEmpty()) {
+            btnPrivacyPolicy.setVisibility(View.VISIBLE);
+            btnPrivacyPolicy.setOnClickListener(v -> openPrivacyPolicy());
         }
 
         TextView tvInstagramHandle = findViewById(R.id.tvInstagramHandle);

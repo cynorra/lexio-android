@@ -21,6 +21,9 @@ public class StoreHolder extends ViewModel {
     /** Last progress persisted to local cache / server, so unchanged state isn't re-written. */
     public UserProgress lastSynced = null;
 
+    /** True while an account is being deleted: nothing may write the user's data back to Firestore. */
+    public boolean deletingAccount = false;
+
     /** Set by the reminder notification; consumed once the user is signed in. */
     public boolean openQuizPending = false;
 

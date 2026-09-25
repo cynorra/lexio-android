@@ -19,7 +19,7 @@
     <string name="login_heading">Hesabınıza Giriş Yapın</string>
     <string name="login_subheading">Skorunuzu kaydetmek ve sıralamaya katılmak için giriş yapmanız gerekmektedir.</string>
     <string name="btn_google_signin">Google ile Giriş Yap</string>
-    <string name="login_terms_notice">Giriş yaparak kullanım koşullarını kabul etmiş olursunuz.</string>
+    <string name="login_terms_notice">Giriş yaparak kullanım koşullarını kabul etmiş olursunuz. Lexio bir eğitim uygulamasıdır ve hukuki tavsiye vermez.</string>
 
     <!-- Landing -->
     <string name="landing_brand_mark">Lexio — AI Hukuk Simülasyonu</string>
@@ -200,4 +200,18 @@
     <string name="study_reference">Kaynak: %1$s</string>
     <string name="study_quiz_header">Kendini Test Et</string>
     <string name="case_list_empty">Bu ülke için henüz dava simülasyonu yok. Günlük test ve hukuk kütüphanesi seni bekliyor!</string>
+
+    <!-- Account deletion, privacy, legal notice -->
+    <string name="btn_delete_account">Hesabımı ve verilerimi sil</string>
+    <string name="delete_account_title">Hesabın silinsin mi?</string>
+    <string name="delete_account_message">Hesabın, puanların, serin, sıralama kayıtların ve paylaşımların kalıcı olarak silinir. Bu işlem geri alınamaz. Güvenlik için Google hesabınla yeniden giriş yapman istenecek.</string>
+    <string name="delete_account_confirm">Devam et</string>
+    <string name="delete_account_reauth_failed">Kimlik doğrulanamadı, hesap silinmedi. Aynı Google hesabıyla tekrar dene.</string>
+    <string name="deleting_account">Hesabın siliniyor…</string>
+    <string name="account_deleted_toast">Hesabın ve verilerin silindi.</string>
+    <string name="delete_account_failed">Hesap silinemedi. Bağlantını kontrol edip tekrar dene.</string>
+    <string name="delete_account_partial">Verilerin silindi ancak giriş hesabı kaldırılamadı. Destek için bize yaz.</string>
+    <string name="btn_privacy_policy">Gizlilik Politikası</string>
+    <string name="privacy_policy_url" translatable="false"></string>
+    <string name="legal_disclaimer">Lexio bir eğitim uygulamasıdır. İçerikler genel bilgilendirme ve öğrenme amaçlıdır; hukuki tavsiye değildir ve bir avukatın görüşü yerine geçmez. İçeriklerin bir kısmı yapay zeka desteğiyle hazırlanır ve hata içerebilir.</string>
 </resources>

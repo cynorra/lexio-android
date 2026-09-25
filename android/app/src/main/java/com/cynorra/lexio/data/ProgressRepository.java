@@ -85,6 +85,15 @@ public class ProgressRepository {
                 .apply();
     }
 
+    /** Removes everything cached for this user on the device (used by account deletion). */
+    public void clearLocal(String uid) {
+        SharedPreferences.Editor editor = prefs.edit();
+        for (String key : prefs.getAll().keySet()) {
+            if (key.startsWith(uid + ".")) editor.remove(key);
+        }
+        editor.remove(KEY_LAST_QUIZ_DATE).apply();
+    }
+
     public void loadRemote(String uid, Callback callback) {
         db.collection("users").document(uid).get()
                 .addOnSuccessListener(doc -> callback.onLoaded(fromDocument(doc)))

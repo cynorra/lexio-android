@@ -31,7 +31,8 @@ public class LeaderboardRepository {
     public void addPoints(String uid, String name, int points) {
         if (points <= 0) return;
         WriteBatch batch = db.batch();
-        for (String periodKey : new String[]{DateKeys.dailyKey(), DateKeys.weeklyKey(), DateKeys.monthlyKey()}) {
+        String[] periodKeys = {DateKeys.dailyKey(), DateKeys.weeklyKey(), DateKeys.monthlyKey()};
+        for (String periodKey : periodKeys) {
             Map<String, Object> data = new HashMap<>();
             data.put("name", name);
             data.put("score", FieldValue.increment(points));
@@ -39,6 +40,11 @@ public class LeaderboardRepository {
             batch.set(db.collection("leaderboards").document(periodKey).collection("entries").document(uid),
                     data, SetOptions.merge());
         }
+        // Remember which boards this user is on, so account deletion can remove every entry
+        // (the period documents can't be listed from the client).
+        Map<String, Object> boards = new HashMap<>();
+        boards.put("boards", FieldValue.arrayUnion((Object[]) periodKeys));
+        batch.set(db.collection("users").document(uid), boards, SetOptions.merge());
         batch.commit();
     }
 

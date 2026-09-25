@@ -19,7 +19,7 @@
     <string name="login_heading">Sign In to Your Account</string>
     <string name="login_subheading">Sign in to save your score and join the leaderboard.</string>
     <string name="btn_google_signin">Sign in with Google</string>
-    <string name="login_terms_notice">By signing in you agree to the terms of use.</string>
+    <string name="login_terms_notice">By signing in you accept the terms of use. Lexio is an educational app and does not provide legal advice.</string>
 
     <!-- Landing -->
     <string name="landing_brand_mark">Lexio — AI Legal Simulation</string>
@@ -200,4 +200,18 @@
     <string name="study_reference">Source: %1$s</string>
     <string name="study_quiz_header">Test Yourself</string>
     <string name="case_list_empty">No trial simulations for this country yet. The daily quiz and the law library are waiting for you!</string>
+
+    <!-- Account deletion, privacy, legal notice -->
+    <string name="btn_delete_account">Delete my account and data</string>
+    <string name="delete_account_title">Delete your account?</string>
+    <string name="delete_account_message">Your account, points, streak, leaderboard entries and posts will be permanently deleted. This cannot be undone. For security you will be asked to sign in with Google again.</string>
+    <string name="delete_account_confirm">Continue</string>
+    <string name="delete_account_reauth_failed">Couldn\'t verify your identity, so nothing was deleted. Try again with the same Google account.</string>
+    <string name="deleting_account">Deleting your account…</string>
+    <string name="account_deleted_toast">Your account and data were deleted.</string>
+    <string name="delete_account_failed">Couldn\'t delete the account. Check your connection and try again.</string>
+    <string name="delete_account_partial">Your data was deleted but the sign-in account could not be removed. Contact us for help.</string>
+    <string name="btn_privacy_policy">Privacy Policy</string>
+    <string name="privacy_policy_url" translatable="false"></string>
+    <string name="legal_disclaimer">Lexio is an educational app. Content is for general information and learning only; it is not legal advice and does not replace a lawyer. Some content is prepared with AI assistance and may contain errors.</string>
 </resources>
