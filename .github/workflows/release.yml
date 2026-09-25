@@ -2,6 +2,10 @@ name: Android Release AAB
 
 on:
   push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - '.github/workflows/release.yml'
     tags: ['v*']
   workflow_dispatch:
 
@@ -39,16 +43,28 @@ jobs:
           chmod +x gradlew
           ./gradlew bundleRelease --no-daemon
 
-      - name: Rename AAB
+      - name: Compute tag and rename AAB
+        id: meta
         run: |
-          VERSION="${GITHUB_REF_NAME}"
-          [ "${GITHUB_REF_TYPE}" = "tag" ] || VERSION="build-${GITHUB_RUN_NUMBER}"
-          mv app/build/outputs/bundle/release/*.aab "app/build/outputs/bundle/release/lexio-${VERSION}.aab"
+          VERSION_NAME=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)
+          VERSION_CODE=$(grep -oP 'versionCode = \K[0-9]+' app/build.gradle.kts)
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG="v${VERSION_NAME}-build${GITHUB_RUN_NUMBER}"
+          fi
+          OUT="app/build/outputs/bundle/release/lexio-${TAG}-code${VERSION_CODE}.aab"
+          mv app/build/outputs/bundle/release/*.aab "$OUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Attach AAB to GitHub Release
-        if: github.ref_type == 'tag'
+      - name: Create tag and GitHub Release with AAB
+        if: github.event_name != 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          prerelease: ${{ github.ref_type != 'tag' }}
+          generate_release_notes: true
           files: android/app/build/outputs/bundle/release/*.aab
 
       - uses: actions/upload-artifact@v4
