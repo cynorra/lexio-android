@@ -6,8 +6,9 @@ content that already exists for a date is skipped unless --force is passed - and
 a few days ahead so a failed run never leaves the app without a quiz.
 
 Pipeline for every topic
-  1. RESEARCH   Google-Search-grounded notes with exact provisions, cases and years. Cached in
-                Firestore (researchNotes/) for 30 days, so a topic is researched about once a month.
+  1. RESEARCH   Reference excerpts from Wikipedia (English + the country's own language, free, no
+                billing; see sources.py), filtered for relevance. Cached in Firestore (researchNotes/)
+                for 30 days, so a topic is researched about once a month.
   2. WRITE      Questions / lessons written ONLY from those notes, in English.
   3. CHECK      An independent pass against the notes. Only material errors block publishing
                 (wrong answer key, false legal statement, ambiguous answer); style or nuance is ignored.
@@ -32,8 +33,7 @@ Environment:
   QUIZGEN_MODEL                     optional, model that writes the content (default gemini-3.5-flash-lite)
   QUIZGEN_VERIFY_MODEL              optional, model that checks it (default: same as QUIZGEN_MODEL)
   QUIZGEN_MIN_INTERVAL              optional, seconds between model calls (default 4; 0 on a paid key)
-  QUIZGEN_RESEARCH_MODEL            optional, model used for search-grounded research (default gemini-2.5-flash,
-                                    "off" disables research)
+  QUIZGEN_RESEARCH                  optional, "off" skips the research step (content then relies on the model alone)
   DEEPL_API_KEY                     optional, Turkish translation via DeepL (see translate.py for alternatives)
 """
 import argparse
@@ -50,14 +50,13 @@ import time
 from google import genai
 
 from curriculum import COUNTRIES, COUNTRY_ORDER, CURRICULUM
+import sources
 from translate import Translator
 
 # `or` (not a get() default) so an empty value passed by the workflow falls back to the default.
 MODEL = os.environ.get("QUIZGEN_MODEL") or "gemini-3.5-flash-lite"
 VERIFY_MODEL = os.environ.get("QUIZGEN_VERIFY_MODEL") or MODEL
-# Search grounding is billed per search query on Gemini 3 (unavailable on free keys) but per prompt on the
-# 2.5 family, so the research step defaults to a 2.5 model. Set to "off" to skip research entirely.
-RESEARCH_MODEL = os.environ.get("QUIZGEN_RESEARCH_MODEL") or "gemini-2.5-flash"
+RESEARCH_ENABLED = (os.environ.get("QUIZGEN_RESEARCH") or "on").lower() != "off"
 
 QUESTIONS_PER_QUIZ = 5
 QUESTIONS_PER_STUDY_SET = 5
@@ -180,6 +179,13 @@ LESSON_SCHEMA = {
     "additionalProperties": False,
 }
 
+RELEVANCE_SCHEMA = {
+    "type": "object",
+    "properties": {"keep": {"type": "array", "items": {"type": "integer"}}},
+    "required": ["keep"],
+    "additionalProperties": False,
+}
+
 VERIFY_SCHEMA = {
     "type": "object",
     "properties": {
@@ -231,19 +237,14 @@ def _meta(country):
     return f"Jurisdiction: {m['name']} ({m['system']}). Primary sources: {m['sources']}."
 
 
-def research_prompt(country, topic, today):
+def relevance_prompt(country, topic, candidates):
+    listing = "\n\n".join(f"[{i}] ({c['lang']}) {c['title']}\n{c['text'][:500]}" for i, c in enumerate(candidates))
     return (
-        f"{_meta(country)}\n\nToday is {today}. Using web search, collect authoritative, verified reference notes "
-        f"for teaching and testing this topic:\n  {topic[1]}\n  Anchor: {topic[2]}\n\n"
-        "Write plain-text notes (max 800 words) containing:\n"
-        "- the exact rule(s), with provision / article / amendment numbers, quoted or closely paraphrased\n"
-        "- landmark decisions with court, year and the actual holding\n"
-        "- how the rule works in practice, its limits and exceptions\n"
-        "- common misconceptions students have\n"
-        "- any amendment or major change up to today that affects the rule\n"
-        "Prefer primary sources (the constitution or statute text, court websites) and reputable legal references. "
-        "After each fact, name its source in square brackets. If sources disagree, say so. Do not speculate and do "
-        "not include anything you cannot back with a source."
+        f"{_meta(country)}\nTopic to teach: {topic[1]}\nAnchor: {topic[2]}\n\n"
+        "Below are candidate encyclopedia articles found by search. Return the indices of the articles that are "
+        "genuinely ABOUT this topic in this jurisdiction and would help someone write accurate lesson material on "
+        "it. Drop articles about a different subject, a different country, or that only mention the topic in "
+        "passing. Return an empty list if none qualify.\n\n" + listing
     )
 
 
@@ -251,7 +252,9 @@ def _notes_block(notes):
     if not notes:
         return ("(No reference notes are available for this topic. Rely only on facts you are completely certain "
                 "of, and prefer questions about well-established core principles.)")
-    return f"REFERENCE NOTES (verified from sources; base every factual claim on these):\n{notes}"
+    return ("REFERENCE NOTES (excerpts from public encyclopedia articles; base factual claims on them. They can "
+            "contain mistakes or be out of date: if a point contradicts settled law you know well, leave that point "
+            "out rather than repeat it):\n" + notes)
 
 
 def questions_prompt(country, slots, notes_by_slot, feedback):
@@ -356,7 +359,7 @@ class Research:
 
     def __init__(self, store):
         self.store = store
-        self.grounding = RESEARCH_MODEL.lower() != "off"  # also switched off if the search tool proves unusable
+        self.grounding = RESEARCH_ENABLED
         self._memory = {}
         self._lock = threading.Lock()
 
@@ -375,20 +378,26 @@ class Research:
         return cached or ""
 
     def _fetch(self, country, topic, today):
+        """Wikipedia excerpts (no LLM, no billing) filtered for relevance by one cheap model call."""
         try:
-            text = _call("You are a careful legal researcher.", research_prompt(country, topic, today),
-                         tools=[{"type": "google_search"}], thinking=None, max_tokens=6000,
-                         model=RESEARCH_MODEL,
-                         attempts=2)  # search grounding is optional: fail over quickly instead of stalling the run
-            if len(text.strip()) < 300:
-                raise ValueError("research notes too short")
-            return text.strip()
+            candidates = sources.fetch_candidates(COUNTRIES[country]["name"], sources.NATIVE_LANGUAGE.get(country), topic)
+            if not candidates:
+                log(f"  [{country}] no reference articles found for '{topic[0]}'; writing without notes")
+                return ""
+            keep = call_json("You select reference material for legal writers.",
+                             relevance_prompt(country, topic, candidates), RELEVANCE_SCHEMA,
+                             thinking="low", max_tokens=1000, attempts=2)["keep"]
+            chosen = [candidates[i] for i in keep if isinstance(i, int) and 0 <= i < len(candidates)]
+            if not chosen:
+                log(f"  [{country}] none of the found articles fit '{topic[0]}'; writing without notes")
+                return ""
+            notes = "\n\n".join(f"[Source: Wikipedia ({c['lang']}): {c['title']} - {c['url']}]\n{c['text']}"
+                                for c in chosen)
+            return notes[:14000]
         except QuotaExhausted:
             raise
-        except Exception as e:
-            log(f"  [{country}] research unavailable ({type(e).__name__}: {str(e)[:160]}); "
-                "continuing WITHOUT search grounding")
-            self.grounding = False
+        except Exception as e:  # research is best-effort: never let it block the run
+            log(f"  [{country}] research skipped for '{topic[0]}' ({type(e).__name__}: {str(e)[:160]})")
             return ""
 
 
@@ -572,7 +581,7 @@ def build_daily_quiz(country, date, research, today, translator):
         "translatedBy": translator.name,
         "model": MODEL,
         "verifiedBy": VERIFY_MODEL,
-        "grounded": research.grounding,
+        "grounded": all(research.notes(country, t, today) for t in topics),  # every topic had reference notes
     }
 
 
@@ -606,7 +615,7 @@ def build_study_set(country, date, research, today, translator):
                 "translatedBy": translator.name,
                 "model": MODEL,
                 "verifiedBy": VERIFY_MODEL,
-                "grounded": research.grounding,
+                "grounded": bool(notes),
             }
         except Rejected as e:
             last_error = e
@@ -746,7 +755,7 @@ def main():
         for offset in range(-args.days_back, 1):  # study sets are only published for today and backfill
             jobs.append(("study", country, today + dt.timedelta(days=offset)))
 
-    log(f"model={MODEL} verify_model={VERIFY_MODEL} research_model={RESEARCH_MODEL} translator={translator.name} jobs={len(jobs)} today(UTC)={today}")
+    log(f"model={MODEL} verify_model={VERIFY_MODEL} research={'on' if RESEARCH_ENABLED else 'OFF'} translator={translator.name} jobs={len(jobs)} today(UTC)={today}")
     started = time.time()
     failures, quota_hit = 0, False
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:

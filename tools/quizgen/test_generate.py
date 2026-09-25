@@ -92,28 +92,31 @@ class FakeModel:
                 results.append({"index": item["index"], "verdict": "error" if bad else "ok",
                                 "problem": "wrong year" if bad else ""})
             return {"results": results}
+        if schema is g.RELEVANCE_SCHEMA:
+            return {"keep": [0]}  # the first candidate is the on-topic one
         if schema is g.LESSON_SCHEMA:
             title = user.split("Write a study lesson on: ")[1].split("\n")[0]
             return {"title": title, "category": "Constitutional Law", "summary": "s", "lesson": "<p>text</p>", "minutes": 4}
         raise AssertionError("unexpected schema")
 
-    def call_text(self, system, user, **kw):  # research
+    def candidates(self, country_name, native_language, topic):  # stands in for sources.fetch_candidates
         if self.research_fails:
-            raise RuntimeError("search tool unavailable")
-        return "notes " * 100
+            raise RuntimeError("wikipedia unreachable")
+        return [{"lang": "en", "title": topic[1], "url": "http://example.org/x", "text": "notes " * 200},
+                {"lang": "en", "title": "Unrelated", "url": "http://example.org/y", "text": "other " * 200}]
 
 
 class PipelineTests(unittest.TestCase):
     def setUp(self):
-        self._orig = (g.call_json, g._call, g.log)
+        self._orig = (g.call_json, g.sources.fetch_candidates, g.log)
         g.log = lambda msg: None
 
     def tearDown(self):
-        g.call_json, g._call, g.log = self._orig
+        g.call_json, g.sources.fetch_candidates, g.log = self._orig
 
     def install(self, fake):
         g.call_json = fake.call_json
-        g._call = fake.call_text
+        g.sources.fetch_candidates = fake.candidates
         return g.Research(FakeStore())
 
     def test_failing_question_is_repaired_not_dropped(self):
@@ -167,13 +170,21 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaises(g.Rejected):
             g.build_study_set("DE", DAY, research, DAY.isoformat(), FakeTranslator())
 
-    def test_search_grounding_failure_degrades_gracefully(self):
+    def test_research_failure_degrades_gracefully(self):
         fake = FakeModel(research_fails=True)
         research = self.install(fake)
         doc = g.build_daily_quiz("FR", DAY, research, DAY.isoformat(), FakeTranslator())
         self.assertEqual(5, len(doc["questions"]))
-        self.assertFalse(research.grounding)
         self.assertFalse(doc["grounded"])
+
+    def test_research_notes_use_only_relevant_articles_and_cite_sources(self):
+        research = self.install(FakeModel())
+        topic = CURRICULUM["US"][0]
+        notes = research.notes("US", topic, DAY.isoformat())
+        self.assertIn("[Source: Wikipedia (en): " + topic[1], notes)
+        self.assertNotIn("Unrelated", notes)  # filtered out by the relevance step
+        doc = g.build_daily_quiz("US", DAY, research, DAY.isoformat(), FakeTranslator())
+        self.assertTrue(doc["grounded"])
 
     def test_daily_quota_is_reported_not_swallowed(self):
         def boom(*a, **k):
@@ -181,6 +192,7 @@ class PipelineTests(unittest.TestCase):
 
         g.call_json = boom
         g._call = boom
+        g.sources.fetch_candidates = lambda *a, **k: [{"lang": "en", "title": "T", "url": "u", "text": "x" * 700}]
         store = FakeStore()
         store.quiz_exists = lambda c, d: False
         label, status = g.run_job("quiz", "US", DAY, store, g.Research(store), FakeTranslator(), DAY.isoformat(), False)
