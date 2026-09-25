@@ -44,6 +44,9 @@ jobs:
 
       - run: pip install -r requirements.txt
 
+      - name: Offline tests
+        run: python -m unittest test_generate
+
       - name: Write Firebase credentials
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
@@ -54,6 +57,7 @@ jobs:
       - name: Generate and publish
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           COUNTRIES: ${{ inputs.countries }}
           QUIZGEN_MODEL: ${{ inputs.model }}
           QUIZGEN_VERIFY_MODEL: ${{ inputs.verify_model }}

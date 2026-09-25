@@ -13,9 +13,21 @@ Countries (product priority order): `US, UK, DE, FR, ES, IT, TR`. Topics live in
 and are walked round-robin, so every topic comes back (freshly rewritten) each cycle.
 Add topics or countries there; the app picks them up with no release.
 
-Every question is generated, then independently fact-checked by a second model call
-(correct answer unique, citations accurate, Turkish faithful to English). Failing questions are
-regenerated and dropped if they still fail; a quiz with fewer than 4 verified questions is not published.
+## Pipeline (per topic)
+
+1. **Research** - Gemini with Google Search writes source-cited reference notes (exact articles, cases,
+   years). Notes are cached in Firestore (`researchNotes/`, 30 days), so a topic is researched about monthly.
+2. **Write** - questions and lessons are written in English, only from those notes.
+3. **Check** - an independent pass against the notes. Only *material* errors block (wrong answer key,
+   false statement, ambiguous answer); style and nuance don't.
+4. **Repair** - failing questions are rewritten with the checker's feedback; a lesson gets two targeted
+   rewrites and then a conservative version. A topic that still can't be fixed is swapped for another,
+   so every day gets content and one hard topic never blocks a run.
+5. **Translate** - the verified English is translated to Turkish by a translation engine, not the LLM
+   (`translate.py`). Options are translated as separate strings, so `correct_index` stays valid.
+
+The workflow only turns red if today's or tomorrow's quiz is missing for some country, so a red run
+always means "look at this".
 
 ## Setup (once)
 
@@ -32,11 +44,22 @@ regenerated and dropped if they still fail; a quiz with fewer than 4 verified qu
 4. Run the **Daily quiz generation** workflow once by hand (Actions tab -> Run workflow) to backfill;
    after that it runs daily at 02:15 UTC.
 
+### Translation engine (optional but recommended)
+
+| Engine | How | Notes |
+|---|---|---|
+| **DeepL** | add secret `DEEPL_API_KEY` (free keys end in `:fx`) | best Turkish quality; free tier 500k chars/month, a full daily run is roughly 40k chars |
+| **Google Cloud Translation** | set env `QUIZGEN_TRANSLATOR=google` | uses the Firebase service account; enable "Cloud Translation API" and billing on the project |
+| **Gemini** (default) | nothing to set | works out of the box but uses LLM quota |
+
+If the chosen engine fails or runs out of quota the run falls back to Gemini, so content is never blocked.
+
 ## Run locally
 
 ```bash
 pip install -r requirements.txt
 export GEMINI_API_KEY=...
+python -m unittest test_generate   # offline tests, no key needed
 python generate.py --dry-run --countries US --days-ahead 0 --days-back 0   # prints documents, writes nothing
 export GOOGLE_APPLICATION_CREDENTIALS=path/to/service-account.json
 python generate.py                                                          # writes to Firestore
