@@ -27,20 +27,18 @@
     <string name="landing_subtitle">Cases inspired by Supreme Court precedents. AI opposing counsel. AI judge.\nLearn law in a real court environment.</string>
     <string name="btn_start_simulation">Start Simulation</string>
     <string name="btn_browse_cases">Browse Cases →</string>
-    <string name="landing_stat_cases_count">10</string>
     <string name="landing_stat_cases_label">Criminal Cases</string>
     <string name="landing_stat_ai_value">AI</string>
     <string name="landing_stat_ai_label">Opposing Counsel</string>
-    <string name="landing_stat_jurisdiction_value">TR</string>
-    <string name="landing_stat_jurisdiction_label">Based on Precedent</string>
+        <string name="landing_stat_jurisdiction_label">Legal Systems</string>
 
     <!-- Case List -->
     <string name="case_list_header_label">Case Selection</string>
     <string name="case_list_eyebrow">Criminal Law</string>
     <string name="case_list_heading">Which Case Will You Take?</string>
     <string name="case_list_subheading">Real-world scenarios adapted from court precedents. Choose the defense or prosecution role and shape your strategy around the opposing side\'s moves.</string>
-    <string name="daily_quiz_banner_title">Today\'s Law Quiz — 3 Questions</string>
-    <string name="daily_quiz_banner_subtitle">Solve today\'s questions, keep your streak, and earn +100 points!</string>
+    <string name="daily_quiz_banner_title">Today\'s Law Quiz</string>
+    <string name="daily_quiz_banner_subtitle">Solve today\'s questions, keep your streak, and earn up to 100 points!</string>
     <string name="daily_quiz_banner_cta">Start →</string>
 
     <!-- Case Detail & Simulation -->
@@ -101,15 +99,15 @@
     <string name="btn_next_question">Next Question →</string>
     <string name="quiz_streak_badge">🔥 %1$d Day Streak</string>
     <string name="quiz_question_num">Question %1$d / %2$d</string>
-    <string name="quiz_completed_toast">Congratulations! Daily Quiz Completed (+100 Points)</string>
+    <string name="quiz_completed_toast">Congratulations! Daily quiz completed (+%1$d points)</string>
     <string name="quiz_correct_prefix">✅ Correct! </string>
     <string name="quiz_incorrect_prefix">❌ Incorrect! </string>
 
     <!-- Study Portal -->
     <string name="study_portal_header_label">Law Library</string>
-    <string name="study_portal_eyebrow">Study Portal</string>
+    <string name="study_portal_eyebrow">Constitution and Core Law</string>
     <string name="study_portal_heading">Sharpen Your Legal Knowledge</string>
-    <string name="study_portal_subheading">Review our concise study notes to perform better in trials and choose the right statutes.</string>
+    <string name="study_portal_subheading">A new lesson every day from your selected country\'s constitution and core legal rules. Test yourself at the end of each lesson.</string>
     <string name="study_card_read_more">Read →</string>
     <string name="study_card_read_time">⏱ %1$d min read</string>
     <string name="study_detail_back">← Back to Lessons</string>
@@ -173,4 +171,33 @@
     <string name="sim_opening_defense">Your Honor, as defense counsel, I must state: the indictment rests on a superficial assessment. A full review of the evidence will show my client did not commit the alleged offense.</string>
     <string name="sim_case_summary_header">Case Summary:</string>
     <string name="sim_evidence_header">Case Evidence:</string>
+
+    <!-- Empty / error states -->
+    <string name="quiz_already_done_toast">Daily quiz completed. You already earned today\'s reward.</string>
+    <string name="btn_finish_quiz">Finish Quiz ✓</string>
+    <string name="leaderboard_empty">Nobody has scored in this period yet. Solve a case and be the first on the list!</string>
+    <string name="leaderboard_load_failed">Couldn\'t load the leaderboard. Check your connection and tap the tab again.</string>
+    <string name="feed_empty">No posts yet. Be the first to share something!</string>
+    <string name="feed_load_failed">Couldn\'t load the feed. Check your connection.</string>
+    <string name="workspace_empty">No workspaces yet. They\'re coming soon.</string>
+    <string name="workspace_load_failed">Couldn\'t load workspaces. Check your connection.</string>
+    <string name="share_app_link">https://play.google.com/store/apps/details?id=com.cynorra.lexio</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_quiz_name">Daily Quiz &amp; Streak Reminders</string>
+    <string name="notif_channel_quiz_desc">Daily quiz and streak reminders</string>
+    <string name="notif_quiz_title">🔥 Your Daily Law Quiz Is Waiting</string>
+    <string name="notif_quiz_body">Solve today\'s quiz to keep your streak alive. Earn points for every correct answer!</string>
+
+    <!-- Countries, quiz & study content states -->
+    <string name="jurisdiction_fr">🇫🇷 France (Code civil / Constitution)</string>
+    <string name="jurisdiction_es">🇪🇸 Spain (Constitución / Código Civil)</string>
+    <string name="jurisdiction_it">🇮🇹 Italy (Costituzione / Codice civile)</string>
+    <string name="quiz_loading">Loading today\'s quiz…</string>
+    <string name="quiz_load_failed">Couldn\'t load today\'s quiz. Check your connection and tap to retry.</string>
+    <string name="study_empty">No lessons for this country yet. A new constitutional-law lesson is published every day, check back soon!</string>
+    <string name="study_load_failed">Couldn\'t load lessons. Check your connection.</string>
+    <string name="study_reference">Source: %1$s</string>
+    <string name="study_quiz_header">Test Yourself</string>
+    <string name="case_list_empty">No trial simulations for this country yet. The daily quiz and the law library are waiting for you!</string>
 </resources>

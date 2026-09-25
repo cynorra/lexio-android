@@ -28,6 +28,18 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # Private-repo runners have 8 GB RAM (7 GB usable), so 6 GB heap leaves headroom for the OS and native memory.
+      # User-level gradle.properties overrides the project's smaller local default.
+      - name: Raise Gradle memory limit
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=768m -Dfile.encoding=UTF-8" >> ~/.gradle/gradle.properties
+
+      - name: Unit tests
+        run: |
+          chmod +x gradlew
+          ./gradlew testDebugUnitTest --no-daemon
+
       - name: Decode keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
@@ -40,7 +52,6 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          chmod +x gradlew
           ./gradlew bundleRelease --no-daemon
 
       - name: Compute tag and rename AAB

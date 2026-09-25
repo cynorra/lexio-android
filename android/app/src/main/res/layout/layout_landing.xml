@@ -115,9 +115,9 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/tvStatCasesCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/landing_stat_cases_count"
                     android:textColor="@color/text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -165,9 +165,9 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/tvStatJurisdictionCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/landing_stat_jurisdiction_value"
                     android:textColor="@color/text_primary"
                     android:textSize="24sp"
                     android:textStyle="bold" />

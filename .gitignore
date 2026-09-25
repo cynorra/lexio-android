@@ -10,3 +10,6 @@ hs_err_pid*.log
 replay_pid*.log
 graphify-out/
 
+
+# Firebase service-account keys must never be committed
+*firebase-adminsdk*.json

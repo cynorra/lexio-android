@@ -33,7 +33,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Suçun Unsurları ve Kast / Taksir"
             android:textColor="@color/text_primary"
             android:textSize="26sp"
             android:textStyle="bold" />
@@ -43,10 +42,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Ceza Hukuku Genel"
             android:textColor="@color/accent_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvStudyDetailReference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_muted"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
         <!-- Reading Content Card -->
         <androidx.cardview.widget.CardView
@@ -70,13 +77,29 @@
                     android:id="@+id/tvStudyDetailContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Yükleniyor..."
                     android:textColor="@color/text_secondary"
                     android:textSize="15sp"
                     android:lineSpacingMultiplier="1.35" />
 
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/tvStudyQuizHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/study_quiz_header"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/llStudyQuizContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="32dp" />
 
     </LinearLayout>
 </ScrollView>

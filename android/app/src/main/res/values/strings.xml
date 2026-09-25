@@ -27,20 +27,18 @@
     <string name="landing_subtitle">Gerçek Yargıtay kararlarından üretilmiş vakalar. AI karşı avukat. AI hakim.\nHukuku gerçek dava atmosferinde öğren.</string>
     <string name="btn_start_simulation">Simülasyona Başla</string>
     <string name="btn_browse_cases">Vakaları İncele →</string>
-    <string name="landing_stat_cases_count">10</string>
     <string name="landing_stat_cases_label">Ceza Davası</string>
     <string name="landing_stat_ai_value">AI</string>
     <string name="landing_stat_ai_label">Karşı Avukat</string>
-    <string name="landing_stat_jurisdiction_value">TR</string>
-    <string name="landing_stat_jurisdiction_label">Yargıtay Bazlı</string>
+        <string name="landing_stat_jurisdiction_label">Hukuk Sistemi</string>
 
     <!-- Case List -->
     <string name="case_list_header_label">Vaka Seçimi</string>
     <string name="case_list_eyebrow">Ceza Hukuku</string>
     <string name="case_list_heading">Hangi Davayı Üstleniyorsunuz?</string>
     <string name="case_list_subheading">Yargıtay kararlarından uyarlanmış gerçek senaryolar. Savunma veya savcılık rolünü seçin, karşı tarafın hamlelerine göre stratejinizi belirleyin.</string>
-    <string name="daily_quiz_banner_title">Günün Hukuk Testi — 3 Soru</string>
-    <string name="daily_quiz_banner_subtitle">Günün sorularını çöz, seriyi yakala ve +100 Puan kazan!</string>
+    <string name="daily_quiz_banner_title">Günün Hukuk Testi</string>
+    <string name="daily_quiz_banner_subtitle">Günün sorularını çöz, seriyi yakala ve 100 puana kadar kazan!</string>
     <string name="daily_quiz_banner_cta">Başla →</string>
 
     <!-- Case Detail & Simulation -->
@@ -101,15 +99,15 @@
     <string name="btn_next_question">Sonraki Soru →</string>
     <string name="quiz_streak_badge">🔥 %1$d Gün Seri</string>
     <string name="quiz_question_num">Soru %1$d / %2$d</string>
-    <string name="quiz_completed_toast">Tebrikler! Günlük Test Tamamlandı (+100 Puan)</string>
+    <string name="quiz_completed_toast">Tebrikler! Günlük test tamamlandı (+%1$d Puan)</string>
     <string name="quiz_correct_prefix">✅ Doğru! </string>
     <string name="quiz_incorrect_prefix">❌ Yanlış! </string>
 
     <!-- Study Portal -->
     <string name="study_portal_header_label">Hukuk Kütüphanesi</string>
-    <string name="study_portal_eyebrow">Ders Çalışma Portalı</string>
+    <string name="study_portal_eyebrow">Anayasa ve Temel Hukuk</string>
     <string name="study_portal_heading">Hukuk Bilgini Geliştir</string>
-    <string name="study_portal_subheading">Duruşmalarda daha yüksek performans göstermek ve doğru kanun maddelerini seçebilmek için özet ders notlarımızı inceleyin.</string>
+    <string name="study_portal_subheading">Seçtiğin ülkenin anayasasından ve temel hukuk kurallarından her gün yeni bir ders. Her dersin sonunda kendini test et.</string>
     <string name="study_card_read_more">Oku →</string>
     <string name="study_card_read_time">⏱ %1$d dk okuma</string>
     <string name="study_detail_back">← Derslere Dön</string>
@@ -173,4 +171,33 @@
     <string name="sim_opening_defense">Sayın Mahkeme, müdafi olarak şunu belirtmeliyim: İddianame yüzeysel değerlendirmeye dayanmaktadır. Delillerin bütünlüklü değerlendirilmesi müvekkilimin iddia edilen suçu işlemediğini ortaya koyacaktır.</string>
     <string name="sim_case_summary_header">Vaka Özeti:</string>
     <string name="sim_evidence_header">Dosyadaki Deliller:</string>
+
+    <!-- Empty / error states -->
+    <string name="quiz_already_done_toast">Günlük test tamamlandı. Bugünün ödülünü zaten almıştın.</string>
+    <string name="btn_finish_quiz">Testi Bitir ✓</string>
+    <string name="leaderboard_empty">Bu dönemde henüz puan alan yok. Bir vaka çöz, listeye ilk giren sen ol!</string>
+    <string name="leaderboard_load_failed">Sıralama yüklenemedi. Bağlantını kontrol edip sekmeye tekrar dokun.</string>
+    <string name="feed_empty">Henüz gönderi yok. İlk paylaşımı sen yap!</string>
+    <string name="feed_load_failed">Akış yüklenemedi. Bağlantını kontrol et.</string>
+    <string name="workspace_empty">Henüz çalışma alanı yok. Yakında burada olacak.</string>
+    <string name="workspace_load_failed">Çalışma alanları yüklenemedi. Bağlantını kontrol et.</string>
+    <string name="share_app_link">https://play.google.com/store/apps/details?id=com.cynorra.lexio</string>
+
+    <!-- Notifications -->
+    <string name="notif_channel_quiz_name">Günlük Test ve Seri Hatırlatmaları</string>
+    <string name="notif_channel_quiz_desc">Günlük test ve seri hatırlatmaları</string>
+    <string name="notif_quiz_title">🔥 Günlük Hukuk Testin Seni Bekliyor</string>
+    <string name="notif_quiz_body">Serini korumak için bugünkü testi çöz. Doğru cevap başına puan kazanırsın!</string>
+
+    <!-- Countries, quiz & study content states -->
+    <string name="jurisdiction_fr">🇫🇷 Fransa (Code civil / Anayasa)</string>
+    <string name="jurisdiction_es">🇪🇸 İspanya (Constitución / Código Civil)</string>
+    <string name="jurisdiction_it">🇮🇹 İtalya (Costituzione / Codice civile)</string>
+    <string name="quiz_loading">Günün testi yükleniyor…</string>
+    <string name="quiz_load_failed">Günün testi yüklenemedi. Bağlantını kontrol et, tekrar denemek için dokun.</string>
+    <string name="study_empty">Bu ülke için henüz ders yok. Her gün yeni bir anayasa dersi yayımlanıyor, yakında tekrar bak!</string>
+    <string name="study_load_failed">Dersler yüklenemedi. Bağlantını kontrol et.</string>
+    <string name="study_reference">Kaynak: %1$s</string>
+    <string name="study_quiz_header">Kendini Test Et</string>
+    <string name="case_list_empty">Bu ülke için henüz dava simülasyonu yok. Günlük test ve hukuk kütüphanesi seni bekliyor!</string>
 </resources>

@@ -3,6 +3,7 @@ package com.cynorra.lexio.model;
 public class FeedPost {
     private String docId;
     private int id;
+    private String authorUid;
     private String authorName;
     private String authorRole; // e.g. "Avukat", "Stajyer", "Öğrenci"
     private String timestamp;
@@ -30,6 +31,9 @@ public class FeedPost {
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+
+    public String getAuthorUid() { return authorUid; }
+    public void setAuthorUid(String authorUid) { this.authorUid = authorUid; }
 
     public String getAuthorName() { return authorName; }
     public void setAuthorName(String authorName) { this.authorName = authorName; }

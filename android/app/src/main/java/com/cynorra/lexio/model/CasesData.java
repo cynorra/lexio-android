@@ -823,6 +823,10 @@ public class CasesData {
         return filtered;
     }
 
+    public static int getTotalCaseCount() {
+        return CASES.size();
+    }
+
     public static Case getCaseById(int id) {
         for (Case c : CASES) {
             if (c.getId() == id) {
