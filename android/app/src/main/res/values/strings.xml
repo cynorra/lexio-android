@@ -214,4 +214,10 @@
     <string name="btn_privacy_policy">Gizlilik Politikası</string>
     <string name="privacy_policy_url" translatable="false">https://cynorra.github.io/lexio/privacy-policy.html</string>
     <string name="legal_disclaimer">Lexio bir eğitim uygulamasıdır. İçerikler genel bilgilendirme ve öğrenme amaçlıdır; hukuki tavsiye değildir ve bir avukatın görüşü yerine geçmez. İçeriklerin bir kısmı yapay zeka desteğiyle hazırlanır ve hata içerebilir.</string>
+
+    <!-- Notification permission (asked after the first completed quiz) -->
+    <string name="notif_permission_title">Serini korumak ister misin? 🔥</string>
+    <string name="notif_permission_message">Günlük testini çözdün! Yarın da serini sürdürmen için sana her akşam kısa bir hatırlatma gönderebiliriz. İstediğin zaman sistem ayarlarından kapatabilirsin.</string>
+    <string name="notif_permission_allow">Evet, hatırlat</string>
+    <string name="notif_permission_later">Şimdi değil</string>
 </resources>

@@ -1,13 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Auto Backup rules for Android 11 and older (Android 12+ uses data_extraction_rules.xml).
+
+  Only the device preferences (language, theme, country) are backed up. Everything else is
+  deliberately left out:
+    - lexio_progress: a cache of the signed-in user's progress. The server (Firestore) is the source
+      of truth and is re-read after sign-in, so a restored cache could only be stale or belong to a
+      different account.
+    - Firebase Auth / Firestore / installation ids, the WorkManager database and Google Ads state:
+      these are tied to the old install and must be recreated on the new device, not restored.
+  Listing an <include> means "back up only this".
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <include domain="sharedpref" path="lexio_prefs.xml" />
 </full-backup-content>

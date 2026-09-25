@@ -149,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         // restored the first time; a recreate (theme, rotation) just re-attaches to live state.
         if (!holder.initialized) {
             holder.initialized = true;
-            requestNotificationPermission();
             restorePreferences();
             FirebaseUser existingUser = mAuth.getCurrentUser();
             if (existingUser != null) {
@@ -198,11 +197,32 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     // ---------------------------------------------------------------- lifecycle helpers
 
-    private void requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATIONS);
+    /**
+     * Asks for the notification permission at a moment when the reason is obvious: right after the user
+     * finished a daily quiz, so "remind me tomorrow to keep my streak" makes sense. An explanation dialog
+     * comes first (the system prompt can be denied for good after two refusals). Asked at most twice, at
+     * least three days apart; declining costs the user nothing. Only Android 13+ needs the permission.
+     */
+    private void maybeAskNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            return;
         }
+        // Separate prefs file: unlike lexio_prefs it is not backed up, and permission state is per device.
+        SharedPreferences prompts = getSharedPreferences("lexio_prompts", MODE_PRIVATE);
+        int asked = prompts.getInt("notification_prompts", 0);
+        long last = prompts.getLong("notification_last_prompt", 0);
+        long now = System.currentTimeMillis();
+        if (asked >= 2 || now - last < 3L * 24 * 60 * 60 * 1000) return;
+        prompts.edit().putInt("notification_prompts", asked + 1).putLong("notification_last_prompt", now).apply();
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.notif_permission_title)
+                .setMessage(R.string.notif_permission_message)
+                .setPositiveButton(R.string.notif_permission_allow, (dialog, which) ->
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATIONS))
+                .setNegativeButton(R.string.notif_permission_later, null)
+                .show();
     }
 
     /** Language/theme are device preferences (not account data), restored before the first render. */
@@ -1416,6 +1436,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                             alreadyRewarded ? getString(R.string.quiz_already_done_toast)
                                     : getString(R.string.quiz_completed_toast, earned),
                             Toast.LENGTH_LONG).show();
+                    maybeAskNotificationPermission();
                 }
             });
         }

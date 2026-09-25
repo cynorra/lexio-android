@@ -214,4 +214,10 @@
     <string name="btn_privacy_policy">Privacy Policy</string>
     <string name="privacy_policy_url" translatable="false">https://cynorra.github.io/lexio/privacy-policy.html</string>
     <string name="legal_disclaimer">Lexio is an educational app. Content is for general information and learning only; it is not legal advice and does not replace a lawyer. Some content is prepared with AI assistance and may contain errors.</string>
+
+    <!-- Notification permission (asked after the first completed quiz) -->
+    <string name="notif_permission_title">Keep your streak alive? 🔥</string>
+    <string name="notif_permission_message">You finished today\'s quiz! We can send you a short reminder each evening so you don\'t lose your streak tomorrow. You can turn it off any time in system settings.</string>
+    <string name="notif_permission_allow">Yes, remind me</string>
+    <string name="notif_permission_later">Not now</string>
 </resources>
