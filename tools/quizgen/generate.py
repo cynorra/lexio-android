@@ -91,12 +91,16 @@ def log(msg):
 
 # --------------------------------------------------------------------------- model access
 
+CALLS = {"requests": 0}  # every request sent, including retries: this is what counts against the daily quota
+
+
 def _pace():
     with _pace_lock:
         wait = _last_call[0] + MIN_INTERVAL - time.monotonic()
         if wait > 0:
             time.sleep(wait)
         _last_call[0] = time.monotonic()
+        CALLS["requests"] += 1
 
 
 def _call(system, user, *, schema=None, tools=None, thinking="medium", max_tokens=16000, model=None, parse=None,
@@ -766,7 +770,10 @@ def main():
             failures += status.startswith(("FAILED", "QUOTA"))
             quota_hit = quota_hit or status.startswith("QUOTA")
 
-    log(f"done in {time.time() - started:.0f}s, {failures} job failure(s), grounding={'on' if research.grounding else 'OFF'}")
+    ok_jobs = len(jobs) - failures
+    log(f"done in {time.time() - started:.0f}s, {failures} job failure(s), research={'on' if research.grounding else 'OFF'}")
+    log(f"Gemini requests used this run: {CALLS['requests']} (~{CALLS['requests'] / max(ok_jobs, 1):.1f} per finished job; "
+        "the free tier allows 500/day for flash-lite)")
     if quota_hit:
         log("The Gemini API quota is exhausted. The free tier allows only a small number of requests per day: "
             "enable billing on the Google Cloud project behind GEMINI_API_KEY.")
