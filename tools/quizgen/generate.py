@@ -730,8 +730,66 @@ def coverage_problems(store, countries, today):
     return critical, warnings
 
 
+def _valid_localized_question(q):
+    """Mirrors what the Android app requires (ContentRepository.parseQuestions)."""
+    try:
+        if not isinstance(q["correct_index"], (int, float)) or not 0 <= int(q["correct_index"]) <= 3:
+            return False
+        for lang in ("en", "tr"):
+            loc = q[lang]
+            if not (isinstance(loc["question"], str) and loc["question"].strip()):
+                return False
+            if len(loc["options"]) != 4 or not all(isinstance(o, str) and o.strip() for o in loc["options"]):
+                return False
+        return isinstance(q["id"], str)
+    except (KeyError, TypeError):
+        return False
+
+
+def check_content(store, countries, today):
+    """Read-only audit of what the app will actually receive. Returns the number of problems."""
+    problems = 0
+    for country in countries:
+        for offset in (0, 1):
+            day = today + dt.timedelta(days=offset)
+            snap = store.quiz_ref(country, day).get()
+            if not snap.exists:
+                log(f"[{country}] quiz {day}: MISSING")
+                problems += 1
+                continue
+            doc = snap.to_dict()
+            questions = doc.get("questions", [])
+            bad = [q.get("id") for q in questions if not _valid_localized_question(q)]
+            log(f"[{country}] quiz {day}: {len(questions)} questions, invalid={len(bad)}, model={doc.get('model')}, "
+                f"translatedBy={doc.get('translatedBy')}, grounded={doc.get('grounded')}")
+            problems += bool(bad) + (len(questions) < MIN_QUESTIONS)
+            if offset == 0 and questions and country in ("US", "TR"):
+                q = questions[0]
+                log(f"   sample EN: {q['en']['question']} | {q['en']['options']} | answer={q['correct_index']}")
+                log(f"   sample TR: {q['tr']['question']} | {q['tr']['options']}")
+        sets = list(store.sets_ref(country).order_by("publishedAt", direction="DESCENDING").limit(5).get())
+        if not sets:
+            log(f"[{country}] study sets: NONE")
+            problems += 1
+        for s in sets:
+            d = s.to_dict()
+            try:
+                ok = (all(d[k]["en"].strip() and d[k]["tr"].strip() for k in ("title", "lesson", "category", "summary"))
+                      and isinstance(d["minutes"], (int, float)) and isinstance(d["publishedAt"], (int, float))
+                      and len(d["questions"]) >= MIN_QUESTIONS and all(_valid_localized_question(q) for q in d["questions"]))
+            except (KeyError, TypeError, AttributeError):
+                ok = False
+            log(f"[{country}] study {d.get('date')} {s.id}: valid={ok}, lesson EN/TR chars="
+                f"{len(d.get('lesson', {}).get('en', ''))}/{len(d.get('lesson', {}).get('tr', ''))}, "
+                f"questions={len(d.get('questions', []))}, grounded={d.get('grounded')}")
+            problems += not ok
+    log(f"content check finished: {problems} problem(s)")
+    return problems
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--check", action="store_true", help="read-only audit of the stored content, no generation")
     ap.add_argument("--countries", default=",".join(COUNTRY_ORDER), help="comma-separated codes")
     ap.add_argument("--days-ahead", type=int, default=2, help="also generate quizzes for the next N days")
     ap.add_argument("--days-back", type=int, default=1, help="backfill quizzes/study sets for the last N days")
@@ -744,10 +802,12 @@ def main():
     unknown = [c for c in countries if c not in CURRICULUM]
     if unknown:
         sys.exit(f"unknown country code(s): {unknown}")
+    today = dt.datetime.now(dt.timezone.utc).date()
+    if args.check:
+        sys.exit(1 if check_content(Store(False), countries, today) else 0)
     if not (os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")):
         sys.exit("GEMINI_API_KEY is not set")
 
-    today = dt.datetime.now(dt.timezone.utc).date()
     store = Store(args.dry_run)
     research = Research(store)
     translator = Translator(gemini_translate, log)
