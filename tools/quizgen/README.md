@@ -47,8 +47,8 @@ Useful flags: `--countries US,TR`, `--days-ahead N` (default 2), `--days-back N`
 
 ## Model and cost
 
-Content is written by `gemini-3.8-flash` (override with `QUIZGEN_MODEL`) and fact-checked by the same
-model at high thinking. For better independence set `QUIZGEN_VERIFY_MODEL=gemini-3.1-pro-preview`
+Content is written by `gemini-3.5-flash-lite` (override with `QUIZGEN_MODEL`) and fact-checked by the same
+model at high thinking (Flash-Lite fits the free tier; `gemini-3.8-flash` is stronger but has a 20 requests/day free limit). For better independence set `QUIZGEN_VERIFY_MODEL=gemini-3.1-pro-preview`
 (a preview model - Google may change or retire it). Steady state is ~7 quizzes + 7 study sets per day,
 each with a generation call and one or more fact-check calls; on Flash-class pricing that is
 well under a dollar a day. The first run backfills ~4 days per country. A paid API key is

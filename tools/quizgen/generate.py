@@ -18,7 +18,7 @@ that fail the check are regenerated, and dropped if they still fail.
 Environment:
   GEMINI_API_KEY                    required (Google AI Studio key)
   GOOGLE_APPLICATION_CREDENTIALS    path to a Firebase service-account JSON (required unless --dry-run)
-  QUIZGEN_MODEL                     optional, model that writes the content (default gemini-3.8-flash)
+  QUIZGEN_MODEL                     optional, model that writes the content (default gemini-3.5-flash-lite)
   QUIZGEN_VERIFY_MODEL              optional, model that fact-checks it (default: same as QUIZGEN_MODEL;
                                     a stronger, different model such as gemini-3.1-pro-preview is better)
 """
@@ -37,7 +37,7 @@ from google import genai
 from curriculum import COUNTRIES, COUNTRY_ORDER, CURRICULUM
 
 # `or` (not a get() default) so an empty value passed by the workflow falls back to the default.
-MODEL = os.environ.get("QUIZGEN_MODEL") or "gemini-3.8-flash"
+MODEL = os.environ.get("QUIZGEN_MODEL") or "gemini-3.5-flash-lite"
 VERIFY_MODEL = os.environ.get("QUIZGEN_VERIFY_MODEL") or MODEL
 QUESTIONS_PER_QUIZ = 5
 QUESTIONS_PER_STUDY_SET = 5

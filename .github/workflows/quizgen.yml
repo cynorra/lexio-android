@@ -14,7 +14,7 @@ on:
         type: boolean
         default: false
       model:
-        description: 'Model that writes the content (empty = gemini-3.8-flash), e.g. gemini-3.5-flash-lite'
+        description: 'Model that writes the content (empty = gemini-3.5-flash-lite), e.g. gemini-3.8-flash'
         required: false
         default: ''
       verify_model:
