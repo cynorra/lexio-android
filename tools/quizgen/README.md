@@ -15,8 +15,10 @@ Add topics or countries there; the app picks them up with no release.
 
 ## Pipeline (per topic)
 
-1. **Research** - Gemini with Google Search writes source-cited reference notes (exact articles, cases,
-   years). Notes are cached in Firestore (`researchNotes/`, 30 days), so a topic is researched about monthly.
+1. **Research** - free, no billing: Wikipedia excerpts (the English article plus its German / French /
+   Spanish / Italian / Turkish counterpart via language links, see `sources.py`), filtered for relevance by
+   one cheap model call. Notes are cached in Firestore (`researchNotes/`, 30 days), so a topic is researched
+   about monthly. Set `QUIZGEN_RESEARCH=off` to skip this step.
 2. **Write** - questions and lessons are written in English, only from those notes.
 3. **Check** - an independent pass against the notes. Only *material* errors block (wrong answer key,
    false statement, ambiguous answer); style and nuance don't.
