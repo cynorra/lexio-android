@@ -324,6 +324,51 @@ The 5 questions test different aspects of the lesson, easy to hard.
     return text
 
 
+def general_prompt(langs, with_study=False):
+    """A reusable prompt: no date, no fixed slots. The user writes 'Date: yyyy-mm-dd' in the chat each time."""
+    sections = []
+    for key in all_targets():
+        topics = CURRICULUM[key]
+        listing = "\n".join(f"   {i + 1}. {t[1]} | anchor: {t[2]}" for i, t in enumerate(topics))
+        sections.append(f'TARGET "{target_id(key)}" ({len(topics)} topics)\n   {g._meta(key)}\n{listing}')
+    lang_list = ", ".join(langs)
+    question_json = ('{"topic":"<topic title>","correct_index":<0-3>,' + ",".join(
+        f'"{lang}":{{"question":"...","options":["...","...","...","..."],"explanation":"..."}}' for lang in langs) + "}")
+    text = f"""You are a senior law professor writing multiple-choice questions for a legal-education app that serves law
+students and bar-exam candidates in many countries. I will re-use this same instruction every day.
+
+HOW THIS WORKS
+- Each time I send a message like "Date: 2026-10-05" (optionally "Days: 3"), write the daily quizzes for that date (or for
+  that many consecutive days starting on it) for EVERY target below: {len(all_targets())} targets x {QUESTIONS} questions
+  per day. Targets are jurisdictions (US, UK, ...) or exams ("exam:us-ube", ...); exam questions must feel like that exam
+  (a rule applied to a short fact pattern).
+- Choose the {QUESTIONS} topics for a target from its numbered list. Rotate through the list so a target does not repeat a
+  topic it already used earlier in this chat: use the 5 topics with numbers ((D*5) mod N)+1 ... in order, wrapping around,
+  where D = number of days between 2026-01-01 and the date and N = the number of topics of that target. If you are not
+  sure of the arithmetic, simply pick 5 different topics you have not used yet in this chat. Mix difficulty from easy to hard
+  across the {QUESTIONS} questions.
+
+""" + "\n\n".join(sections) + f"""
+
+{_rules_for(langs)}
+
+OUTPUT FORMAT (very important)
+- Reply with ONLY JSON in code blocks, nothing else. Minified (no indentation, no line breaks inside the JSON) to save space.
+- Shape: {{"quizzes":[{{"target":"US","date":"YYYY-MM-DD","questions":[Q1,Q2,Q3,Q4,Q5]}}, ...]}}
+- Each question Q: {question_json}
+- Every question has ALL of these languages: {lang_list}. Keep the same question, option order and correct_index in each.
+- "target" is exactly the target id written above, "date" is the date I gave. One quiz object per target and day.
+- If your reply would exceed your output limit, STOP after a COMPLETE quiz object, close the JSON properly, end the reply
+  with the line "PART 1 DONE - next: <target> <date>" and wait. When I write "continue", start a NEW code block with a new
+  valid JSON object of the same shape with the following quizzes, and so on until everything is done.
+- Before finishing, silently re-check every answer key and every legal statement; replace any question you are not sure of.
+
+Reply "Ready" now and wait for my first date."""
+    if with_study:
+        text += "\nWhen I write \"Study: <target>\", write one study lesson for that jurisdiction instead (format on request)."
+    return text
+
+
 def _blocks(text):
     """All JSON objects in a reply: every code block, or the whole text if there are none."""
     return re.findall(r"```(?:json)?\s*(.*?)```", text, re.S) or [text]
@@ -432,6 +477,8 @@ def main():
     bp.add_argument("--days", type=int, default=1, help="how many days per target (default 1)")
     bp.add_argument("--langs", default=",".join(ALL_LANGS), help="languages, en and tr required (default: all 6)")
     bp.add_argument("--study", action="store_true", help="also ask for one study lesson per country")
+    bp.add_argument("--general", action="store_true",
+                    help="reusable prompt without a date: paste it once, then send 'Date: yyyy-mm-dd' each day")
     bi = sub.add_parser("bundle-import", help="validate and publish the answer(s) to the bundle prompt")
     bi.add_argument("files", nargs="+", help="one or more answer files (every JSON code block is read)")
     bi.add_argument("--dry-run", action="store_true")
@@ -443,8 +490,10 @@ def main():
         if not {"en", "tr"} <= set(langs) or any(x not in ALL_LANGS for x in langs):
             sys.exit(f"--langs must include en and tr and only use {list(ALL_LANGS)}")
         start = dt.date.fromisoformat(args.date) if args.date else dt.datetime.now(dt.timezone.utc).date() + dt.timedelta(days=1)
-        text = bundle_prompt(start, args.days, langs, args.study)
-        name = f"prompt-bundle-{start}.txt"
+        if args.general:
+            text, name = general_prompt(langs), "prompt-general.txt"
+        else:
+            text, name = bundle_prompt(start, args.days, langs, args.study), f"prompt-bundle-{start}.txt"
         open(name, "w", encoding="utf-8").write(text)
         print(text)
         print(f"\n--- saved to {name} ({len(text)} characters)", file=sys.stderr)

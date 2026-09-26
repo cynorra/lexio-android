@@ -149,3 +149,14 @@ class BundleTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GeneralPromptTests(unittest.TestCase):
+    def test_general_prompt_has_no_fixed_date_and_lists_every_topic_list(self):
+        text = m.general_prompt(list(m.ALL_LANGS))
+        self.assertNotIn("| date 20", text)
+        self.assertIn("Date: 2026-10-05", text)
+        for key in m.all_targets():
+            self.assertIn(f'TARGET "{m.target_id(key)}"', text)
+        self.assertIn(m.CURRICULUM["US"][0][1], text)
+        self.assertIn("Reply \"Ready\"", text)
