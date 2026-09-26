@@ -25,8 +25,8 @@ import sys
 os.environ.setdefault("GEMINI_API_KEY", "unused")  # generate.py builds a client at import; we never call it
 
 import generate as g  # noqa: E402
-from curriculum import COUNTRIES, CURRICULUM  # noqa: E402
-from exams import exam_key, is_exam_key  # noqa: E402
+from curriculum import COUNTRIES, COUNTRY_ORDER, CURRICULUM  # noqa: E402
+from exams import EXAM_ORDER, exam_key, is_exam_key  # noqa: E402
 
 ALL_LANGS = ("en",) + tuple(g.LANGS)
 ALLOWED_TAGS = {"h3", "h4", "p", "ul", "li", "b", "i"}
@@ -164,7 +164,8 @@ def _clean_localized(loc):
         return None
 
 
-def clean_questions(raw, expected, warn):
+def clean_questions(raw, expected, warn, langs=None):
+    langs = langs or ALL_LANGS
     if not isinstance(raw, list):
         raise Invalid("'questions' must be a list")
     if len(raw) != expected:
@@ -177,7 +178,7 @@ def clean_questions(raw, expected, warn):
         if isinstance(ci, bool) or not isinstance(ci, int) or not 0 <= ci <= 3:
             raise Invalid(f"question {i}: correct_index must be 0-3")
         item = {"topic": str(q.get("topic", "")).strip(), "correct_index": ci}
-        for lang in ALL_LANGS:
+        for lang in langs:
             loc = _clean_localized(q.get(lang))
             if loc is None:
                 if lang in ("en", "tr"):
@@ -195,11 +196,12 @@ def check_html(html, where):
             raise Invalid(f"{where}: HTML tag <{tag}> is not allowed (use only {sorted(ALLOWED_TAGS)})")
 
 
-def clean_texts(raw, name, warn, html=False):
+def clean_texts(raw, name, warn, html=False, langs=None):
+    langs = langs or ALL_LANGS
     if not isinstance(raw, dict):
         raise Invalid(f"'{name}' must map language code -> text")
     out = {}
-    for lang in ALL_LANGS:
+    for lang in langs:
         v = raw.get(lang)
         if not (isinstance(v, str) and v.strip()):
             if lang in ("en", "tr"):
@@ -212,8 +214,8 @@ def clean_texts(raw, name, warn, html=False):
     return out
 
 
-def build_quiz_doc(data, key, date, warn=print):
-    questions = clean_questions(data.get("questions"), QUESTIONS, warn)
+def build_quiz_doc(data, key, date, warn=print, langs=None):
+    questions = clean_questions(data.get("questions"), QUESTIONS, warn, langs)
     meta = COUNTRIES[key]
     doc = {
         "country": meta.get("country", key),
@@ -226,7 +228,7 @@ def build_quiz_doc(data, key, date, warn=print):
     return doc
 
 
-def build_study_doc(data, key, topic, date, warn=print):
+def build_study_doc(data, key, topic, date, warn=print, langs=None):
     if is_exam_key(key):
         raise Invalid("exams have daily quizzes only, no study sets")
     try:
@@ -237,14 +239,151 @@ def build_study_doc(data, key, topic, date, warn=print):
     return {
         "country": key, "slug": topic[0], "date": date.isoformat(), "publishedAt": published_at,
         "reference": topic[2],
-        "title": clean_texts(data.get("title"), "title", warn),
-        "category": clean_texts(data.get("category"), "category", warn),
-        "summary": clean_texts(data.get("summary"), "summary", warn),
-        "lesson": clean_texts(data.get("lesson"), "lesson", warn, html=True),
+        "title": clean_texts(data.get("title"), "title", warn, langs=langs),
+        "category": clean_texts(data.get("category"), "category", warn, langs=langs),
+        "summary": clean_texts(data.get("summary"), "summary", warn, langs=langs),
+        "lesson": clean_texts(data.get("lesson"), "lesson", warn, html=True, langs=langs),
         "minutes": max(1, minutes),
-        "questions": g.assign_ids(topic[0], clean_questions(data.get("questions"), QUESTIONS, warn)),
+        "questions": g.assign_ids(topic[0], clean_questions(data.get("questions"), QUESTIONS, warn, langs)),
         "translatedBy": "manual", "model": "manual", "verifiedBy": "manual", "grounded": False,
     }
+
+
+
+# --------------------------------------------------------------------------- bundle: everything in one go
+
+def all_targets():
+    """Every country, then every exam, in product-priority order."""
+    return list(COUNTRY_ORDER) + [exam_key(e) for e in EXAM_ORDER]
+
+
+def target_id(key):
+    """The id used inside a bundle: a country code, or 'exam:<id>'."""
+    return "exam:" + COUNTRIES[key]["exam"] if is_exam_key(key) else key
+
+
+def key_of(target):
+    if isinstance(target, str) and target.startswith("exam:"):
+        return exam_key(target[5:])
+    return target.upper() if isinstance(target, str) else None
+
+
+def _rules_for(langs):
+    names = ", ".join(f"{c} = {g.LANG_NAMES.get(c, 'English')}" for c in langs)
+    return RULES.replace(_language_names(), names)
+
+
+def bundle_prompt(start, days, langs, with_study):
+    blocks, n = [], 0
+    for key in all_targets():
+        for d in range(days):
+            date = start + dt.timedelta(days=d)
+            slots = "\n".join(
+                f"   {i + 1}. {t[1]} | anchor: {t[2]} | difficulty: {g.DIFFICULTY[i % len(g.DIFFICULTY)]}"
+                for i, t in enumerate(_topics_for(key, date, QUESTIONS)))
+            n += 1
+            blocks.append(f'[{n}] target "{target_id(key)}" | date {date.isoformat()}\n   {g._meta(key)}\n{slots}')
+    lang_list = ", ".join(langs)
+    question_json = ('{"topic":"<topic title>","correct_index":<0-3>,' + ",".join(
+        f'"{lang}":{{"question":"...","options":["...","...","...","..."],"explanation":"..."}}' for lang in langs) + "}")
+    text = f"""You are a senior law professor writing multiple-choice questions for a legal-education app that serves law
+students and bar-exam candidates in many countries. One reply must contain the daily quizzes for ALL targets below.
+
+TARGETS ({n} quizzes, {QUESTIONS} questions each, in the order given). A target is a jurisdiction (US, UK, ...) or an
+exam ("exam:us-ube", ...); exam questions must feel like that exam (a rule applied to a short fact pattern).
+
+""" + "\n\n".join(blocks) + f"""
+
+{_rules_for(langs)}
+
+OUTPUT FORMAT (very important)
+- Reply with ONLY JSON in code blocks, nothing else. Minified (no indentation, no line breaks inside the JSON) to save space.
+- Shape: {{"quizzes":[{{"target":"US","date":"YYYY-MM-DD","questions":[Q1,Q2,Q3,Q4,Q5]}}, ...]}}
+- Each question Q: {question_json}
+- Every question has ALL of these languages: {lang_list}. Keep the same question, option order and correct_index in each.
+- Copy "target" and "date" exactly as written above. One quiz object per numbered target.
+- If your reply would exceed your output limit, STOP after a COMPLETE quiz object, close the JSON properly, end the reply
+  with the line "PART 1 DONE - next target: [number]" and wait. When I write "continue", start a NEW code block with a
+  new valid JSON object of the same shape containing the following targets, and so on until all {n} are done.
+- Before finishing, silently re-check every answer key and every legal statement; replace any question you are not sure of."""
+    if with_study:
+        study = []
+        for key in COUNTRY_ORDER:
+            topic = g.study_topic_candidates(key, start)[0]
+            study.append(f'- target "{key}" | topic "{topic[0]}": {topic[1]} | anchor: {topic[2]}\n   {g._meta(key)}')
+        same = "{" + ",".join(f'"{lang}":"..."' for lang in langs) + "}"
+        text += f"""
+
+ALSO (after all quizzes, as another code block): one study lesson per jurisdiction below, shape
+{{"studySets":[{{"target":"US","topic":"<slug>","title":{same},"category":{same},"summary":{same},"lesson":{same},"minutes":4,"questions":[5 questions of the same Q shape]}}]}}
+Lesson = 350-500 words per language of simple HTML using ONLY <h3>,<h4>,<p>,<ul>,<li>,<b>,<i>: a hook, <h3>The rule</h3>,
+<h3>How it works</h3>, <h3>Limits and exceptions</h3>, <h3>Landmark examples</h3>, <h3>Key takeaways</h3>.
+The 5 questions test different aspects of the lesson, easy to hard.
+
+""" + "\n".join(study)
+    return text
+
+
+def _blocks(text):
+    """All JSON objects in a reply: every code block, or the whole text if there are none."""
+    return re.findall(r"```(?:json)?\s*(.*?)```", text, re.S) or [text]
+
+
+def load_bundle_files(paths):
+    quizzes, studies, problems = [], [], []
+    for path in paths:
+        for i, block in enumerate(_blocks(open(path, encoding="utf-8").read().lstrip("\ufeff")), 1):
+            try:
+                data = load_json(block)
+            except Invalid as e:
+                problems.append(f"{os.path.basename(path)} block {i}: {e}")
+                continue
+            if isinstance(data.get("quizzes"), list):
+                quizzes += data["quizzes"]
+            if isinstance(data.get("studySets"), list):
+                studies += data["studySets"]
+    return quizzes, studies, problems
+
+
+def bundle_docs(quizzes, studies, warn, langs=None):
+    """Returns (docs, rejected): docs = [(kind, key, doc)]. One bad item never blocks the rest."""
+    docs, rejected, seen = [], [], set()
+    today = dt.datetime.now(dt.timezone.utc).date()
+    for item in quizzes:
+        if not isinstance(item, dict):
+            rejected.append("quiz ?: not an object")
+            continue
+        label = f"quiz {item.get('target')} {item.get('date')}"
+        try:
+            key = key_of(item.get("target"))
+            if key not in CURRICULUM:
+                raise Invalid(f"unknown target {item.get('target')!r}")
+            try:
+                date = dt.date.fromisoformat(str(item.get("date")))
+            except ValueError:
+                raise Invalid("date must be yyyy-mm-dd")
+            if (key, date) in seen:
+                raise Invalid("duplicate target/date in the answer")
+            seen.add((key, date))
+            docs.append(("quiz", key, build_quiz_doc(item, key, date, lambda m, lb=label: warn(f"{lb}: {m}"), langs)))
+        except Invalid as e:
+            rejected.append(f"{label}: {e}")
+    for item in studies:
+        if not isinstance(item, dict):
+            rejected.append("study ?: not an object")
+            continue
+        label = f"study {item.get('target')} {item.get('topic')}"
+        try:
+            key = key_of(item.get("target"))
+            if key not in CURRICULUM or is_exam_key(key):
+                raise Invalid(f"unknown target {item.get('target')!r}")
+            topic = next((t for t in CURRICULUM[key] if t[0] == item.get("topic")), None)
+            if topic is None:
+                raise Invalid(f"unknown topic {item.get('topic')!r}")
+            docs.append(("study", key, build_study_doc(item, key, topic, today, lambda m, lb=label: warn(f"{lb}: {m}"), langs)))
+        except Invalid as e:
+            rejected.append(f"{label}: {e}")
+    return docs, rejected
 
 
 # --------------------------------------------------------------------------- CLI
@@ -288,7 +427,55 @@ def main():
         p.add_argument("--exam")
         p.add_argument("--date", help="yyyy-mm-dd (default: today, UTC)")
         p.add_argument("--topic", help="study topic slug")
+    bp = sub.add_parser("bundle-prompt", help="ONE prompt for every country and exam")
+    bp.add_argument("--date", help="first day, yyyy-mm-dd (default: tomorrow, UTC)")
+    bp.add_argument("--days", type=int, default=1, help="how many days per target (default 1)")
+    bp.add_argument("--langs", default=",".join(ALL_LANGS), help="languages, en and tr required (default: all 6)")
+    bp.add_argument("--study", action="store_true", help="also ask for one study lesson per country")
+    bi = sub.add_parser("bundle-import", help="validate and publish the answer(s) to the bundle prompt")
+    bi.add_argument("files", nargs="+", help="one or more answer files (every JSON code block is read)")
+    bi.add_argument("--dry-run", action="store_true")
+    bi.add_argument("--overwrite", action="store_true")
     args = ap.parse_args()
+
+    if args.cmd == "bundle-prompt":
+        langs = [x.strip() for x in args.langs.split(",") if x.strip()]
+        if not {"en", "tr"} <= set(langs) or any(x not in ALL_LANGS for x in langs):
+            sys.exit(f"--langs must include en and tr and only use {list(ALL_LANGS)}")
+        start = dt.date.fromisoformat(args.date) if args.date else dt.datetime.now(dt.timezone.utc).date() + dt.timedelta(days=1)
+        text = bundle_prompt(start, args.days, langs, args.study)
+        name = f"prompt-bundle-{start}.txt"
+        open(name, "w", encoding="utf-8").write(text)
+        print(text)
+        print(f"\n--- saved to {name} ({len(text)} characters)", file=sys.stderr)
+        return
+
+    if args.cmd == "bundle-import":
+        quizzes, studies, problems = load_bundle_files(args.files)
+        docs, rejected = bundle_docs(quizzes, studies, lambda m: print("warning:", m))
+        bad = problems + rejected
+        for msg in bad:
+            print("REJECTED:", msg)
+        print(f"{len(docs)} valid item(s), {len(bad)} rejected")
+        if args.dry_run or not docs:
+            return
+        store = g.Store(False)
+        published = skipped = 0
+        for kind, key, doc in docs:
+            if kind == "quiz":
+                ref, label = store.quiz_ref(key, dt.date.fromisoformat(doc["date"])), f"quiz {target_id(key)} {doc['date']}"
+            else:
+                ref, label = store.sets_ref(key).document(doc["slug"]), f"study {key} {doc['slug']}"
+            if ref.get().exists and not args.overwrite:
+                print(f"skipped (already exists, use --overwrite): {label}")
+                skipped += 1
+                continue
+            (store.save_quiz if kind == "quiz" else store.save_study)(doc)
+            print("published:", label)
+            published += 1
+        print(f"done: {published} published, {skipped} skipped, {len(bad)} rejected")
+        return
+
     key, date = _resolve(args), _date(args)
 
     if args.cmd == "prompt":

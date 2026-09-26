@@ -103,5 +103,49 @@ class ImportTests(unittest.TestCase):
             m.load_json("no json here")
 
 
+class BundleTests(unittest.TestCase):
+    def test_prompt_lists_every_country_and_exam_once(self):
+        text = m.bundle_prompt(DAY, 1, list(m.ALL_LANGS), with_study=False)
+        for key in m.all_targets():
+            self.assertIn(f'target "{m.target_id(key)}" | date 2026-09-28', text)
+        self.assertIn("18 quizzes", text)
+        self.assertIn("PART 1 DONE", text)
+
+    def test_prompt_with_days_langs_and_study(self):
+        text = m.bundle_prompt(DAY, 2, ["en", "tr"], with_study=True)
+        self.assertIn("36 quizzes", text)
+        self.assertNotIn('"de":', text)
+        self.assertIn("studySets", text)
+
+    def test_answer_split_over_parts_is_merged_and_bad_items_do_not_block_good_ones(self):
+        import tempfile
+        part1 = {"quizzes": [{"target": "US", "date": "2026-09-28", "questions": [question(i) for i in range(5)]},
+                             {"target": "exam:us-ube", "date": "2026-09-28", "questions": [question(i) for i in range(5)]}]}
+        broken = {"target": "TR", "date": "2026-09-28", "questions": [question(i) for i in range(4)]}
+        part2 = {"quizzes": [broken, {"target": "exam:nope", "date": "2026-09-28", "questions": []}]}
+        study = dict(study_answer(), target="TR", topic=m.CURRICULUM["TR"][0][0])
+        fence = "`" * 3
+        text = chr(10).join(["Here is part 1", fence + "json", json.dumps(part1), fence, "PART 1 DONE",
+                          fence + "json", json.dumps(part2), fence,
+                          fence + "json", json.dumps({"studySets": [study]}), fence])
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "answer.txt")
+            open(path, "w", encoding="utf-8").write(text)
+            quizzes, studies, problems = m.load_bundle_files([path])
+        docs, rejected = m.bundle_docs(quizzes, studies, lambda msg: None)
+        self.assertEqual([], problems)
+        self.assertEqual([("quiz", "US"), ("quiz", "exam-us-ube"), ("study", "TR")], [(k, key) for k, key, _ in docs])
+        self.assertEqual(2, len(rejected))
+        exam_doc = docs[1][2]
+        self.assertEqual("us-ube", exam_doc["exam"])
+        self.assertEqual("US", exam_doc["country"])
+
+    def test_duplicate_target_and_reduced_languages(self):
+        item = {"target": "US", "date": "2026-09-28", "questions": [question(i, langs=("en", "tr")) for i in range(5)]}
+        docs, rejected = m.bundle_docs([item, item], [], lambda msg: None, langs=["en", "tr"])
+        self.assertEqual(1, len(docs))
+        self.assertEqual(1, len(rejected))
+
+
 if __name__ == "__main__":
     unittest.main()

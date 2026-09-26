@@ -107,6 +107,15 @@ python manual.py import study answer.json --country TR --topic tr-sovereignty
 
 The answer holds all languages (en, tr, de, fr, es, it) so nothing needs translating. English and Turkish are required; a malformed optional language is skipped with a warning. Documents are marked `model: manual`.
 
+### One prompt for everything (bundle)
+
+```
+python manual.py bundle-prompt --date 2026-09-29 [--days 2] [--langs en,tr] [--study]   # writes prompt-bundle-<date>.txt
+python manual.py bundle-import answer.json [answer2.json ...] [--dry-run] [--overwrite]
+```
+
+One prompt covers all 7 countries and all 11 exams (18 daily quizzes). If the chat cuts the answer off, write "continue"; every JSON code block from every part can go into the same file (or several files). `bundle-import` publishes each valid quiz/lesson independently, reports rejected ones by name, and skips documents that already exist unless `--overwrite`. `--langs en,tr` shrinks the answer (the app falls back to English for missing languages).
+
 ## Limits
 
 - Content is written from the model's knowledge (no search grounding), not live sources, so it is best for stable
