@@ -94,6 +94,19 @@ Workflow input `exams` does the same (`us-ube,tr-hmgs`; empty = all exams when `
 
 To add an exam: an entry in `EXAMS` (exams.py) and a row in the app's `model/Exams.java`.
 
+## Manual content (Gemini chat instead of the API)
+
+The chat app has a bigger allowance than the free API. `manual.py` writes the prompt, you paste it into the Gemini chat, save the JSON answer, and `manual.py import` validates and publishes it (no Gemini API, only Firestore):
+
+```
+python manual.py prompt quiz  --country TR --date 2026-09-28      # or --exam tr-hmgs
+python manual.py prompt study --country TR --topic tr-sovereignty
+python manual.py import quiz  answer.json --country TR --date 2026-09-28 [--dry-run] [--overwrite]
+python manual.py import study answer.json --country TR --topic tr-sovereignty
+```
+
+The answer holds all languages (en, tr, de, fr, es, it) so nothing needs translating. English and Turkish are required; a malformed optional language is skipped with a warning. Documents are marked `model: manual`.
+
 ## Limits
 
 - Content is written from the model's knowledge (no search grounding), not live sources, so it is best for stable
