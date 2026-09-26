@@ -1,0 +1,30 @@
+ART DIRECTION (apply strictly)
+You are creating a premium Google Play Store screenshot for "Lexio", a law-study app. It must look like the launch imagery of a top-tier
+2026 product (Apple, Linear, Arc, Notion level): confident, calm, expensive, editorial. Output ONE image, portrait 9:16, the highest resolution you can (2160x3840).
+- Hero: a modern Android flagship phone (thin titanium-look bezels, subtle glass reflection, correct perspective, soft contact shadow) showing the app screen described below.
+- Depth: 2-3 UI cards or chips lifted from the screen float slightly in front of the phone with soft shadows and parallax; one far element is slightly blurred.
+- Light: soft top-left key light, warm ember-orange (#F97316) rim light on one phone edge, gentle volumetric haze, faint bloom on bright UI, fine film grain (2%).
+- Palette: deep ink #09090B and graphite #18181B, warm orange #F97316 used as light and one accent word only, emerald #10B981 for success, soft gold #E8C27A for prestige. Max 3 colors besides the app UI.
+- Materials: frosted glass (1px white 12% border), matte dark surfaces. Smooth mesh gradients, no flat color blocks.
+- Headline: modern grotesque (Inter Display / SF Pro Display style), semibold, tight tracking, large, airy, never touching the edges (6% margin); the accent word in an orange-to-amber gradient.
+- Restraint: no clutter, no gavel/scales clip-art, no faces or people, no logos of any exam body or organization, no watermark, no rating stars, no "#1", no prices, no mention of artificial intelligence, no lorem ipsum.
+- TEXT ACCURACY: write every text exactly as given, character for character, including accents. Do not add any other words. All UI text must be sharp and readable.
+
+SCENE
+Dark graphite world. The phone stands straight, large and centered, its lower part slightly cropped by the bottom edge for scale. Above the phone a big frosted-glass card with a huge numeral "5" and a thin orange progress ring (four segments lit), with the small text "Prüfungsquiz".
+
+APP UI STYLE (the screen inside the phone)
+Native Android, Material 3 dark theme. Background #09090B, cards #18181B with 1px #27272A border and 16px radius, primary text #FAFAFA, secondary #A1A1AA, muted #71717A,
+accent orange #F97316, success green #10B981, error red #EF4444. Font: Roboto/Inter. Status bar clean (9:41, full battery, no notifications). Generous padding (20px), clear hierarchy.
+UI LANGUAGE: German. Use exactly the texts quoted below.
+
+THE APP SCREEN (draw exactly this)
+Top bar: text button "← Zurück" (grey) left; centered bold title "Prüfungsquiz". Thin 4px orange progress bar filled 40%.
+A rounded card: orange bold 12px "Frage 2 / 5"; below it the question, bold 16px white: "Ein Zeuge sagt aus, das Opfer habe unmittelbar nach dem Angriff gesagt: „Dan hat mich erstochen.“ Welche Aussage trifft am ehesten zu?"
+Under the card four options (12px gap, #18181B fill, 1px #27272A border, 13px white text, 16px radius), none selected:
+- Outlined full-width option button: "Sie kann als spontane Äußerung (excited utterance) zugelassen werden."
+- Outlined full-width option button: "Sie ist unzulässig, weil sie Hörensagen ohne Ausnahme ist."
+- Outlined full-width option button: "Sie ist nur zulässig, wenn das Opfer in der Verhandlung aussagt."
+- Outlined full-width option button: "Sie ist unzulässig, weil sie nicht unter Eid erfolgte."
+
+HEADLINE (top area): "Jeden Tag 5 neue Fragen" - the word "5" in the orange-to-amber gradient.

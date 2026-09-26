@@ -1,0 +1,4 @@
+Create a 1024x500 Google Play feature graphic for "Lexio" (law exam prep). Landscape, premium 2026 launch-visual style (Apple / Linear / Arc level).
+Left: the wordmark "Lexio" in semibold near-white with an ember-orange (#F97316) period, and below it the tagline "Täglich üben für dein Jura-Examen" in 60% white, max 2 lines, left-aligned, 60px from the left and vertically centered.
+Right: a modern Android phone, tilted 8 degrees, showing a dark app screen with an orange progress bar, a question card and four outlined answer buttons (no readable small text), two floating frosted-glass chips "UBE" and "Staatsexamen", a warm orange rim light and a large soft orange glow behind on a deep ink (#09090B) background with fine film grain and haze.
+Rules: all text at least 60px from every edge; no logos of any organization, no stars, no "#1", no prices, no faces, no mention of artificial intelligence; spell every character exactly, including accents.

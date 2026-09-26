@@ -1,0 +1,25 @@
+ART DIRECTION (apply strictly)
+You are creating a premium Google Play Store screenshot for "Lexio", a law-study app. It must look like the launch imagery of a top-tier
+2026 product (Apple, Linear, Arc, Notion level): confident, calm, expensive, editorial. Output ONE image, portrait 9:16, the highest resolution you can (2160x3840).
+- Hero: a modern Android flagship phone (thin titanium-look bezels, subtle glass reflection, correct perspective, soft contact shadow) showing the app screen described below.
+- Depth: 2-3 UI cards or chips lifted from the screen float slightly in front of the phone with soft shadows and parallax; one far element is slightly blurred.
+- Light: soft top-left key light, warm ember-orange (#F97316) rim light on one phone edge, gentle volumetric haze, faint bloom on bright UI, fine film grain (2%).
+- Palette: deep ink #09090B and graphite #18181B, warm orange #F97316 used as light and one accent word only, emerald #10B981 for success, soft gold #E8C27A for prestige. Max 3 colors besides the app UI.
+- Materials: frosted glass (1px white 12% border), matte dark surfaces. Smooth mesh gradients, no flat color blocks.
+- Headline: modern grotesque (Inter Display / SF Pro Display style), semibold, tight tracking, large, airy, never touching the edges (6% margin); the accent word in an orange-to-amber gradient.
+- Restraint: no clutter, no gavel/scales clip-art, no faces or people, no logos of any exam body or organization, no watermark, no rating stars, no "#1", no prices, no mention of artificial intelligence, no lorem ipsum.
+- TEXT ACCURACY: write every text exactly as given, character for character, including accents. Do not add any other words. All UI text must be sharp and readable.
+
+SCENE
+Split lighting: left half deep ink, right half warm ivory glow, meeting behind the phone as a soft diagonal. The explanation card is lifted out of the screen and floats in front of the phone, 15% larger, with a soft emerald glow under it (text unchanged). A small emerald glass chip near the correct option.
+
+APP UI STYLE (the screen inside the phone)
+Native Android, Material 3 dark theme. Background #09090B, cards #18181B with 1px #27272A border and 16px radius, primary text #FAFAFA, secondary #A1A1AA, muted #71717A,
+accent orange #F97316, success green #10B981, error red #EF4444. Font: Roboto/Inter. Status bar clean (9:41, full battery, no notifications). Generous padding (20px), clear hierarchy.
+UI LANGUAGE: English. Use exactly the texts quoted below.
+
+THE APP SCREEN (draw exactly this)
+Same top bar/progress and question card as the question screen ("A witness testifies that moments after an attack, the victim said “Dan stabbed me.” Which statement is most accurate?"). Options: the correct option "It may be admitted as an excited utterance." with green tint (#10B981 at 10%) and green border; the wrongly chosen option "It is inadmissible because it is hearsay with no exception." with red tint and red border; the other two options unchanged: "It is admissible only if the victim testifies at trial.", "It is inadmissible because the statement was not made under oath.".
+Below, an explanation card with a green 1px border and green 10% fill: green bold 14px "💡 Legal Explanation"; text 13px white: "❌ Incorrect! A statement made under the stress of a startling event is an excited utterance (FRE 803(2)). No oath is required, and the declarant need not testify."; full-width orange button "Next Question →".
+
+HEADLINE (top area): "Understand every answer" - the word "answer" in the orange-to-amber gradient.

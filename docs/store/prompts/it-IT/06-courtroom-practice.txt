@@ -1,0 +1,29 @@
+ART DIRECTION (apply strictly)
+You are creating a premium Google Play Store screenshot for "Lexio", a law-study app. It must look like the launch imagery of a top-tier
+2026 product (Apple, Linear, Arc, Notion level): confident, calm, expensive, editorial. Output ONE image, portrait 9:16, the highest resolution you can (2160x3840).
+- Hero: a modern Android flagship phone (thin titanium-look bezels, subtle glass reflection, correct perspective, soft contact shadow) showing the app screen described below.
+- Depth: 2-3 UI cards or chips lifted from the screen float slightly in front of the phone with soft shadows and parallax; one far element is slightly blurred.
+- Light: soft top-left key light, warm ember-orange (#F97316) rim light on one phone edge, gentle volumetric haze, faint bloom on bright UI, fine film grain (2%).
+- Palette: deep ink #09090B and graphite #18181B, warm orange #F97316 used as light and one accent word only, emerald #10B981 for success, soft gold #E8C27A for prestige. Max 3 colors besides the app UI.
+- Materials: frosted glass (1px white 12% border), matte dark surfaces. Smooth mesh gradients, no flat color blocks.
+- Headline: modern grotesque (Inter Display / SF Pro Display style), semibold, tight tracking, large, airy, never touching the edges (6% margin); the accent word in an orange-to-amber gradient.
+- Restraint: no clutter, no gavel/scales clip-art, no faces or people, no logos of any exam body or organization, no watermark, no rating stars, no "#1", no prices, no mention of artificial intelligence, no lorem ipsum.
+- TEXT ACCURACY: write every text exactly as given, character for character, including accents. Do not add any other words. All UI text must be sharp and readable.
+
+SCENE
+Cinematic dark atmosphere inspired by a courtroom but WITHOUT any literal objects: warm amber light shafts from the upper right cutting through haze, deep warm-dark gradient (#1A1208 to #09090B). The phone straight, glowing edge. Three small glass stage chips connected by a thin orange line float above it: "1", "2", "3" (first lit orange, others dim).
+
+APP UI STYLE (the screen inside the phone)
+Native Android, Material 3 dark theme. Background #09090B, cards #18181B with 1px #27272A border and 16px radius, primary text #FAFAFA, secondary #A1A1AA, muted #71717A,
+accent orange #F97316, success green #10B981, error red #EF4444. Font: Roboto/Inter. Status bar clean (9:41, full battery, no notifications). Generous padding (20px), clear hierarchy.
+UI LANGUAGE: Italian. Use exactly the texts quoted below.
+
+THE APP SCREEN (draw exactly this)
+Top bar: title bold white "R v. Defendant: The Limits of Self-Defence"; a green pill "⚖️ Difensore" (green text on green 10% fill); a small outlined button "↩ Esci".
+A horizontal stage indicator in grey with the current stage in orange: "1. Opening Statement → 2. Evidence → 3. Closing Statement".
+Chat area: a left-aligned dark bubble with a small red label "Prosecutor": "Your Honor, as the Prosecution, we will prove in this trial that there is sufficient evidence against the accused. Upon review of the evidence, it will be clear that the act meets every legal element of the offense."; below it a muted line "La controparte sta redigendo la risposta…".
+At the bottom, hint text 12px muted: "💡 Seleziona l'opzione con la motivazione giuridica più solida per vincere la causa." and two full-width outlined choice buttons (13px white, 16px radius):
+- "Under s.76(5A), only grossly disproportionate force removes the defence for a householder — and two blows against an intruder in a dark, chaotic home invasion falls well short of that high bar."
+- "My client's honest, even if mistaken, belief that he remained in danger is the standard this jury must apply, not hindsight forensic reconstruction from the safety of a courtroom."
+
+HEADLINE (top area): "Sostieni casi simulati" - the word "casi" in the orange-to-amber gradient.
