@@ -72,10 +72,11 @@ No logos, no people, no stars, no prices. Spell all text exactly.
 
 ## 9 · Öne çıkan görsel (1024×500)
 ```
-Create a 1024x500 landscape Google Play feature graphic for the app "Lexio", premium Apple / Linear / Arc launch-visual style. Deep ink (#09090B) background with a large soft warm orange (#F97316) glow, haze and fine film grain.
-Left: the wordmark "Lexio" in semibold near-white with an orange period, and below it the tagline "Daily practice for your law exam" in 60% white, two lines maximum, left-aligned, 60px from the left, vertically centered.
-Right: a modern Android phone with thin titanium bezels tilted 8 degrees, showing a dark app screen with an orange progress bar, a question card and four outlined answer buttons (small text not readable), two floating frosted-glass chips "UBE" and "SQE1", orange rim light.
-All text at least 60px from every edge. No logos, no people, no stars, no prices. Spell all text exactly.
+Create a 1024x500 landscape Google Play feature graphic for the app "Lexio", an all-in-one law-learning app (exam prep, daily law quizzes, constitutional-law lessons, courtroom practice, leaderboards). Premium 2026 launch-visual style (Apple / Linear / Arc level).
+Background: deep ink (#09090B) with a large soft warm orange (#F97316) glow, haze and fine film grain.
+Left: the wordmark "Lexio" in large semibold near-white with an orange period; below it the tagline "Law, made a daily habit." in semibold white; below that, a small supporting line in 60% white: "Exams · Quizzes · Lessons · Courtroom practice". Left-aligned, 60px from the left edge, vertically centered.
+Right: a modern Android phone with thin titanium bezels, tilted 8 degrees, showing a dark app screen (orange progress bar, a question card, four outlined answer buttons; small text not readable), with orange rim light. Around the phone four frosted-glass chips float with depth of field, each with a small simple line icon and its label: "Exam Prep", "Daily Quiz", "Law Library", "Courtroom" (the far two slightly blurred).
+Rules: all text at least 60px from every edge; no logos of any organization, no people, no stars, no "#1", no prices, no mention of artificial intelligence; spell every character exactly, including accents.
 ```
 
 ---
