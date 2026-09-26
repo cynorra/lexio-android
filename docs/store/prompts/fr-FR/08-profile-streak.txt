@@ -11,7 +11,7 @@ You are creating a premium Google Play Store screenshot for "Lexio", a law-study
 - TEXT ACCURACY: write every text exactly as given, character for character, including accents. Do not add any other words. All UI text must be sharp and readable.
 
 SCENE
-Dark world with a warm ember glow rising from the bottom. An abstract flame made of soft orange light (not clip-art) floats behind the phone. Two badge tiles from the screen float in front with a subtle emerald and gold glow. A small glass chip "🔥 Série de 4 jours" near the top.
+Dark world with a warm ember glow rising from the bottom. An abstract flame made of soft orange light (not clip-art) floats behind the phone. Two badge tiles from the screen float in front with a subtle emerald and gold glow. A small glass chip "🔥 Série" near the top.
 
 APP UI STYLE (the screen inside the phone)
 Native Android, Material 3 dark theme. Background #09090B, cards #18181B with 1px #27272A border and 16px radius, primary text #FAFAFA, secondary #A1A1AA, muted #71717A,

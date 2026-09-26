@@ -17,15 +17,15 @@ No logos, no people, no stars, no prices. Spell all text exactly.
 ## 2 · Sınav seçici
 ```
 Create a premium Google Play Store screenshot, portrait 9:16, 2160x3840, Apple / Linear / Arc launch-visual style. Bright warm ivory-to-white studio background for contrast, a modern Android phone with thin titanium bezels tilted 10 degrees, long soft shadow, behind it a fan of five translucent frosted-glass cards stacked like a deck.
-Headline at the top, large semibold dark, centered: "11 law exams in one app" (the "11" in an orange-to-amber gradient).
-Phone screen (dark UI): a centered Material dialog (#202024, rounded) titled "Choose your exam" with 11 single-choice rows, the first selected in orange: "🇺🇸 UBE – Uniform Bar Exam", "🇺🇸 MBE – Multistate Bar Exam", "🇺🇸 MPRE – Professional Responsibility", "🇺🇸 California Bar Exam", "🇬🇧 SQE1 – Solicitors Qualifying Exam", "🇩🇪 Erstes Juristisches Staatsexamen", "🇫🇷 Examen d'entrée au CRFPA", "🇪🇸 Prueba de acceso a la abogacía", "🇮🇹 Esame di abilitazione forense", "🇹🇷 HMGS – Hukuk Mesleklerine Giriş Sınavı", "🇹🇷 Hâkim ve Savcı Adaylığı Sınavı".
+Headline at the top, large semibold dark, centered: "Your law exams, all in one app" (the words "all in one app" in an orange-to-amber gradient).
+Phone screen (dark UI): a centered Material dialog (#202024, rounded) titled "Choose your exam" with a single-choice list, the first row selected in orange, the list continuing below the visible area with a soft fade at the bottom (it is scrollable): "🇺🇸 UBE – Uniform Bar Exam", "🇺🇸 MBE – Multistate Bar Exam", "🇺🇸 MPRE – Professional Responsibility", "🇺🇸 California Bar Exam", "🇬🇧 SQE1 – Solicitors Qualifying Exam", "🇩🇪 Erstes Juristisches Staatsexamen", "🇫🇷 Examen d'entrée au CRFPA", "🇪🇸 Prueba de acceso a la abogacía".
 No logos, no people, no stars, no prices. Spell all text exactly.
 ```
 
 ## 3 · Soru ekranı
 ```
-Create a premium Google Play Store screenshot, portrait 9:16, 2160x3840, Apple / Linear / Arc launch-visual style. Dark graphite scene, a modern Android phone with thin titanium bezels standing straight, large and centered, its lower part slightly cropped by the bottom edge. Above it a big frosted-glass card with a huge numeral "5" and a thin orange progress ring with four segments lit. Warm orange rim light, haze, film grain.
-Headline at the top, large semibold white: "5 new questions every day" (the "5" in an orange-to-amber gradient).
+Create a premium Google Play Store screenshot, portrait 9:16, 2160x3840, Apple / Linear / Arc launch-visual style. Dark graphite scene, a modern Android phone with thin titanium bezels standing straight, large and centered, its lower part slightly cropped by the bottom edge. Above it a big frosted-glass card with a thin orange progress ring and a simple calendar glyph, with the word "Daily". Warm orange rim light, haze, film grain.
+Headline at the top, large semibold white: "Fresh questions every day" (the word "Fresh" in an orange-to-amber gradient).
 Phone screen (dark UI, #09090B background): top bar "← Back" and centered bold "Exam Quiz"; thin orange progress bar 40% filled; a rounded card with orange text "Question 2 / 5" and bold white question: "A witness testifies that moments after an attack, the victim said “Dan stabbed me.” Which statement is most accurate?"; four outlined full-width answer buttons: "It may be admitted as an excited utterance." / "It is inadmissible because it is hearsay with no exception." / "It is admissible only if the victim testifies at trial." / "It is inadmissible because the statement was not made under oath."
 No logos, no people, no stars, no prices. Spell all text exactly.
 ```
@@ -64,7 +64,7 @@ No logos, no people, no stars, no prices. Spell all text exactly.
 
 ## 8 · Profil ve seri
 ```
-Create a premium Google Play Store screenshot, portrait 9:16, 2160x3840, Apple / Linear / Arc launch-visual style. Dark scene with a warm ember glow rising from the bottom, an abstract flame made of soft orange light (not clip-art) floating behind a modern Android phone with thin titanium bezels, two badge tiles floating in front with subtle emerald and gold glow, a small glass chip "🔥 4-day streak" near the top.
+Create a premium Google Play Store screenshot, portrait 9:16, 2160x3840, Apple / Linear / Arc launch-visual style. Dark scene with a warm ember glow rising from the bottom, an abstract flame made of soft orange light (not clip-art) floating behind a modern Android phone with thin titanium bezels, two badge tiles floating in front with subtle emerald and gold glow, a small glass chip "🔥 Streak" near the top.
 Headline at the top, large semibold white: "Keep your streak" (the word "streak" in an orange-to-amber gradient).
 Phone screen (dark UI): top bar "Lexio." and "My Profile"; centered orange avatar circle "SK", bold "Sam K.", gold pill "🥇 Specialist Attorney"; two stat cards "320 Total Score" and "3 Solved Cases"; heading "🏆 Achievements & Badges" with a 2x2 grid: ⚖️ "First Victory", 🔥 "Streak Master", 🛡️ "Flawless Advocate", 👑 "Supreme Court Judge" (dimmed); rows "App Language: English" and "Dark Theme" with a switch on; bottom navigation: Trials, Community, Groups, Study, Leaderboard, Profile (active, orange).
 No logos, no people, no stars, no prices. Spell all text exactly.
@@ -79,5 +79,19 @@ Right: a modern Android phone with thin titanium bezels, tilted 8 degrees, showi
 Rules: all text at least 60px from every edge; no logos of any organization, no people, no stars, no "#1", no prices, no mention of artificial intelligence; spell every character exactly, including accents.
 ```
 
+## 10 · Topluluk (sosyal, mağazada 7. sıraya koy)
+```
+Create a premium Google Play Store screenshot, portrait 9:16, 2160x3840, Apple / Linear / Arc launch-visual style. Dark graphite scene with soft warm orange (#F97316) light, haze and fine film grain. A modern Android phone with thin titanium bezels tilted 7 degrees. Three post cards float slightly out of the screen at different depths with soft shadows and subtle blur on the far one.
+Headline at the top, large semibold white: "Study together" (the word "together" in an orange-to-amber gradient). Small supporting line in 60% white: "Ask questions. Share tips. Learn from peers."
+Phone screen (dark Material 3 UI, background #09090B, cards #18181B with 1px #27272A border, orange accent): top bar with "Lexio." wordmark and small grey text "Community Feed"; orange eyebrow "Legal Professionals Network"; bold heading "What Are Your Colleagues Discussing?"; a composer card with the placeholder "Share your thoughts or a legal question with your colleagues…" and an orange "Publish" button; then three post cards, each with a colored initial avatar, bold author name, grey role, muted time, body text, and a bottom row "❤️ 24 Likes" and "💬 5 Comments":
+1) "Maya R." · "Law Student" · "2h" — "Anyone have a good way to remember the hearsay exceptions for the MBE?"
+2) "Daniel K." · "Bar Candidate" · "5h" — "Tip: for the Commerce Clause, start with the three categories Congress can regulate: channels, instrumentalities, and activities with a substantial effect on interstate commerce."
+3) "Elif Y." · "Law Student" · "1d" — "Finished today's exam quiz. Great practice!"
+Bottom navigation with 6 icons and labels: Trials, Community (active, orange), Groups, Study, Leaderboard, Profile.
+No logos, no people, no stars, no prices, no member counts. Spell all text exactly.
+```
+
 ---
+Kural: görsellerde **rakamla ölçülen iddia yok** (sınav sayısı, günlük soru sayısı, üye sayısı, seri günü). Uygulama büyüyünce görseller eskimesin. Ekran içindeki örnek veriler (puan, "2 / 5") yalnızca örnek.
+
 Diğer diller (tr, de, fr, es, it): `docs/store/prompts/<yerel-ayar>/` klasöründe.

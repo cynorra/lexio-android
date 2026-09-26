@@ -19,7 +19,7 @@ accent orange #F97316, success green #10B981, error red #EF4444. Font: Roboto/In
 UI LANGUAGE: Italian. Use exactly the texts quoted below.
 
 THE APP SCREEN (draw exactly this)
-The exam hub (dark, dimmed by 60%) behind a centered Material dialog (#202024, 28px radius). Dialog title bold white: "Scegli il tuo esame". A single-choice list of 11 rows with radio buttons, first row selected in orange, each row on one line in white 15px:
+The exam hub (dark, dimmed by 60%) behind a centered Material dialog (#202024, 28px radius). Dialog title bold white: "Scegli il tuo esame". A single-choice list with radio buttons, first row selected in orange, each row on one line in white 15px, the list continuing below the visible area with a soft fade at the bottom (scrollable):
 - 🇺🇸 UBE – Uniform Bar Exam
 - 🇺🇸 MBE – Multistate Bar Exam
 - 🇺🇸 MPRE – Professional Responsibility
@@ -28,8 +28,5 @@ The exam hub (dark, dimmed by 60%) behind a centered Material dialog (#202024, 2
 - 🇩🇪 Erstes Juristisches Staatsexamen
 - 🇫🇷 Examen d'entrée au CRFPA
 - 🇪🇸 Prueba de acceso a la abogacía
-- 🇮🇹 Esame di abilitazione forense
-- 🇹🇷 HMGS – Hukuk Mesleklerine Giriş Sınavı
-- 🇹🇷 Hâkim ve Savcı Adaylığı Sınavı
 
-HEADLINE (top area): "11 esami di diritto in un'app" - the word "11" in the orange-to-amber gradient.
+HEADLINE (top area): "I tuoi esami di diritto in un'app" - the word "in un'app" in the orange-to-amber gradient.

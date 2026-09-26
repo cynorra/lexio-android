@@ -11,7 +11,7 @@ You are creating a premium Google Play Store screenshot for "Lexio", a law-study
 - TEXT ACCURACY: write every text exactly as given, character for character, including accents. Do not add any other words. All UI text must be sharp and readable.
 
 SCENE
-Dark graphite world. The phone stands straight, large and centered, its lower part slightly cropped by the bottom edge for scale. Above the phone a big frosted-glass card with a huge numeral "5" and a thin orange progress ring (four segments lit), with the small text "Cuestionario de examen".
+Dark graphite world. The phone stands straight, large and centered, its lower part slightly cropped by the bottom edge for scale. Above the phone a big frosted-glass card with a thin orange progress ring and a simple calendar glyph, with the word "Diario".
 
 APP UI STYLE (the screen inside the phone)
 Native Android, Material 3 dark theme. Background #09090B, cards #18181B with 1px #27272A border and 16px radius, primary text #FAFAFA, secondary #A1A1AA, muted #71717A,
@@ -27,4 +27,4 @@ Under the card four options (12px gap, #18181B fill, 1px #27272A border, 13px wh
 - Outlined full-width option button: "Solo es admisible si la víctima declara en el juicio."
 - Outlined full-width option button: "Es inadmisible porque no se hizo bajo juramento."
 
-HEADLINE (top area): "5 preguntas nuevas al día" - the word "5" in the orange-to-amber gradient.
+HEADLINE (top area): "Preguntas nuevas cada día" - the word "nuevas" in the orange-to-amber gradient.
