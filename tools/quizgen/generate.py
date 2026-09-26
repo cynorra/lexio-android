@@ -926,7 +926,7 @@ def check_content(store, countries, today):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="read-only audit of the stored content, no generation")
-    ap.add_argument("--countries", default=None, help="comma-separated codes (default: all)")
+    ap.add_argument("--countries", default=None, help="comma-separated codes, or 'none' (default: all)")
     ap.add_argument("--exams", default=None,
                     help="comma-separated exam ids for exam prep quizzes, or 'none' (default: all exams, unless "
                          "--countries is given, then none)")
@@ -938,11 +938,12 @@ def main():
     ap.add_argument("--workers", type=int, default=3)
     args = ap.parse_args()
 
-    countries = [c.strip().upper() for c in (args.countries or ",".join(COUNTRY_ORDER)).split(",") if c.strip()]
+    country_arg = args.countries if args.countries is not None else ",".join(COUNTRY_ORDER)
+    countries = [] if country_arg.strip().lower() == "none" else         [c.strip().upper() for c in country_arg.split(",") if c.strip()]
     unknown = [c for c in countries if c not in CURRICULUM or is_exam_key(c)]
     if unknown:
         sys.exit(f"unknown country code(s): {unknown}")
-    exam_arg = args.exams if args.exams is not None else ("none" if args.countries else ",".join(EXAM_ORDER))
+    exam_arg = args.exams if args.exams is not None else ("none" if args.countries is not None else ",".join(EXAM_ORDER))
     exam_ids = [] if exam_arg.strip().lower() == "none" else [e.strip().lower() for e in exam_arg.split(",") if e.strip()]
     unknown = [e for e in exam_ids if exam_key(e) not in CURRICULUM]
     if unknown:
