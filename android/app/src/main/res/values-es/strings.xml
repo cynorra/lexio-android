@@ -181,4 +181,21 @@
     <string name="delete_account_partial">Tus datos fueron eliminados, pero la cuenta de acceso no pudo desvincularse. Contacta con soporte.</string>
     <string name="btn_privacy_policy">Política de privacidad</string>
     <string name="legal_disclaimer">Lexio es una aplicación formativa. El contenido se ofrece únicamente con fines informativos y didácticos; no constituye asesoramiento jurídico ni sustituye a un abogado. Parte del contenido se genera con IA y puede contener imprecisiones.</string>
+    <string name="exam_banner_title">Preparación de exámenes de derecho</string>
+    <string name="exam_banner_subtitle">Práctica diaria para UBE, MBE, SQE, Staatsexamen, acceso a la abogacía, HMGS y más.</string>
+    <string name="exam_screen_title">Preparación de exámenes</string>
+    <string name="exam_eyebrow">PREPARACIÓN DE EXÁMENES</string>
+    <string name="exam_heading">¿Qué examen estás preparando?</string>
+    <string name="exam_subheading">Elige el examen de derecho que vas a presentar y practica cada día preguntas nuevas con su estilo. Tu elección no depende del país desde el que uses la app.</string>
+    <string name="exam_selected_label">Tu examen</string>
+    <string name="exam_start_btn">Empezar el cuestionario de examen de hoy</string>
+    <string name="exam_change_btn">Cambiar de examen</string>
+    <string name="exam_how_it_works">Cada día se preparan 5 preguntas nuevas para tu examen. La práctica no afecta a tu puntuación de carrera ni a tu racha.</string>
+    <string name="exam_disclaimer">Lexio no está afiliada a ningún organismo examinador; los nombres de los exámenes solo indican para cuál te preparas. Las preguntas son de práctica, al estilo del examen y creadas con ayuda de IA, y pueden contener errores: consulta las fuentes oficiales.</string>
+    <string name="exam_dialog_title">Elige tu examen</string>
+    <string name="exam_quiz_title">Cuestionario de examen</string>
+    <string name="exam_loading">Cargando el cuestionario de examen…</string>
+    <string name="exam_load_failed">No se pudo cargar el cuestionario de examen. Comprueba tu conexión y pulsa para reintentar.</string>
+    <string name="exam_done_toast">Cuestionario de examen terminado: %1$d/%2$d correctas</string>
+    <string name="exam_result_today">✅ Resultado de hoy: %1$d/%2$d correctas</string>
 </resources>

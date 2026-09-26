@@ -3,6 +3,7 @@ package com.cynorra.lexio.mvi;
 import com.cynorra.lexio.data.DateKeys;
 import com.cynorra.lexio.data.UserProgress;
 import com.cynorra.lexio.model.Case;
+import com.cynorra.lexio.model.Exams;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +64,7 @@ public class AppStore {
                         .language(current.getLanguage())
                         .darkTheme(current.isDarkTheme())
                         .country(current.getCountry())
+                        .exam(current.getExam())
                         .build();
             }
 
@@ -135,6 +137,23 @@ public class AppStore {
 
             case QUIZ_NEXT:
                 return quizNext(current, event.getTotal(), event.getToday());
+
+            case NAVIGATE_TO_EXAM_PREP:
+                return current.toBuilder().screen(AppState.Screen.EXAM_PREP)
+                        .quizIndex(0).quizCorrect(0).quizSelected(-1).build();
+
+            case NAVIGATE_TO_EXAM_QUIZ:
+                return current.toBuilder()
+                        .screen(AppState.Screen.EXAM_QUIZ)
+                        .quizIndex(0).quizCorrect(0).quizSelected(-1)
+                        .build();
+
+            case SELECT_EXAM:
+                return Exams.isSupported(event.getText()) && !event.getText().equals(current.getExam())
+                        ? current.toBuilder().exam(event.getText()).build() : current;
+
+            case EXAM_QUIZ_NEXT:
+                return examQuizNext(current, event.getTotal());
 
             case SELECT_COUNTRY:
                 return current.toBuilder().country(event.getText()).build();
@@ -257,6 +276,16 @@ public class AppStore {
             total += best;
         }
         return Math.max(total, 1);
+    }
+
+    private AppState examQuizNext(AppState current, int total) {
+        if (current.getQuizSelected() == -1 || total <= 0) return current; // must answer first
+        if (current.getQuizIndex() + 1 < total) {
+            return current.toBuilder().quizIndex(current.getQuizIndex() + 1).quizSelected(-1).build();
+        }
+        // Practice only: no points, no streak. The screen reads the score from the state it is leaving.
+        return current.toBuilder().screen(AppState.Screen.EXAM_PREP)
+                .quizIndex(0).quizCorrect(0).quizSelected(-1).build();
     }
 
     private AppState quizNext(AppState current, int total, String today) {

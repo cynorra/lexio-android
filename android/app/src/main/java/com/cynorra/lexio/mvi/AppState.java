@@ -2,6 +2,7 @@ package com.cynorra.lexio.mvi;
 
 import com.cynorra.lexio.data.UserProgress;
 import com.cynorra.lexio.model.Case;
+import com.cynorra.lexio.model.Exams;
 import com.cynorra.lexio.model.Jurisdictions;
 import com.cynorra.lexio.model.StudyTopic;
 
@@ -24,7 +25,9 @@ public class AppState {
         FEED,
         WORKSPACE,
         PROFILE,
-        DAILY_QUIZ
+        DAILY_QUIZ,
+        EXAM_PREP,
+        EXAM_QUIZ
     }
 
     public static class Message {
@@ -66,6 +69,7 @@ public class AppState {
     private final boolean isDarkTheme;
     private final String language; // "tr" or "en"
     private final String country; // "TR", "US", "UK", "DE"
+    private final String exam; // id of the law exam the user is preparing for (see Exams)
 
     // Persistent progress (see UserProgress)
     private final boolean progressLoaded;
@@ -96,6 +100,7 @@ public class AppState {
         this.isDarkTheme = b.isDarkTheme;
         this.language = b.language;
         this.country = b.country;
+        this.exam = b.exam;
         this.progressLoaded = b.progressLoaded;
         this.progressEpoch = b.progressEpoch;
         this.careerScore = b.careerScore;
@@ -130,6 +135,7 @@ public class AppState {
     public boolean isDarkTheme() { return isDarkTheme; }
     public String getLanguage() { return language; }
     public String getCountry() { return country; }
+    public String getExam() { return exam; }
 
     public boolean isProgressLoaded() { return progressLoaded; }
     public int getProgressEpoch() { return progressEpoch; }
@@ -163,6 +169,7 @@ public class AppState {
         boolean isDarkTheme = true;
         String language = "tr";
         String country = Jurisdictions.DEFAULT;
+        String exam = Exams.DEFAULT;
         boolean progressLoaded = false;
         int progressEpoch = 0;
         int careerScore = 0;
@@ -191,6 +198,7 @@ public class AppState {
             isDarkTheme = s.isDarkTheme;
             language = s.language;
             country = s.country;
+            exam = s.exam;
             progressLoaded = s.progressLoaded;
             progressEpoch = s.progressEpoch;
             careerScore = s.careerScore;
@@ -217,6 +225,7 @@ public class AppState {
         public Builder darkTheme(boolean v) { isDarkTheme = v; return this; }
         public Builder language(String v) { language = v != null ? v : "tr"; return this; }
         public Builder country(String v) { country = v != null ? v : Jurisdictions.DEFAULT; return this; }
+        public Builder exam(String v) { exam = v != null ? v : Exams.DEFAULT; return this; }
         public Builder careerScore(int v) { careerScore = v; return this; }
         public Builder dailyStreak(int v) { dailyStreak = v; return this; }
         public Builder lastQuizDate(String v) { lastQuizDate = v; return this; }

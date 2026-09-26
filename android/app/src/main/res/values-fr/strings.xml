@@ -181,4 +181,21 @@
     <string name="delete_account_partial">Vos données ont été supprimées, mais le compte de connexion n\'a pas pu être retiré. Contactez le support.</string>
     <string name="btn_privacy_policy">Politique de confidentialité</string>
     <string name="legal_disclaimer">Lexio est une application éducative. Les contenus sont fournis à titre d\'information générale et d\'apprentissage uniquement ; ils ne constituent pas un conseil juridique et ne remplacent pas un avocat. Certains contenus sont générés avec l\'aide de l\'IA et peuvent comporter des erreurs.</string>
+    <string name="exam_banner_title">Préparation aux examens de droit</string>
+    <string name="exam_banner_subtitle">Entraînement quotidien pour l\'UBE, le MBE, le SQE, le Staatsexamen, le CRFPA, le HMGS et plus.</string>
+    <string name="exam_screen_title">Préparation d\'examen</string>
+    <string name="exam_eyebrow">PRÉPARATION D\'EXAMEN</string>
+    <string name="exam_heading">Quel examen préparez-vous ?</string>
+    <string name="exam_subheading">Choisissez l\'examen de droit que vous passez et entraînez-vous chaque jour sur de nouvelles questions dans son style. Ce choix ne dépend pas du pays où vous utilisez l\'application.</string>
+    <string name="exam_selected_label">Votre examen</string>
+    <string name="exam_start_btn">Lancer le quiz d\'examen du jour</string>
+    <string name="exam_change_btn">Changer d\'examen</string>
+    <string name="exam_how_it_works">Chaque jour, 5 nouvelles questions sont préparées pour votre examen. L\'entraînement ne modifie ni votre score de carrière ni votre série.</string>
+    <string name="exam_disclaimer">Lexio n\'est affilié à aucun organisme d\'examen ; les noms d\'examens servent uniquement à indiquer celui que vous préparez. Les questions sont des questions d\'entraînement, dans le style de l\'examen, générées avec l\'aide de l\'IA, et peuvent contenir des erreurs : vérifiez les sources officielles.</string>
+    <string name="exam_dialog_title">Choisissez votre examen</string>
+    <string name="exam_quiz_title">Quiz d\'examen</string>
+    <string name="exam_loading">Chargement du quiz d\'examen…</string>
+    <string name="exam_load_failed">Impossible de charger le quiz d\'examen. Vérifiez votre connexion et touchez pour réessayer.</string>
+    <string name="exam_done_toast">Quiz d\'examen terminé : %1$d/%2$d bonnes réponses</string>
+    <string name="exam_result_today">✅ Résultat du jour : %1$d/%2$d bonnes réponses</string>
 </resources>

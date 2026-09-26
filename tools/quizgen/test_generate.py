@@ -357,5 +357,54 @@ class RotationTests(unittest.TestCase):
         self.assertFalse(g.structurally_valid(dict(good, correct_index=4)))
 
 
+class ExamTests(unittest.TestCase):
+    def test_every_exam_is_wired_into_the_pipeline(self):
+        import exams
+        from curriculum import COUNTRIES
+        self.assertIn("us-ube", exams.EXAMS)
+        for exam_id, exam in exams.EXAMS.items():
+            key = exams.exam_key(exam_id)
+            self.assertIn(key, CURRICULUM)
+            self.assertIn(exam["country"], COUNTRIES)
+            slugs = [t[0] for t in CURRICULUM[key]]
+            self.assertEqual(len(slugs), len(set(slugs)), exam_id)  # a duplicate topic would repeat within a cycle
+            self.assertGreaterEqual(len(slugs), 10, exam_id)
+            self.assertTrue(all(len(t) == 3 and all(t) for t in CURRICULUM[key]), exam_id)
+
+    def test_exam_quizzes_live_in_their_own_collection(self):
+        import exams
+
+        class Ref:
+            def __init__(self, path): self.path = path
+            def collection(self, name): return Ref(self.path + [name])
+            def document(self, name): return Ref(self.path + [name])
+            def set(self, doc): Ref.saved = (self.path, doc)
+
+        class Db:
+            def collection(self, name): return Ref([name])
+
+        store = g.Store(True)
+        store.dry_run = False
+        store.db = Db()
+        store._server_ts = "ts"
+        store.save_quiz({"country": "US", "exam": "us-ube", "date": "2026-09-26", "questions": []})
+        self.assertEqual(["examQuizzes", "us-ube", "days", "2026-09-26"], Ref.saved[0])
+        store.save_quiz({"country": "US", "date": "2026-09-26", "questions": []})
+        self.assertEqual(["dailyQuizzes", "US", "days", "2026-09-26"], Ref.saved[0])
+
+    def test_exam_notes_are_shared_with_the_jurisdiction(self):
+        import exams
+        class Recording(FakeStore):
+            keys = []
+
+            def get_notes(self, key):
+                self.keys.append(key)
+
+        research = g.Research(Recording())
+        research.grounding = False
+        research.notes(exams.exam_key("us-mbe"), CURRICULUM[exams.exam_key("us-mbe")][0], "2026-09-26")
+        self.assertEqual(["US__ep-civpro-jurisdiction"], Recording.keys)
+
+
 if __name__ == "__main__":
     unittest.main()

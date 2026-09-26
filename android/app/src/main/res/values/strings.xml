@@ -224,4 +224,21 @@
     <string name="notif_permission_message">Günlük testini çözdün! Yarın da serini sürdürmen için sana her akşam kısa bir hatırlatma gönderebiliriz. İstediğin zaman sistem ayarlarından kapatabilirsin.</string>
     <string name="notif_permission_allow">Evet, hatırlat</string>
     <string name="notif_permission_later">Şimdi değil</string>
+    <string name="exam_banner_title">Hukuk Sınavı Hazırlık</string>
+    <string name="exam_banner_subtitle">UBE, MBE, SQE, Staatsexamen, HMGS ve daha fazlası için günlük test.</string>
+    <string name="exam_screen_title">Sınav Hazırlık</string>
+    <string name="exam_eyebrow">SINAV HAZIRLIK</string>
+    <string name="exam_heading">Hangi sınava hazırlanıyorsun?</string>
+    <string name="exam_subheading">Gireceğin hukuk sınavını seç; her gün o sınavın tarzında yeni sorular çöz. Sınav seçimi, uygulamayı kullandığın ülkeden bağımsızdır.</string>
+    <string name="exam_selected_label">Hazırlandığın sınav</string>
+    <string name="exam_start_btn">Bugünün sınav testini başlat</string>
+    <string name="exam_change_btn">Sınavı değiştir</string>
+    <string name="exam_how_it_works">Her gün seçtiğin sınav için 5 yeni soru hazırlanır. Sınav testi çalışmak içindir; kariyer puanını ve serini etkilemez.</string>
+    <string name="exam_disclaimer">Lexio hiçbir sınav kurumuyla bağlantılı değildir; sınav adları yalnızca hangi sınava hazırlandığını belirtmek için kullanılır. Sorular sınav tarzında hazırlanmış, yapay zekâ destekli çalışma soruları olup hata içerebilir; resmî kaynakları kontrol et.</string>
+    <string name="exam_dialog_title">Sınavını seç</string>
+    <string name="exam_quiz_title">Sınav Testi</string>
+    <string name="exam_loading">Sınav testi yükleniyor…</string>
+    <string name="exam_load_failed">Sınav testi yüklenemedi. Bağlantını kontrol et, tekrar denemek için dokun.</string>
+    <string name="exam_done_toast">Sınav testi tamamlandı: %1$d/%2$d doğru</string>
+    <string name="exam_result_today">✅ Bugünkü sonucun: %1$d/%2$d doğru</string>
 </resources>

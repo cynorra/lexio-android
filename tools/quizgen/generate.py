@@ -21,6 +21,7 @@ Pipeline for every topic
 Firestore layout (read-only for clients, written here with the Admin SDK):
 
   dailyQuizzes/{CC}/days/{YYYY-MM-DD}   -> {country, date, questions[], model, generatedAt}
+  examQuizzes/{exam-id}/days/{date}     -> same shape plus `exam` (bar exams etc., see exams.py; quizzes only)
   studySets/{CC}/sets/{slug}            -> {country, slug, date, publishedAt, title{}, category{},
                                             summary{}, lesson{}, reference, minutes, questions[]}
   researchNotes/{CC}__{slug}            -> {notes, updatedAt}   (internal cache, no client access)
@@ -50,6 +51,7 @@ import time
 from google import genai
 
 from curriculum import COUNTRIES, COUNTRY_ORDER, CURRICULUM
+from exams import EXAM_ORDER, exam_id_of, exam_key, is_exam_key
 import sources
 from translate import Translator
 
@@ -243,7 +245,8 @@ This is educational content, not legal advice."""
 
 def _meta(country):
     m = COUNTRIES[country]
-    return f"Jurisdiction: {m['name']} ({m['system']}). Primary sources: {m['sources']}."
+    label = "Exam" if "exam" in m else "Jurisdiction"
+    return f"{label}: {m['name']} ({m['system']}). Primary sources: {m['sources']}."
 
 
 def relevance_prompt(country, topic, candidates):
@@ -373,7 +376,8 @@ class Research:
         self._lock = threading.Lock()
 
     def notes(self, country, topic, today):
-        key = f"{country}__{topic[0]}"
+        # Exams share notes with their jurisdiction: the same topic is researched once, whichever exam asks.
+        key = f"{COUNTRIES[country].get('country', country)}__{topic[0]}"
         with self._lock:
             if key in self._memory:
                 return self._memory[key]
@@ -389,7 +393,9 @@ class Research:
     def _fetch(self, country, topic, today):
         """Wikipedia excerpts (no LLM, no billing) filtered for relevance by one cheap model call."""
         try:
-            candidates = sources.fetch_candidates(COUNTRIES[country]["name"], sources.NATIVE_LANGUAGE.get(country), topic)
+            meta = COUNTRIES[country]
+            candidates = sources.fetch_candidates(meta.get("search_name", meta["name"]),
+                                                  sources.NATIVE_LANGUAGE.get(meta.get("country", country)), topic)
             if not candidates:
                 log(f"  [{country}] no reference articles found for '{topic[0]}'; writing without notes")
                 return ""
@@ -680,8 +686,8 @@ def build_daily_quiz(country, date, research, today, translator):
     questions = gather_questions(country, slots, lambda t: research.notes(country, t, today), pick)
     if len(questions) < MIN_QUESTIONS:
         raise Rejected(f"only {len(questions)} verified question(s) for {country} {date}")
-    return {
-        "country": country,
+    doc = {
+        "country": COUNTRIES[country].get("country", country),
         "date": date.isoformat(),
         "questions": assign_ids(f"{country}-{date.isoformat()}", translate_questions(translator, questions)),
         "translatedBy": translator.name,
@@ -689,6 +695,9 @@ def build_daily_quiz(country, date, research, today, translator):
         "verifiedBy": VERIFY_MODEL,
         "grounded": all(research.notes(country, t, today) for t in topics),  # every topic had reference notes
     }
+    if is_exam_key(country):
+        doc["exam"] = exam_id_of(country)
+    return doc
 
 
 def build_study_set(country, date, research, today, translator):
@@ -743,6 +752,9 @@ class Store:
             self._server_ts = firestore.SERVER_TIMESTAMP
 
     def quiz_ref(self, country, date):
+        """{country} is a country code, or an exam key (exam-<id>) which lives in its own collection."""
+        if is_exam_key(country):
+            return self.db.collection("examQuizzes").document(exam_id_of(country)).collection("days").document(date.isoformat())
         return self.db.collection("dailyQuizzes").document(country).collection("days").document(date.isoformat())
 
     def sets_ref(self, country):
@@ -791,7 +803,8 @@ class Store:
             print(json.dumps(doc, ensure_ascii=False, indent=1))
             return
         doc = dict(doc, generatedAt=self._server_ts)
-        self.quiz_ref(doc["country"], dt.date.fromisoformat(doc["date"])).set(doc)
+        key = exam_key(doc["exam"]) if doc.get("exam") else doc["country"]
+        self.quiz_ref(key, dt.date.fromisoformat(doc["date"])).set(doc)
 
     def save_study(self, doc):
         if self.dry_run:
@@ -842,6 +855,8 @@ def coverage_problems(store, countries, today):
             d = today + dt.timedelta(days=offset)
             if not store.quiz_exists(country, d):
                 critical.append(f"{country}: no daily quiz for {d}")
+        if is_exam_key(country):
+            continue  # exams only have daily quizzes
         latest = store.latest_study_date(country)
         if latest is None or latest < (today - dt.timedelta(days=2)).isoformat():
             warnings.append(f"{country}: newest study set is {latest}")
@@ -882,10 +897,12 @@ def check_content(store, countries, today):
             log(f"[{country}] quiz {day}: {len(questions)} questions, invalid={len(bad)}, model={doc.get('model')}, "
                 f"translatedBy={doc.get('translatedBy')}, grounded={doc.get('grounded')}, languages=en,{','.join(have)}")
             problems += bool(bad) + (len(questions) < MIN_QUESTIONS)
-            if offset == 0 and questions and country in ("US", "TR"):
+            if offset == 0 and questions and (country in ("US", "TR") or country == exam_key("us-ube")):
                 q = questions[0]
                 log(f"   sample EN: {q['en']['question']} | {q['en']['options']} | answer={q['correct_index']}")
                 log(f"   sample TR: {q['tr']['question']} | {q['tr']['options']}")
+        if is_exam_key(country):
+            continue
         sets = list(store.sets_ref(country).order_by("publishedAt", direction="DESCENDING").limit(5).get())
         if not sets:
             log(f"[{country}] study sets: NONE")
@@ -909,7 +926,11 @@ def check_content(store, countries, today):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true", help="read-only audit of the stored content, no generation")
-    ap.add_argument("--countries", default=",".join(COUNTRY_ORDER), help="comma-separated codes")
+    ap.add_argument("--countries", default=None, help="comma-separated codes (default: all)")
+    ap.add_argument("--exams", default=None,
+                    help="comma-separated exam ids for exam prep quizzes, or 'none' (default: all exams, unless "
+                         "--countries is given, then none)")
+    ap.add_argument("--exam-days-ahead", type=int, default=1, help="exam quizzes are made for today and the next N days")
     ap.add_argument("--days-ahead", type=int, default=2, help="also generate quizzes for the next N days")
     ap.add_argument("--days-back", type=int, default=1, help="backfill quizzes/study sets for the last N days")
     ap.add_argument("--force", action="store_true", help="regenerate even if content exists")
@@ -917,13 +938,19 @@ def main():
     ap.add_argument("--workers", type=int, default=3)
     args = ap.parse_args()
 
-    countries = [c.strip().upper() for c in args.countries.split(",") if c.strip()]
-    unknown = [c for c in countries if c not in CURRICULUM]
+    countries = [c.strip().upper() for c in (args.countries or ",".join(COUNTRY_ORDER)).split(",") if c.strip()]
+    unknown = [c for c in countries if c not in CURRICULUM or is_exam_key(c)]
     if unknown:
         sys.exit(f"unknown country code(s): {unknown}")
+    exam_arg = args.exams if args.exams is not None else ("none" if args.countries else ",".join(EXAM_ORDER))
+    exam_ids = [] if exam_arg.strip().lower() == "none" else [e.strip().lower() for e in exam_arg.split(",") if e.strip()]
+    unknown = [e for e in exam_ids if exam_key(e) not in CURRICULUM]
+    if unknown:
+        sys.exit(f"unknown exam id(s): {unknown}; known: {EXAM_ORDER}")
+    exam_keys = [exam_key(e) for e in exam_ids]
     today = dt.datetime.now(dt.timezone.utc).date()
     if args.check:
-        sys.exit(1 if check_content(Store(False), countries, today) else 0)
+        sys.exit(1 if check_content(Store(False), countries + exam_keys, today) else 0)
     if not (os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")):
         sys.exit("GEMINI_API_KEY is not set")
 
@@ -937,6 +964,9 @@ def main():
             jobs.append(("quiz", country, today + dt.timedelta(days=offset)))
         for offset in range(-args.days_back, 1):  # study sets are only published for today and backfill
             jobs.append(("study", country, today + dt.timedelta(days=offset)))
+    for key in exam_keys:
+        for offset in range(0, args.exam_days_ahead + 1):
+            jobs.append(("quiz", key, today + dt.timedelta(days=offset)))
 
     log(f"model={MODEL} verify_model={VERIFY_MODEL} research={'on' if RESEARCH_ENABLED else 'OFF'} translator={translator.name} jobs={len(jobs)} today(UTC)={today}")
     started = time.time()
@@ -959,7 +989,7 @@ def main():
 
     # Individual failed jobs are retried by the next run. The run only turns red when the app would
     # actually be missing today's or tomorrow's quiz, so a red run always means "act on this".
-    critical, warnings = coverage_problems(store, countries, today)
+    critical, warnings = coverage_problems(store, countries + exam_keys, today)
     for w in warnings:
         log(f"warning: {w}")
     for c in critical:

@@ -30,6 +30,10 @@ public class AppEvent {
         NAVIGATE_TO_DAILY_QUIZ,
         QUIZ_ANSWER,
         QUIZ_NEXT,
+        NAVIGATE_TO_EXAM_PREP,
+        NAVIGATE_TO_EXAM_QUIZ,
+        SELECT_EXAM,
+        EXAM_QUIZ_NEXT,
         SELECT_COUNTRY,
         SET_INSTAGRAM_HANDLE,
         PROGRESS_LOADED,
@@ -136,6 +140,19 @@ public class AppEvent {
         AppEvent e = new AppEvent(Type.QUIZ_NEXT);
         e.total = totalQuestions;
         e.today = today;
+        return e;
+    }
+
+    public static AppEvent selectExam(String examId) {
+        AppEvent e = new AppEvent(Type.SELECT_EXAM);
+        e.text = examId;
+        return e;
+    }
+
+    /** Advances the exam quiz; finishing it returns to the exam hub and earns no career points. */
+    public static AppEvent examQuizNext(int totalQuestions) {
+        AppEvent e = new AppEvent(Type.EXAM_QUIZ_NEXT);
+        e.total = totalQuestions;
         return e;
     }
 

@@ -181,4 +181,21 @@
     <string name="delete_account_partial">Deine Daten wurden gelöscht, das Anmeldekonto konnte jedoch nicht entfernt werden. Kontaktiere den Support.</string>
     <string name="btn_privacy_policy">Datenschutzerklärung</string>
     <string name="legal_disclaimer">Lexio ist eine Bildungs-App. Die Inhalte dienen ausschließlich der allgemeinen Information und Weiterbildung; sie stellen keine Rechtsberatung dar und ersetzen keinen Rechtsanwalt. Einige Inhalte werden KI-gestützt erstellt und können Fehler enthalten.</string>
+    <string name="exam_banner_title">Jura-Examensvorbereitung</string>
+    <string name="exam_banner_subtitle">Tägliche Übungen für UBE, MBE, SQE, Staatsexamen, HMGS und mehr.</string>
+    <string name="exam_screen_title">Prüfungsvorbereitung</string>
+    <string name="exam_eyebrow">PRÜFUNGSVORBEREITUNG</string>
+    <string name="exam_heading">Auf welche Prüfung bereitest du dich vor?</string>
+    <string name="exam_subheading">Wähle die juristische Prüfung, die du ablegst, und übe jeden Tag neue Fragen in ihrem Stil. Deine Wahl ist unabhängig vom Land, in dem du die App nutzt.</string>
+    <string name="exam_selected_label">Deine Prüfung</string>
+    <string name="exam_start_btn">Heutiges Prüfungsquiz starten</string>
+    <string name="exam_change_btn">Prüfung wechseln</string>
+    <string name="exam_how_it_works">Jeden Tag werden 5 neue Fragen für deine Prüfung erstellt. Das Prüfungstraining ändert weder deine Karrierepunkte noch deine Serie.</string>
+    <string name="exam_disclaimer">Lexio steht in keiner Verbindung zu einer Prüfungsstelle; Prüfungsnamen dienen nur der Angabe, worauf du dich vorbereitest. Die Fragen sind KI-gestützte Übungsfragen im Prüfungsstil und können Fehler enthalten. Prüfe daher offizielle Quellen.</string>
+    <string name="exam_dialog_title">Prüfung wählen</string>
+    <string name="exam_quiz_title">Prüfungsquiz</string>
+    <string name="exam_loading">Prüfungsquiz wird geladen…</string>
+    <string name="exam_load_failed">Das Prüfungsquiz konnte nicht geladen werden. Prüfe deine Verbindung und tippe zum Wiederholen.</string>
+    <string name="exam_done_toast">Prüfungsquiz beendet: %1$d/%2$d richtig</string>
+    <string name="exam_result_today">✅ Heutiges Ergebnis: %1$d/%2$d richtig</string>
 </resources>

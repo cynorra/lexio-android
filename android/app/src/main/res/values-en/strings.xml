@@ -220,4 +220,21 @@
     <string name="notif_permission_message">You finished today\'s quiz! We can send you a short reminder each evening so you don\'t lose your streak tomorrow. You can turn it off any time in system settings.</string>
     <string name="notif_permission_allow">Yes, remind me</string>
     <string name="notif_permission_later">Not now</string>
+    <string name="exam_banner_title">Law Exam Prep</string>
+    <string name="exam_banner_subtitle">Daily practice for the UBE, MBE, SQE, Staatsexamen, HMGS and more.</string>
+    <string name="exam_screen_title">Exam Prep</string>
+    <string name="exam_eyebrow">EXAM PREP</string>
+    <string name="exam_heading">Which exam are you preparing for?</string>
+    <string name="exam_subheading">Pick the law exam you are taking and practice new questions in its style every day. Your choice doesn\'t depend on the country you use the app in.</string>
+    <string name="exam_selected_label">Your exam</string>
+    <string name="exam_start_btn">Start today\'s exam quiz</string>
+    <string name="exam_change_btn">Change exam</string>
+    <string name="exam_how_it_works">Every day, 5 new questions are prepared for your exam. Exam practice doesn\'t change your career score or streak.</string>
+    <string name="exam_disclaimer">Lexio is not affiliated with any exam body; exam names are used only to say which exam you are preparing for. Questions are AI-assisted, exam-style practice questions and may contain errors, so check official sources.</string>
+    <string name="exam_dialog_title">Choose your exam</string>
+    <string name="exam_quiz_title">Exam Quiz</string>
+    <string name="exam_loading">Loading the exam quiz…</string>
+    <string name="exam_load_failed">Couldn\'t load the exam quiz. Check your connection and tap to retry.</string>
+    <string name="exam_done_toast">Exam quiz finished: %1$d/%2$d correct</string>
+    <string name="exam_result_today">✅ Today\'s result: %1$d/%2$d correct</string>
 </resources>

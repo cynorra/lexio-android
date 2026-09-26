@@ -32,5 +32,6 @@ public class StoreHolder extends ViewModel {
     public List<DailyQuizQuestion> quiz = null;
     public String quizKey = null; // country|date|language the loaded quiz belongs to
     public boolean quizLoading = false;
+    public String quizLoadingKey = null; // key of the request in flight; a reply for another key is stale
     public boolean quizFailed = false;
 }

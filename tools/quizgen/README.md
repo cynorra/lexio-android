@@ -79,6 +79,21 @@ each with a generation call and one or more fact-check calls; on Flash-class pri
 well under a dollar a day. The first run backfills ~4 days per country. A paid API key is
 recommended: free-tier rate limits are low (the script retries with backoff, but a full run may crawl).
 
+## Law-exam prep quizzes
+
+`exams.py` lists the exams people study for (UBE, MBE, MPRE, California Bar, SQE1, Staatsexamen, CRFPA, Spanish/Italian bar exams, HMGS, ...). Each exam gets its own daily quiz in `examQuizzes/{exam-id}/days/{date}` (5 questions, same research/write/check/translate pipeline, quizzes only, no study sets). Today and tomorrow are generated per run.
+
+```
+python generate.py                         # all countries + all exams
+python generate.py --countries US          # US only, no exams (smoke test)
+python generate.py --countries US --exams us-ube,tr-hmgs
+python generate.py --countries US --exams none
+```
+
+Workflow input `exams` does the same (`us-ube,tr-hmgs`; empty = all exams when `countries` is empty, else none). Reference notes are shared with the jurisdiction (`US__<slug>`). An exam run costs about 3-4 Gemini requests per exam per day in steady state.
+
+To add an exam: an entry in `EXAMS` (exams.py) and a row in the app's `model/Exams.java`.
+
 ## Limits
 
 - Content is written from the model's knowledge (no search grounding), not live sources, so it is best for stable

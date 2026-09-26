@@ -37,7 +37,15 @@ public class ContentRepository {
      * screen is never empty. Firestore's offline cache serves both reads without a connection.
      */
     public void loadDailyQuiz(String country, String date, String language, QuizCallback callback) {
-        CollectionReference days = db.collection("dailyQuizzes").document(country).collection("days");
+        loadQuiz(db.collection("dailyQuizzes").document(country).collection("days"), country, date, language, callback);
+    }
+
+    /** Same, for a law exam's own daily quiz ({@code examQuizzes/{examId}/days/{date}}). */
+    public void loadExamQuiz(String examId, String date, String language, QuizCallback callback) {
+        loadQuiz(db.collection("examQuizzes").document(examId).collection("days"), examId, date, language, callback);
+    }
+
+    private void loadQuiz(CollectionReference days, String country, String date, String language, QuizCallback callback) {
         days.document(date).get()
                 .addOnSuccessListener(doc -> {
                     List<DailyQuizQuestion> questions = doc.exists()

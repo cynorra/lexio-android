@@ -258,3 +258,8 @@ CURRICULUM = {
 
 # Product priority, also the order countries are processed in.
 COUNTRY_ORDER = ["US", "UK", "DE", "FR", "ES", "IT", "TR"]
+
+# Law-exam prep (bar exams etc.) shares the pipeline: every exam is registered under its own key.
+import exams as _exams  # noqa: E402
+
+_exams.register(COUNTRIES, CURRICULUM)

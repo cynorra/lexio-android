@@ -135,6 +135,69 @@
                     android:textStyle="bold" />
             </RelativeLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- Law-exam prep: a separate track from the regular law content -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvExamBanner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:cardBackgroundColor="@color/card_bg"
+            app:cardCornerRadius="14dp"
+            app:strokeColor="@color/card_border"
+            app:strokeWidth="1dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvExamBannerIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🎓"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:id="@+id/tvExamBannerTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/tvExamBannerIcon"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/exam_banner_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/tvExamBannerTitle"
+                    android:layout_toEndOf="@id/tvExamBannerIcon"
+                    android:layout_toStartOf="@+id/tvExamBannerCta"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/exam_banner_subtitle"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvExamBannerCta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="@string/daily_quiz_banner_cta"
+                    android:textColor="@color/accent_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
     <!-- Cases List -->

@@ -44,6 +44,7 @@ import com.cynorra.lexio.model.BadgeData;
 import com.cynorra.lexio.model.Case;
 import com.cynorra.lexio.model.CasesData;
 import com.cynorra.lexio.model.DailyQuizQuestion;
+import com.cynorra.lexio.model.Exams;
 import com.cynorra.lexio.model.FeedData;
 import com.cynorra.lexio.model.FeedPost;
 import com.cynorra.lexio.model.Jurisdictions;
@@ -97,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private static final String[] LANGUAGE_CODES = {"tr", "en", "de", "fr", "es", "it"};
     private static final String PREF_DARK_THEME = "dark_theme";
     private static final String PREF_COUNTRY = "country";
+    private static final String PREF_EXAM = "exam";
+    private static final String PREF_EXAM_RESULT = "exam_result_"; // + exam id -> "yyyy-MM-dd|correct|total"
 
     private StoreHolder holder;
     private AppStore store;
@@ -237,7 +240,10 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         String language = prefs.getString(PREF_LANGUAGE, defaultLanguage);
         store.dispatch(AppEvent.setLanguage(isSupportedLanguage(language) ? language : defaultLanguage));
         store.dispatch(AppEvent.setDarkTheme(prefs.getBoolean(PREF_DARK_THEME, true)));
-        store.dispatch(AppEvent.selectCountry(Jurisdictions.isSupported(country) ? country : Jurisdictions.DEFAULT));
+        String safeCountry = Jurisdictions.isSupported(country) ? country : Jurisdictions.DEFAULT;
+        store.dispatch(AppEvent.selectCountry(safeCountry));
+        String exam = prefs.getString(PREF_EXAM, null);
+        store.dispatch(AppEvent.selectExam(Exams.isSupported(exam) ? exam : Exams.defaultFor(safeCountry)));
     }
 
     private void persistPreferences(AppState state) {
@@ -245,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 .putString(PREF_LANGUAGE, state.getLanguage())
                 .putBoolean(PREF_DARK_THEME, state.isDarkTheme())
                 .putString(PREF_COUNTRY, state.getCountry())
+                .putString(PREF_EXAM, state.getExam())
                 .apply();
     }
 
@@ -261,7 +268,11 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                     case WORKSPACE:
                     case LEADERBOARD:
                     case PROFILE:
+                    case EXAM_PREP:
                         store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_CASE_LIST));
+                        break;
+                    case EXAM_QUIZ:
+                        store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_EXAM_PREP));
                         break;
                     case STUDY_DETAIL:
                         store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_STUDY_PORTAL));
@@ -452,8 +463,15 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 loadBannerAd();
                 break;
             case DAILY_QUIZ:
+            case EXAM_QUIZ:
                 setContentView(R.layout.layout_daily_quiz);
                 setupDailyQuizViews();
+                break;
+            case EXAM_PREP:
+                setContentView(R.layout.layout_exam_prep);
+                setupExamPrepViews();
+                setupBottomNavigation();
+                loadBannerAd();
                 break;
         }
 
@@ -480,8 +498,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 bindProfile(state);
                 break;
             case DAILY_QUIZ:
+            case EXAM_QUIZ:
                 ensureQuizLoaded(state);
                 renderDailyQuiz(state);
+                break;
+            case EXAM_PREP:
+                bindExamPrep(state);
                 break;
             default:
                 break;
@@ -696,6 +718,14 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             showList(R.id.rvCases, new CasesAdapter(cases,
                     selectedCase -> store.dispatch(AppEvent.selectCase(selectedCase))),
                     cases.size(), R.string.case_list_empty);
+        }
+
+        View cvExamBanner = findViewById(R.id.cvExamBanner);
+        if (cvExamBanner != null) {
+            cvExamBanner.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_EXAM_PREP));
+            });
         }
 
         View cvDailyQuizBanner = findViewById(R.id.cvDailyQuizBanner);
@@ -1333,8 +1363,15 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private void setupDailyQuizViews() {
         Button btnBack = findViewById(R.id.btnBackFromQuiz);
         if (btnBack != null) {
-            btnBack.setOnClickListener(v -> store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
+            btnBack.setOnClickListener(v -> store.dispatch(AppEvent.of(
+                    store.getState().getActiveScreen() == AppState.Screen.EXAM_QUIZ
+                            ? AppEvent.Type.NAVIGATE_TO_EXAM_PREP : AppEvent.Type.NAVIGATE_TO_CASE_LIST)));
         }
+        boolean examMode = store.getState().getActiveScreen() == AppState.Screen.EXAM_QUIZ;
+        TextView title = findViewById(R.id.tvQuizScreenTitle);
+        if (title != null) title.setText(examMode ? R.string.exam_quiz_title : R.string.daily_quiz_screen_title);
+        View streak = findViewById(R.id.tvQuizStreakBadge);
+        if (streak != null) streak.setVisibility(examMode ? View.GONE : View.VISIBLE);
         // A fresh visit gets a fresh attempt at loading, even if the last one failed.
         holder.quizFailed = false;
 
@@ -1351,16 +1388,27 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
     }
 
-    /** Fetches the quiz for the current country/date/language unless it is loaded or loading. */
+    /** What the quiz on screen is: the exam's quiz on the exam screen, else the country's daily quiz. */
+    private String quizKeyFor(AppState state) {
+        String date = DateKeys.today();
+        return state.getActiveScreen() == AppState.Screen.EXAM_QUIZ
+                ? "exam:" + state.getExam() + "|" + date + "|" + state.getLanguage()
+                : state.getCountry() + "|" + date + "|" + state.getLanguage();
+    }
+
+    /** Fetches the quiz for the current country (or exam)/date/language unless it is loaded or loading. */
     private void ensureQuizLoaded(AppState state) {
-        final String key = state.getCountry() + "|" + DateKeys.today() + "|" + state.getLanguage();
-        if (key.equals(holder.quizKey) || holder.quizLoading || holder.quizFailed) return;
+        final String key = quizKeyFor(state);
+        if (key.equals(holder.quizKey) || (holder.quizLoading && key.equals(holder.quizLoadingKey)) || holder.quizFailed) return;
 
         holder.quizLoading = true;
+        holder.quizLoadingKey = key;
         holder.quiz = null;
-        contentRepo.loadDailyQuiz(state.getCountry(), DateKeys.today(), state.getLanguage(), new ContentRepository.QuizCallback() {
+        holder.quizKey = null;
+        ContentRepository.QuizCallback callback = new ContentRepository.QuizCallback() {
             @Override
             public void onLoaded(List<DailyQuizQuestion> questions) {
+                if (!key.equals(holder.quizLoadingKey)) return; // the user moved on to another quiz meanwhile
                 holder.quizLoading = false;
                 holder.quiz = questions;
                 holder.quizKey = key;
@@ -1369,28 +1417,36 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
             @Override
             public void onError() {
+                if (!key.equals(holder.quizLoadingKey)) return;
                 holder.quizLoading = false;
                 holder.quizFailed = true;
                 refreshQuizScreen();
             }
-        });
+        };
+        if (state.getActiveScreen() == AppState.Screen.EXAM_QUIZ) {
+            contentRepo.loadExamQuiz(state.getExam(), DateKeys.today(), state.getLanguage(), callback);
+        } else {
+            contentRepo.loadDailyQuiz(state.getCountry(), DateKeys.today(), state.getLanguage(), callback);
+        }
     }
 
     private void refreshQuizScreen() {
-        if (isUiGone() || activeScreen != AppState.Screen.DAILY_QUIZ) return;
+        if (isUiGone() || (activeScreen != AppState.Screen.DAILY_QUIZ && activeScreen != AppState.Screen.EXAM_QUIZ)) return;
         renderDailyQuiz(store.getState());
     }
 
     private void renderDailyQuiz(AppState state) {
         TextView status = findViewById(R.id.tvQuizStatus);
         View content = findViewById(R.id.svQuizContent);
+        final boolean examMode = state.getActiveScreen() == AppState.Screen.EXAM_QUIZ;
         TextView tvStreak = findViewById(R.id.tvQuizStreakBadge);
         if (tvStreak != null) tvStreak.setText(getString(R.string.quiz_streak_badge, state.getDailyStreak()));
 
         List<DailyQuizQuestion> questions = holder.quiz;
         if (questions == null || questions.isEmpty()) {
             if (status != null) {
-                status.setText(holder.quizFailed ? R.string.quiz_load_failed : R.string.quiz_loading);
+                status.setText(holder.quizFailed ? (examMode ? R.string.exam_load_failed : R.string.quiz_load_failed)
+                        : (examMode ? R.string.exam_loading : R.string.quiz_loading));
                 status.setVisibility(View.VISIBLE);
             }
             if (content != null) content.setVisibility(View.GONE);
@@ -1451,6 +1507,10 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             btnNext.setText(isLast ? R.string.btn_finish_quiz : R.string.btn_next_question);
             btnNext.setOnClickListener(v -> {
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                if (examMode) {
+                    finishExamStep(questions.size());
+                    return;
+                }
                 AppState before = store.getState();
                 store.dispatch(AppEvent.quizNext(questions.size(), DateKeys.today()));
                 AppState after = store.getState();
@@ -1465,6 +1525,79 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                     maybeAskNotificationPermission();
                 }
             });
+        }
+    }
+
+    // ---------------------------------------------------------------- law-exam prep
+
+    private void setupExamPrepViews() {
+        View start = findViewById(R.id.btnStartExamQuiz);
+        if (start != null) {
+            start.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_EXAM_QUIZ));
+            });
+        }
+        View change = findViewById(R.id.btnChangeExam);
+        if (change != null) {
+            change.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                showExamPicker();
+            });
+        }
+    }
+
+    private void showExamPicker() {
+        String[] labels = new String[Exams.ALL.length];
+        int checked = -1;
+        String current = store.getState().getExam();
+        for (int i = 0; i < labels.length; i++) {
+            labels[i] = Exams.label(Exams.ALL[i]);
+            if (Exams.ALL[i].id.equals(current)) checked = i;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.exam_dialog_title)
+                .setSingleChoiceItems(labels, checked, (dialog, which) -> {
+                    store.dispatch(AppEvent.selectExam(Exams.ALL[which].id));
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    private void bindExamPrep(AppState state) {
+        TextView name = findViewById(R.id.tvExamName);
+        TextView result = findViewById(R.id.tvExamResult);
+        Exams.Exam exam = Exams.find(state.getExam());
+        if (name != null && exam != null) name.setText(Exams.label(exam));
+        if (result == null) return;
+
+        // "yyyy-MM-dd|correct|total": only today's result is shown, yesterday's is history.
+        String[] saved = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getString(PREF_EXAM_RESULT + state.getExam(), "").split("\\|");
+        boolean fromToday = saved.length == 3 && saved[0].equals(DateKeys.today());
+        result.setVisibility(fromToday ? View.VISIBLE : View.GONE);
+        if (fromToday) {
+            try {
+                result.setText(getString(R.string.exam_result_today, Integer.parseInt(saved[1]), Integer.parseInt(saved[2])));
+            } catch (NumberFormatException e) {
+                result.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /** Next question of the exam quiz; on the last one, remembers today's score and shows it. */
+    private void finishExamStep(int total) {
+        AppState before = store.getState();
+        store.dispatch(AppEvent.examQuizNext(total));
+        AppState after = store.getState();
+        if (before.getActiveScreen() == AppState.Screen.EXAM_QUIZ
+                && after.getActiveScreen() != AppState.Screen.EXAM_QUIZ) {
+            int correct = before.getQuizCorrect();
+            getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
+                    .putString(PREF_EXAM_RESULT + before.getExam(), DateKeys.today() + "|" + correct + "|" + total)
+                    .apply();
+            Toast.makeText(this, getString(R.string.exam_done_toast, correct, total), Toast.LENGTH_LONG).show();
+            bindExamPrep(after); // the hub is already inflated by the screen change; show the fresh score
         }
     }
 }

@@ -188,4 +188,43 @@ public class AppStoreTest {
         assertEquals(Integer.valueOf(60), merged.caseBest.get(1));
         assertEquals(2, merged.caseBest.size());
     }
+
+    @Test
+    public void examSelectionIsStoredAndUnknownExamsAreIgnored() {
+        assertEquals("us-ube", store.getState().getExam());
+        store.dispatch(AppEvent.selectExam("tr-hmgs"));
+        assertEquals("tr-hmgs", store.getState().getExam());
+        store.dispatch(AppEvent.selectExam("not-an-exam"));
+        assertEquals("tr-hmgs", store.getState().getExam());
+    }
+
+    @Test
+    public void examQuizFinishesOnTheHubWithoutTouchingCareerPoints() {
+        store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_EXAM_QUIZ));
+        assertEquals(AppState.Screen.EXAM_QUIZ, store.getState().getActiveScreen());
+
+        store.dispatch(AppEvent.examQuizNext(2)); // unanswered: ignored
+        assertEquals(0, store.getState().getQuizIndex());
+
+        store.dispatch(AppEvent.quizAnswer(1, true));
+        store.dispatch(AppEvent.examQuizNext(2));
+        assertEquals(1, store.getState().getQuizIndex());
+
+        store.dispatch(AppEvent.quizAnswer(0, true));
+        assertEquals(2, store.getState().getQuizCorrect());
+        store.dispatch(AppEvent.examQuizNext(2));
+
+        AppState s = store.getState();
+        assertEquals(AppState.Screen.EXAM_PREP, s.getActiveScreen());
+        assertEquals(0, s.getCareerScore());
+        assertEquals(0, s.getDailyStreak());
+        assertEquals(null, s.getLastQuizDate());
+    }
+
+    @Test
+    public void logoutKeepsTheChosenExam() {
+        store.dispatch(AppEvent.selectExam("uk-sqe1"));
+        store.dispatch(AppEvent.of(AppEvent.Type.LOGOUT));
+        assertEquals("uk-sqe1", store.getState().getExam());
+    }
 }

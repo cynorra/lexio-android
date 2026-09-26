@@ -11,6 +11,10 @@ on:
         description: 'Comma-separated country codes (empty = all)'
         required: false
         default: ''
+      exams:
+        description: 'Comma-separated exam ids, e.g. us-ube,tr-hmgs (empty = all exams when countries is empty, else none; "none" = no exams)'
+        required: false
+        default: ''
       force:
         description: 'Regenerate content that already exists'
         type: boolean
@@ -69,6 +73,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           COUNTRIES: ${{ inputs.countries }}
+          EXAMS: ${{ inputs.exams }}
           QUIZGEN_MODEL: ${{ inputs.model }}
           QUIZGEN_VERIFY_MODEL: ${{ inputs.verify_model }}
           QUIZGEN_MIN_INTERVAL: ${{ inputs.min_interval }}
@@ -77,6 +82,7 @@ jobs:
         run: |
           ARGS=""
           if [ -n "$COUNTRIES" ]; then ARGS="$ARGS --countries $COUNTRIES"; fi
+          if [ -n "$EXAMS" ]; then ARGS="$ARGS --exams $EXAMS"; fi
           if [ "$FORCE" = "true" ]; then ARGS="$ARGS --force"; fi
           if [ "$CHECK_ONLY" = "true" ]; then ARGS="$ARGS --check"; fi
           python generate.py $ARGS
