@@ -7,6 +7,7 @@
 | Path | Content |
 |---|---|
 | `dailyQuizzes/{CC}/days/{YYYY-MM-DD}` | 5 questions (one per curriculum topic), English + Turkish, German, French, Spanish, Italian |
+| `caseLibrary/{CC}/cases/{slug}` | one trial-simulation case (facts, evidence, 4 steps x 3 arguments per side, two verdicts), **English only for now**; themes in `cases.py`, one new case per country per run (`--cases N`, 0 disables) |
 | `studySets/{CC}/sets/{slug}` | one constitution / basic-law lesson + 5 questions per day, English + Turkish, German, French, Spanish, Italian |
 
 Countries (product priority order): `US, UK, DE, FR, ES, IT, TR`. Topics live in `curriculum.py`
@@ -42,6 +43,7 @@ always means "look at this".
    ```
    match /dailyQuizzes/{cc}/days/{day} { allow read: if request.auth != null; allow write: if false; }
    match /studySets/{cc}/sets/{slug}   { allow read: if request.auth != null; allow write: if false; }
+   match /caseLibrary/{cc}/cases/{slug} { allow read: if request.auth != null; allow write: if false; }
    ```
 4. Run the **Daily quiz generation** workflow once by hand (Actions tab -> Run workflow) to backfill;
    after that it runs daily at 02:15 UTC.

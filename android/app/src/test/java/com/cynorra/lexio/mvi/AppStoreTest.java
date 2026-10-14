@@ -48,8 +48,8 @@ public class AppStoreTest {
 
     @Test
     public void leaderboardIntervalIsStored() {
-        store.dispatch(AppEvent.setLeaderboardInterval("weekly"));
-        assertEquals("weekly", store.getState().getLeaderboardInterval());
+        store.dispatch(AppEvent.setLeaderboardInterval("monthly"));
+        assertEquals("monthly", store.getState().getLeaderboardInterval());
     }
 
     @Test

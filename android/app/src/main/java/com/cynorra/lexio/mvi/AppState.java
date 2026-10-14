@@ -163,7 +163,7 @@ public class AppState {
         int simulationScore = 0;
         List<Integer> stepScores = new ArrayList<>();
         StudyTopic selectedStudyTopic = null;
-        String leaderboardInterval = "daily";
+        String leaderboardInterval = "weekly";
         boolean isAuthenticated = false;
         String userDisplayName = "";
         boolean isDarkTheme = true;

@@ -24,6 +24,7 @@ Firestore layout (read-only for clients, written here with the Admin SDK):
   examQuizzes/{exam-id}/days/{date}     -> same shape plus `exam` (bar exams etc., see exams.py; quizzes only)
   studySets/{CC}/sets/{slug}            -> {country, slug, date, publishedAt, title{}, category{},
                                             summary{}, lesson{}, reference, minutes, questions[]}
+  caseLibrary/{CC}/cases/{slug}         -> trial-simulation case, English only (see CASE_SCHEMA / to_case_doc)
   researchNotes/{CC}__{slug}            -> {notes, updatedAt}   (internal cache, no client access)
 
 Every stored question is {id, topic, correct_index, en:{question, options[4], explanation}, tr:{...}}.
@@ -50,6 +51,7 @@ import time
 
 from google import genai
 
+from cases import CASE_THEMES
 from curriculum import COUNTRIES, COUNTRY_ORDER, CURRICULUM
 from exams import EXAM_ORDER, exam_id_of, exam_key, is_exam_key
 import sources
@@ -739,6 +741,186 @@ def build_study_set(country, date, research, today, translator):
 
 # --------------------------------------------------------------------------- firestore
 
+# --------------------------------------------------------------------------- trial-simulation cases (English only)
+
+CASE_STEPS = 4
+CASE_SCORES = (25, 15, 5)  # strongest, middling, weakest choice; the app adds these up per step
+CASE_ATTEMPTS = 3
+
+_CHOICE = {
+    "type": "object",
+    "properties": {"text": {"type": "string"}, "response": {"type": "string"}},
+    "required": ["text", "response"],
+    "additionalProperties": False,
+}
+
+CASE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string"},
+        "preview": {"type": "string"},
+        "difficulty": {"type": "string", "enum": ["Easy", "Medium", "Hard"]},
+        "duration_minutes": {"type": "integer"},
+        "ref": {"type": "string"},
+        "facts": {"type": "string"},
+        "evidence": {"type": "array", "items": {"type": "string"}},
+        "steps": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "step_name": {"type": "string"},
+                    "prompt": {"type": "string"},
+                    "defense": {"type": "array", "items": _CHOICE},
+                    "prosecution": {"type": "array", "items": _CHOICE},
+                },
+                "required": ["step_name", "prompt", "defense", "prosecution"],
+                "additionalProperties": False,
+            },
+        },
+        "verdict_defense_win": {"type": "string"},
+        "verdict_defense_lose": {"type": "string"},
+    },
+    "required": ["title", "preview", "difficulty", "duration_minutes", "ref", "facts", "evidence", "steps",
+                 "verdict_defense_win", "verdict_defense_lose"],
+    "additionalProperties": False,
+}
+
+
+def case_prompt(country, theme, notes, problems=None, previous=None):
+    text = (
+        f"{_meta(country)}\n\nDesign an interactive trial-simulation case for a legal-education game.\n"
+        f"Theme: {theme[1]}\nLegal anchor: {theme[2]}\nArea: {theme[3]}\n\n{_notes_block(notes)}\n\n"
+        "The player argues as defense counsel OR as the prosecution/claimant (their choice) through "
+        f"exactly {CASE_STEPS} trial steps, e.g. opening statement, handling the key evidence or witness, the core legal "
+        "argument, closing. At every step the player picks one of 3 arguments.\n\n"
+        "Rules\n"
+        "- A fictional, realistic dispute with a genuinely arguable legal question. Parties are identified by initials "
+        "(e.g. 'the defendant J.M.'); no real people, companies or pending cases. Neutral tone, no graphic detail.\n"
+        "- 'ref' is the legal basis in a few words (provision / doctrine / leading case) taken from the notes or anchor.\n"
+        "- 'facts': 120-200 words, plain prose, no markdown. 'evidence': 3-5 short items (exhibit, witness account, report).\n"
+        "- 'preview': one sentence that poses the legal question. 'duration_minutes': 5-8.\n"
+        "- For each step write 3 defense arguments AND 3 prosecution arguments (the claimant's, in a civil case), each "
+        "written in first person as the lawyer would say it, 1-3 sentences, citing the rule by name. Order them "
+        "STRONGEST FIRST, then middling, then weakest: the strongest is correct and well grounded in the rule and the "
+        "facts; the middling one is partly right but incomplete or mis-weighted; the weakest rests on a legal "
+        "misconception, ignores the facts or overreaches. All three must sound plausible, similar in length.\n"
+        "- 'response' is the OPPOSING side's rebuttal to that argument (1-2 sentences, begin with the opposing side, "
+        "e.g. 'Prosecution: ...' or 'Defense: ...'). It should hit the weak arguments hard and concede ground to the strong one.\n"
+        "- verdict_defense_win / verdict_defense_lose: the court's reasoning in 2-3 sentences each, starting with "
+        "'COURT RULING:'. One outcome must be the legally better result on these facts; both must apply the rule correctly.\n"
+        "- Every legal statement must be true and supported by the notes. Do not invent article numbers, years or cases.\n"
+    )
+    if problems:
+        text += ("\nA fact-checker rejected the previous version for the problems below. Fix each one and keep the rest:\n- "
+                 + "\n- ".join(problems) + "\n\nPrevious version:\n" + json.dumps(previous, ensure_ascii=False)[:9000])
+    return text
+
+
+def verify_case_prompt(country, case, notes):
+    return (
+        f"You are a meticulous legal fact-checker for {COUNTRIES[country]['name']} law. Check this trial-simulation case "
+        "against the reference notes and your own knowledge. Return exactly one result with index 0.\n"
+        "verdict \"error\" only for a concrete, material problem, named in one sentence each (separate several with ' | '):\n"
+        "- a false legal statement, or a wrong provision / year / court / case name;\n"
+        "- in any step, the first-listed argument is not clearly the strongest, or the last-listed is not clearly the weakest;\n"
+        "- a verdict that misapplies the rule or contradicts the stated facts, or both verdicts reach the same result;\n"
+        "- a real person or company, or facts that make the legal question unanswerable.\n"
+        "Style, length and missing nuance are \"minor\" or \"ok\".\n\n"
+        f"REFERENCE NOTES:\n{notes[:6000] or '(none)'}\n\nCASE:\n{json.dumps(case, ensure_ascii=False)[:14000]}"
+    )
+
+
+def case_structure_problems(c):
+    """Cheap local checks before spending a verification call. Returns a list of problems."""
+    probs = []
+    for key in ("title", "preview", "ref", "facts", "verdict_defense_win", "verdict_defense_lose"):
+        if not isinstance(c.get(key), str) or len(c[key].strip()) < 10:
+            probs.append(f"'{key}' is missing or too short")
+    if not 3 <= len(c.get("evidence", [])) <= 6 or not all(isinstance(e, str) and e.strip() for e in c.get("evidence", [])):
+        probs.append("evidence must be 3-5 non-empty items")
+    steps = c.get("steps", [])
+    if len(steps) != CASE_STEPS:
+        probs.append(f"need exactly {CASE_STEPS} steps, got {len(steps)}")
+    for i, st in enumerate(steps):
+        for side in ("defense", "prosecution"):
+            ch = st.get(side, [])
+            if len(ch) != 3 or not all(x.get("text", "").strip() and x.get("response", "").strip() for x in ch):
+                probs.append(f"step {i + 1} needs 3 complete {side} arguments")
+        if not st.get("step_name", "").strip() or not st.get("prompt", "").strip():
+            probs.append(f"step {i + 1} has no name or prompt")
+    for key in ("verdict_defense_win", "verdict_defense_lose"):
+        if not str(c.get(key, "")).startswith("COURT RULING"):
+            probs.append(f"{key} must start with 'COURT RULING:'")
+    return probs
+
+
+def case_id(country, slug):
+    """Stable positive int (the app stores per-case best scores keyed by it); above the bundled cases' ids."""
+    import zlib
+    return 1_000_000 + zlib.crc32(f"{country}/{slug}".encode()) % 1_000_000_000
+
+
+def to_case_doc(country, theme, c, today):
+    rng = random.Random(f"{country}/{theme[0]}")
+
+    def choices(items):
+        scored = [{"text": x["text"].strip(), "aiResponse": x["response"].strip(), "scoreEffect": CASE_SCORES[i]}
+                  for i, x in enumerate(items[:3])]
+        rng.shuffle(scored)  # the model lists strongest first; the player must not see that order
+        return scored
+
+    return {
+        "country": country,
+        "slug": theme[0],
+        "id": case_id(country, theme[0]),
+        "jurisdiction": COUNTRIES[country].get("country", country),
+        "language": "en",
+        "tag": theme[3].lower().replace(" ", "-"),
+        "tagLabel": theme[3],
+        "title": c["title"].strip(),
+        "preview": c["preview"].strip(),
+        "difficulty": c["difficulty"],
+        "duration": f"~{max(5, min(8, int(c['duration_minutes'])))} min",
+        "ref": c["ref"].strip(),
+        "full": c["facts"].strip(),
+        "evidence": [e.strip() for e in c["evidence"]],
+        "trialSteps": [{"stepName": st["step_name"].strip(), "prompt": st["prompt"].strip(),
+                        "defenseChoices": choices(st["defense"]), "prosecutionChoices": choices(st["prosecution"])}
+                       for st in c["steps"]],
+        "finalVerdictDefenseWin": c["verdict_defense_win"].strip(),
+        "finalVerdictDefenseLose": c["verdict_defense_lose"].strip(),
+        "publishedAt": int(time.time() * 1000),
+        "model": MODEL,
+        "verifiedBy": VERIFY_MODEL,
+    }
+
+
+def make_case(country, theme, notes):
+    problems, previous = None, None
+    for round_no in range(CASE_ATTEMPTS):
+        case = call_json(WRITER_RULES, case_prompt(country, theme, notes, problems, previous), CASE_SCHEMA,
+                         thinking="medium", max_tokens=24000)
+        local = case_structure_problems(case)
+        if local:
+            problems, previous = local, case
+            log(f"  [{country}] case '{theme[0]}' round {round_no + 1}: structure {local[:2]}, rewriting")
+            continue
+        check = call_json("You verify legal teaching material. Be strict about facts, lenient about style.",
+                          verify_case_prompt(country, case, notes), VERIFY_SCHEMA, thinking="high",
+                          max_tokens=4000, model=VERIFY_MODEL)["results"]
+        errors = [r["problem"] for r in check if r["verdict"] == "error"]
+        if not errors:
+            return case
+        problems, previous = errors, case
+        log(f"  [{country}] case '{theme[0]}' round {round_no + 1}: {len(errors)} error(s), repairing")
+    raise Rejected(f"case {theme[0]} could not be made correct: {problems}")
+
+
+def next_case_themes(country, existing_slugs, count):
+    return [t for t in CASE_THEMES.get(country, []) if t[0] not in existing_slugs][:count]
+
+
 class Store:
     def __init__(self, dry_run):
         self.dry_run = dry_run
@@ -759,6 +941,20 @@ class Store:
 
     def sets_ref(self, country):
         return self.db.collection("studySets").document(country).collection("sets")
+
+    def cases_ref(self, country):
+        return self.db.collection("caseLibrary").document(country).collection("cases")
+
+    def case_slugs(self, country):
+        if self.dry_run:
+            return set()
+        return {d.id for d in self.cases_ref(country).select([]).stream()}
+
+    def save_case(self, doc):
+        if self.dry_run:
+            print(json.dumps(doc, ensure_ascii=False, indent=1))
+            return
+        self.cases_ref(doc["country"]).document(doc["slug"]).set(dict(doc, generatedAt=self._server_ts))
 
     def quiz_exists(self, country, date):
         return not self.dry_run and self.quiz_ref(country, date).get().exists
@@ -819,6 +1015,12 @@ class Store:
 def run_job(kind, country, date, store, research, translator, today, force):
     label = f"{kind} {country} {date}"
     try:
+        if kind == "case":
+            theme = date  # for case jobs the third slot carries the theme tuple
+            label = f"case {country} {theme[0]}"
+            notes = research.notes(country, theme, today)
+            store.save_case(to_case_doc(country, theme, make_case(country, theme, notes), today))
+            return label, "ok"
         if kind == "quiz":
             existing = None if force else store.get_quiz(country, date)
             if existing is not None:
@@ -933,6 +1135,8 @@ def main():
     ap.add_argument("--exam-days-ahead", type=int, default=1, help="exam quizzes are made for today and the next N days")
     ap.add_argument("--days-ahead", type=int, default=2, help="also generate quizzes for the next N days")
     ap.add_argument("--days-back", type=int, default=1, help="backfill quizzes/study sets for the last N days")
+    ap.add_argument("--cases", type=int, default=1,
+                    help="new trial-simulation cases to publish per country per run (0 = none; English only)")
     ap.add_argument("--force", action="store_true", help="regenerate even if content exists")
     ap.add_argument("--dry-run", action="store_true", help="print documents instead of writing to Firestore")
     ap.add_argument("--workers", type=int, default=3)
@@ -968,6 +1172,10 @@ def main():
     for key in exam_keys:
         for offset in range(0, args.exam_days_ahead + 1):
             jobs.append(("quiz", key, today + dt.timedelta(days=offset)))
+    if args.cases > 0:
+        for country in countries:
+            for theme in next_case_themes(country, store.case_slugs(country), args.cases):
+                jobs.append(("case", country, theme))
 
     log(f"model={MODEL} verify_model={VERIFY_MODEL} research={'on' if RESEARCH_ENABLED else 'OFF'} translator={translator.name} jobs={len(jobs)} today(UTC)={today}")
     started = time.time()

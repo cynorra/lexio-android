@@ -188,7 +188,7 @@ public class AppStore {
         Case selectedCase = current.getSelectedCase();
         if (selectedCase == null) return current;
 
-        boolean isTrCase = "TR".equals(selectedCase.getJurisdiction());
+        boolean isTrCase = selectedCase.usesTurkishUi();
         List<AppState.Message> intro = new ArrayList<>();
 
         intro.add(new AppState.Message("system", "<strong>" + selectedCase.getTitle() + "</strong> — " + selectedCase.getRef()));
@@ -228,7 +228,7 @@ public class AppStore {
         // The trial is over once every step was played; ignore stray taps.
         if (current.getCurrentStepIndex() >= activeCase.getTrialSteps().size()) return current;
 
-        boolean isTrCase = "TR".equals(activeCase.getJurisdiction());
+        boolean isTrCase = activeCase.usesTurkishUi();
         boolean userIsDefense = "savunma".equalsIgnoreCase(current.getSelectedRole());
 
         List<AppState.Message> messages = new ArrayList<>(current.getChatMessages());

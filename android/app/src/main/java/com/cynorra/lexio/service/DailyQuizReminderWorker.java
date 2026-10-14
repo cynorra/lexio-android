@@ -25,7 +25,11 @@ public class DailyQuizReminderWorker extends Worker {
         String lastQuizDate = context.getSharedPreferences("lexio_progress", Context.MODE_PRIVATE)
                 .getString(ProgressRepository.KEY_LAST_QUIZ_DATE, null);
         if (!DateKeys.today().equals(lastQuizDate)) {
-            new LexioNotificationManager(context).triggerDailyQuizPushNotification();
+            // A streak that is still alive (last quiz was yesterday) is what the user stands to lose today.
+            int streak = context.getSharedPreferences("lexio_progress", Context.MODE_PRIVATE)
+                    .getInt(ProgressRepository.KEY_STREAK, 0);
+            boolean streakAtRisk = streak >= 2 && DateKeys.previousDay(DateKeys.today()).equals(lastQuizDate);
+            new LexioNotificationManager(context).triggerDailyQuizPushNotification(streakAtRisk ? streak : 0);
         }
         return Result.success();
     }

@@ -192,6 +192,10 @@
     <string name="notif_channel_quiz_desc">Günlük test ve seri hatırlatmaları</string>
     <string name="notif_quiz_title">🔥 Günlük Hukuk Testin Seni Bekliyor</string>
     <string name="notif_quiz_body">Serini korumak için bugünkü testi çöz. Doğru cevap başına puan kazanırsın!</string>
+    <string name="notif_streak_body">%1$d günlük serin bugün bitebilir. Korumak için tek bir test yeter!</string>
+    <string name="share_action">Paylaş</string>
+    <string name="share_quiz_text">Lexio günlük hukuk testinden %1$d puan kazandım! ⚖️ Sen de dene: %2$s</string>
+    <string name="share_quiz_streak_text">Lexio günlük hukuk testinden %1$d puan kazandım ve %2$d gündür seri yapıyorum! 🔥⚖️ Sen de dene: %3$s</string>
 
     <!-- Countries, quiz & study content states -->
     <string name="jurisdiction_fr">🇫🇷 Fransa (Code civil / Anayasa)</string>

@@ -73,6 +73,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -83,8 +84,10 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements AppStore.Observer {
@@ -124,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private int leaderboardRequest = 0;
     private int feedRequest = 0;
     private int workspaceRequest = 0;
+    private int caseListRequest = 0;
     private int studyRequest = 0;
 
     @Override
@@ -136,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         db = FirebaseFirestore.getInstance();
         progressRepo = new ProgressRepository(this);
         leaderboardRepo = new LeaderboardRepository();
+        Telemetry.init(this);
         contentRepo = new ContentRepository();
         accountRepo = new AccountRepository();
         // Creates the notification channels; the reminder itself is scheduled by LexioApplication.
@@ -388,6 +393,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         if (activeScreen != state.getActiveScreen()) {
             activeScreen = state.getActiveScreen();
+            Telemetry.screen(activeScreen.name().toLowerCase(Locale.ROOT));
             setupScreenLayout(activeScreen, state);
         }
         updateScreenState(activeScreen, state);
@@ -653,8 +659,15 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         bindNav(R.id.navCases, AppEvent.Type.NAVIGATE_TO_CASE_LIST);
         bindNav(R.id.navStudy, AppEvent.Type.NAVIGATE_TO_STUDY_PORTAL);
         bindNav(R.id.navLeaderboard, AppEvent.Type.NAVIGATE_TO_LEADERBOARD);
-        bindNav(R.id.navFeed, AppEvent.Type.NAVIGATE_TO_FEED);
-        bindNav(R.id.navWorkspace, AppEvent.Type.NAVIGATE_TO_WORKSPACE);
+        if (Features.COMMUNITY_TABS) {
+            bindNav(R.id.navFeed, AppEvent.Type.NAVIGATE_TO_FEED);
+            bindNav(R.id.navWorkspace, AppEvent.Type.NAVIGATE_TO_WORKSPACE);
+        } else {
+            for (int id : new int[]{R.id.navFeed, R.id.navWorkspace}) {
+                View hidden = findViewById(id);
+                if (hidden != null) hidden.setVisibility(View.GONE);
+            }
+        }
         bindNav(R.id.navProfile, AppEvent.Type.NAVIGATE_TO_PROFILE);
     }
 
@@ -714,10 +727,30 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         RecyclerView rvCases = findViewById(R.id.rvCases);
         if (rvCases != null) {
             rvCases.setLayoutManager(new LinearLayoutManager(this));
-            List<Case> cases = CasesData.getCasesForJurisdiction(jurisdiction);
-            showList(R.id.rvCases, new CasesAdapter(cases,
-                    selectedCase -> store.dispatch(AppEvent.selectCase(selectedCase))),
-                    cases.size(), R.string.case_list_empty);
+            List<Case> bundled = CasesData.getCasesForJurisdiction(jurisdiction);
+            showCaseList(bundled);
+
+            // Generated cases (English, published by tools/quizgen) are listed first; the bundled ones stay as the
+            // offline fallback, so the list is never empty because of a bad connection.
+            final int request = ++caseListRequest;
+            contentRepo.loadCases(jurisdiction, new ContentRepository.CaseCallback() {
+                @Override
+                public void onLoaded(List<Case> remote) {
+                    if (isUiGone() || request != caseListRequest || remote.isEmpty()) return;
+                    List<Case> merged = new ArrayList<>(remote);
+                    Set<Integer> ids = new HashSet<>();
+                    for (Case c : remote) ids.add(c.getId());
+                    for (Case c : bundled) {
+                        if (ids.add(c.getId())) merged.add(c);
+                    }
+                    showCaseList(merged);
+                }
+
+                @Override
+                public void onError() {
+                    // Keep the bundled list that is already on screen.
+                }
+            });
         }
 
         View cvExamBanner = findViewById(R.id.cvExamBanner);
@@ -737,6 +770,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
     }
 
+    private void showCaseList(List<Case> cases) {
+        showList(R.id.rvCases, new CasesAdapter(cases,
+                selectedCase -> store.dispatch(AppEvent.selectCase(selectedCase))),
+                cases.size(), R.string.case_list_empty);
+    }
+
     private void setupCaseDetailViews(Case c) {
         if (c == null) return;
 
@@ -749,7 +788,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         View btnProsecution = findViewById(R.id.btnChooseProsecution);
 
         tvTitle.setText(c.getTitle());
-        String refLabel = "TR".equals(c.getJurisdiction()) ? "İlgili Mevzuat" : "Legal Basis";
+        String refLabel = c.usesTurkishUi() ? "İlgili Mevzuat" : "Legal Basis";
         tvRef.setText(refLabel + " — " + c.getRef());
         tvFullText.setText(c.getFull());
 
@@ -770,6 +809,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     private void startSimulationAs(String role) {
         store.dispatch(AppEvent.chooseRole(role));
+        Telemetry.event("case_start", "role", role);
         store.dispatch(AppEvent.of(AppEvent.Type.START_SIMULATION));
     }
 
@@ -787,7 +827,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         tvTitle.setText(c.getTitle());
 
-        boolean simScreenIsTrCase = "TR".equals(c.getJurisdiction());
+        boolean simScreenIsTrCase = c.usesTurkishUi();
         boolean isDefense = "savunma".equalsIgnoreCase(state.getSelectedRole());
         tvRoleBadge.setText(isDefense
                 ? (simScreenIsTrCase ? "⚖️ Savunma Avukatı" : "⚖️ Defense Counsel")
@@ -864,7 +904,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         llChoices.removeAllViews();
         int activeIndex = state.getCurrentStepIndex();
         List<Case.TrialStep> trialSteps = c.getTrialSteps();
-        boolean simIsTrCase = "TR".equals(c.getJurisdiction());
+        boolean simIsTrCase = c.usesTurkishUi();
 
         if (activeIndex < trialSteps.size()) {
             Case.TrialStep currentTrialStep = trialSteps.get(activeIndex);
@@ -1518,14 +1558,33 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                         && after.getActiveScreen() != AppState.Screen.DAILY_QUIZ) {
                     int earned = after.getCareerScore() - before.getCareerScore();
                     boolean alreadyRewarded = DateKeys.today().equals(before.getLastQuizDate());
-                    Toast.makeText(this,
-                            alreadyRewarded ? getString(R.string.quiz_already_done_toast)
-                                    : getString(R.string.quiz_completed_toast, earned),
-                            Toast.LENGTH_LONG).show();
+                    if (alreadyRewarded) {
+                        Toast.makeText(this, getString(R.string.quiz_already_done_toast), Toast.LENGTH_LONG).show();
+                    } else {
+                        // Offer to share the result: the cheapest way to bring a friend in.
+                        final int streakDays = after.getDailyStreak();
+                        Telemetry.event("daily_quiz_completed", "points", earned);
+                        Snackbar.make(findViewById(android.R.id.content),
+                                        getString(R.string.quiz_completed_toast, earned), Snackbar.LENGTH_LONG)
+                                .setAction(R.string.share_action, view -> shareQuizResult(earned, streakDays))
+                                .show();
+                    }
                     maybeAskNotificationPermission();
                 }
             });
         }
+    }
+
+    private void shareQuizResult(int earned, int streakDays) {
+        Telemetry.event("share_quiz_result", "streak", streakDays);
+        String link = "https://play.google.com/store/apps/details?id=" + getPackageName();
+        String text = streakDays >= 2
+                ? getString(R.string.share_quiz_streak_text, earned, streakDays, link)
+                : getString(R.string.share_quiz_text, earned, link);
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_TEXT, text);
+        startActivity(Intent.createChooser(send, getString(R.string.share_action)));
     }
 
     // ---------------------------------------------------------------- law-exam prep

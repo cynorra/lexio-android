@@ -2,6 +2,10 @@
 <resources>
     <string name="notif_quiz_title">🔥 Tu cuestionario jurídico diario te espera</string>
     <string name="notif_quiz_body">¡Resuelve el cuestionario de hoy para mantener tu racha! ¡Gana puntos con cada respuesta correcta!</string>
+    <string name="notif_streak_body">Tu racha de %1$d días termina hoy si no juegas. ¡Un cuestionario basta!</string>
+    <string name="share_action">Compartir</string>
+    <string name="share_quiz_text">¡Acabo de ganar %1$d puntos en el cuestionario jurídico diario de Lexio! ⚖️ Pruébalo: %2$s</string>
+    <string name="share_quiz_streak_text">¡Acabo de ganar %1$d puntos en el cuestionario jurídico diario de Lexio y llevo %2$d días de racha! 🔥⚖️ Pruébalo: %3$s</string>
     <string name="notif_channel_quiz_name">Cuestionario diario y recordatorios de racha</string>
     <string name="notif_channel_quiz_desc">Recordatorios de cuestionarios diarios y rachas</string>
     <string name="notif_permission_title">¿Quieres mantener tu racha? 🔥</string>

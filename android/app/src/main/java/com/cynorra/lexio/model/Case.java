@@ -52,12 +52,22 @@ public class Case {
     private final String finalVerdictDefenseWin;
     private final String finalVerdictDefenseLose;
     private final String jurisdiction; // "TR", "US", "UK", "DE"
+    private final boolean english; // generated cases are English-only, whatever the jurisdiction
 
     public Case(int id, String tag, String tagLabel, String title, String preview,
                 String difficulty, String duration, String ref, String full,
                 List<String> evidence, List<TrialStep> trialSteps,
                 String finalVerdictDefenseWin, String finalVerdictDefenseLose,
                 String jurisdiction) {
+        this(id, tag, tagLabel, title, preview, difficulty, duration, ref, full, evidence, trialSteps,
+                finalVerdictDefenseWin, finalVerdictDefenseLose, jurisdiction, false);
+    }
+
+    public Case(int id, String tag, String tagLabel, String title, String preview,
+                String difficulty, String duration, String ref, String full,
+                List<String> evidence, List<TrialStep> trialSteps,
+                String finalVerdictDefenseWin, String finalVerdictDefenseLose,
+                String jurisdiction, boolean english) {
         this.id = id;
         this.tag = tag;
         this.tagLabel = tagLabel;
@@ -72,6 +82,7 @@ public class Case {
         this.finalVerdictDefenseWin = finalVerdictDefenseWin;
         this.finalVerdictDefenseLose = finalVerdictDefenseLose;
         this.jurisdiction = jurisdiction != null ? jurisdiction : "TR";
+        this.english = english;
     }
 
     public int getId() { return id; }
@@ -88,4 +99,8 @@ public class Case {
     public String getFinalVerdictDefenseWin() { return finalVerdictDefenseWin; }
     public String getFinalVerdictDefenseLose() { return finalVerdictDefenseLose; }
     public String getJurisdiction() { return jurisdiction; }
+    public boolean isEnglish() { return english; }
+
+    /** Turkish UI labels apply only to the bundled Turkish cases, not to English-only generated ones. */
+    public boolean usesTurkishUi() { return !english && "TR".equals(jurisdiction); }
 }

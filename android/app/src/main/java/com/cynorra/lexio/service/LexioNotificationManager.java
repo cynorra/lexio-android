@@ -68,6 +68,11 @@ public class LexioNotificationManager {
      * called on app open. Safe to call with no running Activity.
      */
     public void triggerDailyQuizPushNotification() {
+        triggerDailyQuizPushNotification(0);
+    }
+
+    /** @param streakAtRisk a live streak of at least 2 days that ends today without a quiz, or 0 */
+    public void triggerDailyQuizPushNotification(int streakAtRisk) {
         // Opens the app straight on the daily quiz. No CLEAR_TASK: if the app is already open, its
         // state is kept and MainActivity (singleTop) just receives the new intent.
         Intent intent = new Intent(context, MainActivity.class);
@@ -77,7 +82,9 @@ public class LexioNotificationManager {
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        String message = context.getString(R.string.notif_quiz_body);
+        String message = streakAtRisk >= 2
+                ? context.getString(R.string.notif_streak_body, streakAtRisk)
+                : context.getString(R.string.notif_quiz_body);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_DAILY_QUIZ)
                 .setSmallIcon(R.drawable.ic_stat_lexio)
                 .setColor(ContextCompat.getColor(context, R.color.accent_primary))

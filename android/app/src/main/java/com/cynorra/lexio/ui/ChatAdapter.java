@@ -69,7 +69,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void setItems(AppState state) {
         List<AppState.Message> messages = state.getChatMessages() != null ? state.getChatMessages() : new ArrayList<>();
         Case selectedCase = state.getSelectedCase();
-        String systemLabel = selectedCase != null && !"TR".equals(selectedCase.getJurisdiction()) ? "SYSTEM" : "SİSTEM";
+        String systemLabel = selectedCase != null && !selectedCase.usesTurkishUi() ? "SYSTEM" : "SİSTEM";
         if (messages.size() < items.size()) lastAnimatedPosition = -1;
         items.clear();
         for (AppState.Message m : messages) {
@@ -100,7 +100,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static List<MetricScore> computeMetricScores(AppState state) {
         Case selectedCase = state.getSelectedCase();
         List<Integer> stepScores = state.getStepScores() != null ? state.getStepScores() : new ArrayList<>();
-        boolean isTrCase = selectedCase == null || "TR".equals(selectedCase.getJurisdiction());
+        boolean isTrCase = selectedCase == null || selectedCase.usesTurkishUi();
         String[] labels = isTrCase
             ? new String[]{"Argüman Gücü", "Delil Kullanımı", "Hukuki Analiz"}
             : new String[]{"Argument Strength", "Evidence Usage", "Legal Analysis"};

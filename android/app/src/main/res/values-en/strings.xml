@@ -188,6 +188,10 @@
     <string name="notif_channel_quiz_desc">Daily quiz and streak reminders</string>
     <string name="notif_quiz_title">🔥 Your Daily Law Quiz Is Waiting</string>
     <string name="notif_quiz_body">Solve today\'s quiz to keep your streak alive. Earn points for every correct answer!</string>
+    <string name="notif_streak_body">Your %1$d-day streak ends today unless you play. One quiz is all it takes!</string>
+    <string name="share_action">Share</string>
+    <string name="share_quiz_text">I just earned %1$d points on Lexio\'s daily law quiz! ⚖️ Try it: %2$s</string>
+    <string name="share_quiz_streak_text">I just earned %1$d points on Lexio\'s daily law quiz and I\'m on a %2$d-day streak! 🔥⚖️ Try it: %3$s</string>
 
     <!-- Countries, quiz & study content states -->
     <string name="jurisdiction_fr">🇫🇷 France (Code civil / Constitution)</string>

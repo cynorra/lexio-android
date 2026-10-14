@@ -1,5 +1,6 @@
 package com.cynorra.lexio.data;
 
+import com.cynorra.lexio.model.Case;
 import com.cynorra.lexio.model.DailyQuizQuestion;
 import com.cynorra.lexio.model.StudyTopic;
 import com.google.firebase.firestore.CollectionReference;
@@ -29,6 +30,7 @@ public class ContentRepository {
     }
 
     private static final int STUDY_LIMIT = 30;
+    private static final int CASE_LIMIT = 60;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     /**
@@ -72,6 +74,94 @@ public class ContentRepository {
                     callback.onError();
                 })
                 .addOnFailureListener(e -> callback.onError());
+    }
+
+    public interface CaseCallback {
+        void onLoaded(List<Case> cases);
+        void onError();
+    }
+
+    /** Generated trial-simulation cases ({@code caseLibrary/{CC}/cases/{slug}}), newest first. English only. */
+    public void loadCases(String country, CaseCallback callback) {
+        db.collection("caseLibrary").document(country).collection("cases")
+                .orderBy("publishedAt", Query.Direction.DESCENDING)
+                .limit(CASE_LIMIT)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<Case> cases = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        Case parsed = parseCase(doc.getData(), country);
+                        if (parsed != null) cases.add(parsed);
+                    }
+                    callback.onLoaded(cases);
+                })
+                .addOnFailureListener(e -> callback.onError());
+    }
+
+    /** A malformed case is skipped (null) rather than failing the whole list or crashing the simulation. */
+    static Case parseCase(Map<String, Object> d, String country) {
+        if (d == null) return null;
+        try {
+            Object id = d.get("id");
+            String title = str(d.get("title"));
+            String full = str(d.get("full"));
+            if (!(id instanceof Number) || title.isEmpty() || full.isEmpty()) return null;
+
+            List<String> evidence = new ArrayList<>();
+            if (d.get("evidence") instanceof List) {
+                for (Object e : (List<?>) d.get("evidence")) {
+                    if (e instanceof String && !((String) e).isEmpty()) evidence.add((String) e);
+                }
+            }
+            List<Case.TrialStep> steps = new ArrayList<>();
+            if (d.get("trialSteps") instanceof List) {
+                for (Object o : (List<?>) d.get("trialSteps")) {
+                    if (!(o instanceof Map)) return null;
+                    Map<?, ?> st = (Map<?, ?>) o;
+                    List<Case.Choice> defense = parseChoices(st.get("defenseChoices"));
+                    List<Case.Choice> prosecution = parseChoices(st.get("prosecutionChoices"));
+                    if (defense.isEmpty() || prosecution.isEmpty()) return null;
+                    steps.add(new Case.TrialStep(str(st.get("stepName")), str(st.get("prompt")), defense, prosecution));
+                }
+            }
+            if (steps.isEmpty()) return null;
+
+            return new Case(
+                    ((Number) id).intValue(),
+                    str(d.get("tag")),
+                    str(d.get("tagLabel")),
+                    title,
+                    str(d.get("preview")),
+                    str(d.get("difficulty")),
+                    str(d.get("duration")),
+                    str(d.get("ref")),
+                    full,
+                    evidence,
+                    steps,
+                    str(d.get("finalVerdictDefenseWin")),
+                    str(d.get("finalVerdictDefenseLose")),
+                    country,
+                    true);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static List<Case.Choice> parseChoices(Object raw) {
+        List<Case.Choice> result = new ArrayList<>();
+        if (!(raw instanceof List)) return result;
+        for (Object o : (List<?>) raw) {
+            if (!(o instanceof Map)) continue;
+            Map<?, ?> c = (Map<?, ?>) o;
+            String text = str(c.get("text"));
+            if (text.isEmpty() || !(c.get("scoreEffect") instanceof Number)) continue;
+            result.add(new Case.Choice(text, str(c.get("aiResponse")), ((Number) c.get("scoreEffect")).intValue()));
+        }
+        return result;
+    }
+
+    private static String str(Object o) {
+        return o instanceof String ? (String) o : "";
     }
 
     public void loadStudySets(String country, String language, StudyCallback callback) {

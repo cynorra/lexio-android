@@ -59,7 +59,7 @@ jobs:
       - run: pip install -r requirements.txt
 
       - name: Offline tests
-        run: python -m unittest test_generate test_manual
+        run: python -m unittest test_generate test_manual test_cases
 
       - name: Write Firebase credentials
         env:

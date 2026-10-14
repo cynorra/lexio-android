@@ -31,6 +31,7 @@ public class ProgressRepository {
     private static final String PREFS = "lexio_progress";
     /** Global (not per-user) so the reminder worker can skip nagging after today's quiz. */
     public static final String KEY_LAST_QUIZ_DATE = "last_quiz_date";
+    public static final String KEY_STREAK = "streak";
 
     private final SharedPreferences prefs;
     private final FirebaseFirestore db;
@@ -82,6 +83,7 @@ public class ProgressRepository {
                 .putString(key(uid, "instagram"), p.instagramHandle)
                 .putString(key(uid, "caseBest"), best.toString())
                 .putString(KEY_LAST_QUIZ_DATE, p.lastQuizDate)
+                .putInt(KEY_STREAK, p.dailyStreak)
                 .apply();
     }
 
@@ -91,7 +93,7 @@ public class ProgressRepository {
         for (String key : prefs.getAll().keySet()) {
             if (key.startsWith(uid + ".")) editor.remove(key);
         }
-        editor.remove(KEY_LAST_QUIZ_DATE).apply();
+        editor.remove(KEY_LAST_QUIZ_DATE).remove(KEY_STREAK).apply();
     }
 
     public void loadRemote(String uid, Callback callback) {
