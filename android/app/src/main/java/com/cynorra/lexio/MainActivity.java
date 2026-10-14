@@ -36,6 +36,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.cynorra.lexio.data.AccountRepository;
 import com.cynorra.lexio.data.ContentRepository;
+import com.cynorra.lexio.service.NotificationSettings;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.cynorra.lexio.data.DateKeys;
 import com.cynorra.lexio.data.LeaderboardRepository;
 import com.cynorra.lexio.data.ProgressRepository;
@@ -184,7 +186,11 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     /** The reminder notification asks to land on the daily quiz. */
     private void captureLaunchIntent(@Nullable Intent intent) {
+        if (intent != null && intent.hasExtra("google.message_id")) {
+            Telemetry.event("notification_opened", "type", "announcement");
+        }
         if (intent != null && intent.getBooleanExtra(LexioNotificationManager.EXTRA_OPEN_DAILY_QUIZ, false)) {
+            Telemetry.event("notification_opened", "type", "daily_reminder");
             holder.openQuizPending = true;
             intent.removeExtra(LexioNotificationManager.EXTRA_OPEN_DAILY_QUIZ);
         }
@@ -399,6 +405,75 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         updateScreenState(activeScreen, state);
         syncProgress(state);
         openPendingQuiz(state);
+        syncPushTopics(state);
+    }
+
+    /**
+     * Keeps the device subscribed to the announcement topics "all" and "country_XX" (so a message can target
+     * everyone or one market from the Firebase console), and to none of them when notifications are off.
+     */
+    private void syncPushTopics(AppState state) {
+        try {
+            java.util.Set<String> wanted = new java.util.LinkedHashSet<>();
+            if (NotificationSettings.isEnabled(this)) {
+                wanted.add("all");
+                wanted.add("country_" + state.getCountry());
+            }
+            java.util.Set<String> current = NotificationSettings.pushTopics(this);
+            if (current.equals(wanted)) return;
+            FirebaseMessaging fcm = FirebaseMessaging.getInstance();
+            for (String topic : current) {
+                if (!wanted.contains(topic)) fcm.unsubscribeFromTopic(topic);
+            }
+            for (String topic : wanted) {
+                if (!current.contains(topic)) fcm.subscribeToTopic(topic);
+            }
+            NotificationSettings.setPushTopics(this, wanted);
+        } catch (RuntimeException ignored) {
+            // push topics are a nice-to-have; they are retried on the next state change
+        }
+    }
+
+    private void setNotificationsEnabled(boolean enabled) {
+        NotificationSettings.setEnabled(this, enabled);
+        LexioApplication.refreshReminder(this);
+        syncPushTopics(store.getState());
+        Telemetry.event("notifications_toggled", "enabled", enabled ? "true" : "false");
+        View timeRow = findViewById(R.id.btnReminderTime);
+        if (timeRow != null) timeRow.setAlpha(enabled ? 1f : 0.4f);
+        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, RC_NOTIFICATIONS);
+        }
+    }
+
+    private void bindReminderTimeLabel() {
+        TextView value = findViewById(R.id.tvReminderTime);
+        if (value == null) return;
+        int hour = NotificationSettings.reminderHour(this);
+        value.setText(NotificationSettings.isAutomatic(this)
+                ? getString(R.string.reminder_time_auto, hour)
+                : String.format(Locale.ROOT, "%02d:00", hour));
+    }
+
+    private void showReminderTimeDialog() {
+        int first = NotificationSettings.MIN_HOUR;
+        int last = NotificationSettings.MAX_HOUR;
+        String[] labels = new String[last - first + 2];
+        labels[0] = getString(R.string.reminder_time_auto_option);
+        for (int h = first; h <= last; h++) {
+            labels[h - first + 1] = String.format(Locale.ROOT, "%02d:00", h);
+        }
+        int checked = NotificationSettings.isAutomatic(this) ? 0 : NotificationSettings.manualHour(this) - first + 1;
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.reminder_time_dialog_title)
+                .setSingleChoiceItems(labels, Math.max(0, Math.min(labels.length - 1, checked)), (dialog, which) -> {
+                    NotificationSettings.setManualHour(this, which == 0 ? -1 : first + which - 1);
+                    LexioApplication.refreshReminder(this);
+                    bindReminderTimeLabel();
+                    dialog.dismiss();
+                })
+                .show();
     }
 
     @SuppressWarnings("deprecation")
@@ -1291,6 +1366,20 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             btnPrivacyPolicy.setOnClickListener(v -> openPrivacyPolicy());
         }
 
+        androidx.appcompat.widget.SwitchCompat switchNotifications = findViewById(R.id.switchNotifications);
+        if (switchNotifications != null) {
+            switchNotifications.setChecked(NotificationSettings.isEnabled(this));
+            switchNotifications.setOnCheckedChangeListener((button, on) -> setNotificationsEnabled(on));
+        }
+        View btnReminderTime = findViewById(R.id.btnReminderTime);
+        if (btnReminderTime != null) {
+            btnReminderTime.setAlpha(NotificationSettings.isEnabled(this) ? 1f : 0.4f);
+            btnReminderTime.setOnClickListener(v -> {
+                if (NotificationSettings.isEnabled(this)) showReminderTimeDialog();
+            });
+            bindReminderTimeLabel();
+        }
+
         View btnAdPrivacy = findViewById(R.id.btnAdPrivacy);
         if (btnAdPrivacy != null && AdsConsent.privacyOptionsRequired(this)) {
             btnAdPrivacy.setVisibility(View.VISIBLE);
@@ -1596,6 +1685,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                         // Offer to share the result: the cheapest way to bring a friend in.
                         final int streakDays = after.getDailyStreak();
                         Telemetry.event("daily_quiz_completed", "points", earned);
+                        NotificationSettings.recordQuizCompletion(this);
+                        LexioApplication.refreshReminder(this);
                         Snackbar.make(findViewById(android.R.id.content),
                                         getString(R.string.quiz_completed_toast, earned), Snackbar.LENGTH_LONG)
                                 .setAction(R.string.share_action, view -> shareQuizResult(earned, streakDays))

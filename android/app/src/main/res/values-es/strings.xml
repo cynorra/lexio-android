@@ -3,6 +3,13 @@
     <string name="notif_quiz_title">🔥 Tu cuestionario jurídico diario te espera</string>
     <string name="notif_quiz_body">¡Resuelve el cuestionario de hoy para mantener tu racha! ¡Gana puntos con cada respuesta correcta!</string>
     <string name="notif_streak_body">Tu racha de %1$d días termina hoy si no juegas. ¡Un cuestionario basta!</string>
+    <string name="notif_settings_label">Notificaciones de recordatorio</string>
+    <string name="reminder_time_label">Hora del recordatorio</string>
+    <string name="reminder_time_auto">Automática (%1$02d:00)</string>
+    <string name="reminder_time_auto_option">Automática (cuando sueles jugar)</string>
+    <string name="reminder_time_dialog_title">Hora del recordatorio</string>
+    <string name="notif_channel_announcements_name">Anuncios</string>
+    <string name="notif_channel_announcements_desc">Casos nuevos y noticias importantes</string>
     <string name="share_action">Compartir</string>
     <string name="share_quiz_text">¡Acabo de ganar %1$d puntos en el cuestionario jurídico diario de Lexio! ⚖️ Pruébalo: %2$s</string>
     <string name="share_quiz_streak_text">¡Acabo de ganar %1$d puntos en el cuestionario jurídico diario de Lexio y llevo %2$d días de racha! 🔥⚖️ Pruébalo: %3$s</string>

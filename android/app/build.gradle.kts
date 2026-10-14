@@ -68,6 +68,7 @@ dependencies {
   implementation("com.google.firebase:firebase-auth")
   implementation("com.google.firebase:firebase-firestore")
   implementation("com.google.firebase:firebase-analytics")
+  implementation("com.google.firebase:firebase-messaging")
   // User consent (GDPR/UK) before any ad request; required for EEA and UK users.
   implementation("com.google.android.ump:user-messaging-platform:3.1.0")
 

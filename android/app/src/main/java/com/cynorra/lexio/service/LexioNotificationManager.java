@@ -20,6 +20,8 @@ import java.util.Locale;
 
 public class LexioNotificationManager {
     public static final String CHANNEL_DAILY_QUIZ = "channel_daily_quiz";
+    public static final String CHANNEL_ANNOUNCEMENTS = "channel_announcements";
+    private static final int NOTIFICATION_ANNOUNCEMENT = 1002;
     private static final int NOTIFICATION_DAILY_QUIZ = 1001;
     /** Intent extra that makes MainActivity open the daily quiz (once signed in). */
     public static final String EXTRA_OPEN_DAILY_QUIZ = "open_daily_quiz";
@@ -55,10 +57,40 @@ public class LexioNotificationManager {
             );
             quizChannel.setDescription(context.getString(R.string.notif_channel_quiz_desc));
 
+            NotificationChannel announcements = new NotificationChannel(
+                    CHANNEL_ANNOUNCEMENTS,
+                    context.getString(R.string.notif_channel_announcements_name),
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            announcements.setDescription(context.getString(R.string.notif_channel_announcements_desc));
+
             NotificationManager manager = context.getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(quizChannel);
+                manager.createNotificationChannel(announcements);
             }
+        }
+    }
+
+    /** An announcement pushed from the Firebase console while the app is in the foreground. */
+    public void showAnnouncement(String title, String body) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ANNOUNCEMENTS)
+                .setSmallIcon(R.drawable.ic_stat_lexio)
+                .setColor(ContextCompat.getColor(context, R.color.accent_primary))
+                .setContentTitle(title)
+                .setContentText(body)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+        try {
+            NotificationManagerCompat.from(context).notify(NOTIFICATION_ANNOUNCEMENT, builder.build());
+        } catch (SecurityException e) {
+            // POST_NOTIFICATIONS was denied on Android 13+; nothing to show.
         }
     }
 

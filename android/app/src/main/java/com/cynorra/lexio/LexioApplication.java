@@ -1,12 +1,15 @@
 package com.cynorra.lexio;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.cynorra.lexio.service.DailyQuizReminderWorker;
+import com.cynorra.lexio.service.LexioNotificationManager;
+import com.cynorra.lexio.service.NotificationSettings;
 
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
@@ -16,35 +19,46 @@ public class LexioApplication extends Application {
     // local time, and the old schedule is cancelled so existing installs move over.
     private static final String DAILY_QUIZ_REMINDER_WORK = "daily_quiz_reminder_v2";
     private static final String LEGACY_REMINDER_WORK = "daily_quiz_reminder";
-    private static final int REMINDER_HOUR = 19; // local time
 
     @Override
     public void onCreate() {
         super.onCreate();
         // The AdMob SDK starts after the consent flow (see AdsConsent), not here.
 
-        scheduleDailyQuizReminder();
+        // Channels must exist before a background FCM message arrives, or Android files it under "Miscellaneous".
+        new LexioNotificationManager(this);
+        refreshReminder(this);
     }
 
-    /** WorkManager persists the schedule, so it fires with the app closed and after a reboot. */
-    private void scheduleDailyQuizReminder() {
+    /**
+     * (Re)schedules the daily reminder from the user's settings. WorkManager persists the schedule, so it fires
+     * with the app closed and after a reboot; the work is replaced only when the chosen hour actually changed.
+     */
+    public static void refreshReminder(Context context) {
+        WorkManager workManager = WorkManager.getInstance(context);
+        workManager.cancelUniqueWork(LEGACY_REMINDER_WORK);
+        if (!NotificationSettings.isEnabled(context)) {
+            workManager.cancelUniqueWork(DAILY_QUIZ_REMINDER_WORK);
+            NotificationSettings.setScheduledHour(context, -1);
+            return;
+        }
+        int hour = NotificationSettings.reminderHour(context);
+        boolean changed = NotificationSettings.scheduledHour(context) != hour;
         PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(
                 DailyQuizReminderWorker.class, 1, TimeUnit.DAYS
-        ).setInitialDelay(millisUntilNextReminder(), TimeUnit.MILLISECONDS).build();
-
-        WorkManager workManager = WorkManager.getInstance(this);
-        workManager.cancelUniqueWork(LEGACY_REMINDER_WORK);
+        ).setInitialDelay(millisUntilNext(hour), TimeUnit.MILLISECONDS).build();
         workManager.enqueueUniquePeriodicWork(
                 DAILY_QUIZ_REMINDER_WORK,
-                ExistingPeriodicWorkPolicy.KEEP,
+                changed ? ExistingPeriodicWorkPolicy.UPDATE : ExistingPeriodicWorkPolicy.KEEP,
                 request
         );
+        NotificationSettings.setScheduledHour(context, hour);
     }
 
-    private static long millisUntilNextReminder() {
+    private static long millisUntilNext(int hour) {
         Calendar now = Calendar.getInstance();
         Calendar next = (Calendar) now.clone();
-        next.set(Calendar.HOUR_OF_DAY, REMINDER_HOUR);
+        next.set(Calendar.HOUR_OF_DAY, hour);
         next.set(Calendar.MINUTE, 0);
         next.set(Calendar.SECOND, 0);
         next.set(Calendar.MILLISECOND, 0);

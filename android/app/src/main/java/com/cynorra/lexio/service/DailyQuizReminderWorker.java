@@ -22,6 +22,7 @@ public class DailyQuizReminderWorker extends Worker {
     @Override
     public Result doWork() {
         Context context = getApplicationContext();
+        if (!NotificationSettings.isEnabled(context)) return Result.success();
         String lastQuizDate = context.getSharedPreferences("lexio_progress", Context.MODE_PRIVATE)
                 .getString(ProgressRepository.KEY_LAST_QUIZ_DATE, null);
         if (!DateKeys.today().equals(lastQuizDate)) {
@@ -29,7 +30,10 @@ public class DailyQuizReminderWorker extends Worker {
             int streak = context.getSharedPreferences("lexio_progress", Context.MODE_PRIVATE)
                     .getInt(ProgressRepository.KEY_STREAK, 0);
             boolean streakAtRisk = streak >= 2 && DateKeys.previousDay(DateKeys.today()).equals(lastQuizDate);
-            new LexioNotificationManager(context).triggerDailyQuizPushNotification(streakAtRisk ? streak : 0);
+            if (NotificationSettings.canSendReminder(context)) {
+                new LexioNotificationManager(context).triggerDailyQuizPushNotification(streakAtRisk ? streak : 0);
+                NotificationSettings.recordReminderSent(context);
+            }
         }
         return Result.success();
     }

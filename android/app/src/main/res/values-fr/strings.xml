@@ -3,6 +3,13 @@
     <string name="notif_quiz_title">🔥 Votre quiz juridique quotidien vous attend</string>
     <string name="notif_quiz_body">Faites le quiz du jour pour maintenir votre série. Gagnez des points à chaque bonne réponse !</string>
     <string name="notif_streak_body">Votre série de %1$d jours s\'arrête aujourd\'hui si vous ne jouez pas. Un quiz suffit !</string>
+    <string name="notif_settings_label">Notifications de rappel</string>
+    <string name="reminder_time_label">Heure du rappel</string>
+    <string name="reminder_time_auto">Automatique (%1$02d:00)</string>
+    <string name="reminder_time_auto_option">Automatique (à votre heure habituelle)</string>
+    <string name="reminder_time_dialog_title">Heure du rappel</string>
+    <string name="notif_channel_announcements_name">Annonces</string>
+    <string name="notif_channel_announcements_desc">Nouvelles affaires et informations importantes</string>
     <string name="share_action">Partager</string>
     <string name="share_quiz_text">Je viens de gagner %1$d points au quiz juridique quotidien de Lexio ! ⚖️ Essayez : %2$s</string>
     <string name="share_quiz_streak_text">Je viens de gagner %1$d points au quiz juridique quotidien de Lexio et je suis sur une série de %2$d jours ! 🔥⚖️ Essayez : %3$s</string>

@@ -3,6 +3,13 @@
     <string name="notif_quiz_title">🔥 Il tuo quiz giuridico quotidiano ti aspetta</string>
     <string name="notif_quiz_body">Completa il quiz di oggi per mantenere la serie attiva. Guadagna punti per ogni risposta corretta!</string>
     <string name="notif_streak_body">La tua serie di %1$d giorni finisce oggi se non giochi. Basta un quiz!</string>
+    <string name="notif_settings_label">Notifiche di promemoria</string>
+    <string name="reminder_time_label">Ora del promemoria</string>
+    <string name="reminder_time_auto">Automatica (%1$02d:00)</string>
+    <string name="reminder_time_auto_option">Automatica (quando di solito giochi)</string>
+    <string name="reminder_time_dialog_title">Ora del promemoria</string>
+    <string name="notif_channel_announcements_name">Annunci</string>
+    <string name="notif_channel_announcements_desc">Nuovi casi e notizie importanti</string>
     <string name="share_action">Condividi</string>
     <string name="share_quiz_text">Ho appena guadagnato %1$d punti nel quiz giuridico quotidiano di Lexio! ⚖️ Provalo: %2$s</string>
     <string name="share_quiz_streak_text">Ho appena guadagnato %1$d punti nel quiz giuridico quotidiano di Lexio e sono a %2$d giorni di serie! 🔥⚖️ Provalo: %3$s</string>
