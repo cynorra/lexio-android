@@ -174,6 +174,8 @@
     <string name="study_reference">Fuente: %1$s</string>
     <string name="study_quiz_header">Ponte a prueba</string>
     <string name="case_list_empty">Aún no hay simulaciones para este país. ¡El cuestionario diario y la biblioteca jurídica te esperan!</string>
+    <string name="cases_loading">Cargando casos…</string>
+    <string name="cases_load_failed">No se pudieron cargar los casos. Revisa tu conexión y toca aquí para reintentar.</string>
     <string name="btn_delete_account">Eliminar mi cuenta y mis datos</string>
     <string name="delete_account_title">¿Deseas eliminar tu cuenta?</string>
     <string name="delete_account_message">Tu cuenta, puntos, racha, marcas en la clasificación y publicaciones se eliminarán de forma permanente. Esta acción es irreversible. Por seguridad, se te solicitará iniciar sesión de nuevo con Google.</string>

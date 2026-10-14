@@ -174,6 +174,8 @@
     <string name="study_reference">Source : %1$s</string>
     <string name="study_quiz_header">Testez-vous</string>
     <string name="case_list_empty">Aucune simulation de procès pour ce pays. Le quiz quotidien et la bibliothèque vous attendent !</string>
+    <string name="cases_loading">Chargement des affaires…</string>
+    <string name="cases_load_failed">Impossible de charger les affaires. Vérifiez votre connexion et touchez ici pour réessayer.</string>
     <string name="btn_delete_account">Supprimer mon compte et mes données</string>
     <string name="delete_account_title">Supprimer votre compte ?</string>
     <string name="delete_account_message">Votre compte, points, série, présences au classement et publications seront définitivement supprimés. Cette opération est irréversible. Par sécurité, vous devrez vous reconnecter avec Google.</string>

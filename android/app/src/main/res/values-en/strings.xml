@@ -204,6 +204,8 @@
     <string name="study_reference">Source: %1$s</string>
     <string name="study_quiz_header">Test Yourself</string>
     <string name="case_list_empty">No trial simulations for this country yet. The daily quiz and the law library are waiting for you!</string>
+    <string name="cases_loading">Loading cases…</string>
+    <string name="cases_load_failed">Couldn\'t load cases. Check your connection and tap here to retry.</string>
 
     <!-- Account deletion, privacy, legal notice -->
     <string name="btn_delete_account">Delete my account and data</string>

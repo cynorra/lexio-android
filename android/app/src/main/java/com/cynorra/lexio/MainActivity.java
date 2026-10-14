@@ -42,7 +42,6 @@ import com.cynorra.lexio.data.ProgressRepository;
 import com.cynorra.lexio.data.UserProgress;
 import com.cynorra.lexio.model.BadgeData;
 import com.cynorra.lexio.model.Case;
-import com.cynorra.lexio.model.CasesData;
 import com.cynorra.lexio.model.DailyQuizQuestion;
 import com.cynorra.lexio.model.Exams;
 import com.cynorra.lexio.model.FeedData;
@@ -84,10 +83,8 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements AppStore.Observer {
@@ -710,8 +707,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     private void setupLandingViews() {
         TextView tvCasesCount = findViewById(R.id.tvStatCasesCount);
-        if (tvCasesCount != null) {
-            tvCasesCount.setText(String.valueOf(CasesData.getTotalCaseCount()));
+        if (tvCasesCount != null && tvCasesCount.getParent() instanceof View) {
+            View column = (View) tvCasesCount.getParent();
+            column.setVisibility(View.GONE);
+            if (column.getParent() instanceof LinearLayout) {
+                ((LinearLayout) column.getParent()).setWeightSum(2);
+            }
         }
         TextView tvJurisdictionCount = findViewById(R.id.tvStatJurisdictionCount);
         if (tvJurisdictionCount != null) {
@@ -727,30 +728,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         RecyclerView rvCases = findViewById(R.id.rvCases);
         if (rvCases != null) {
             rvCases.setLayoutManager(new LinearLayoutManager(this));
-            List<Case> bundled = CasesData.getCasesForJurisdiction(jurisdiction);
-            showCaseList(bundled);
-
-            // Generated cases (English, published by tools/quizgen) are listed first; the bundled ones stay as the
-            // offline fallback, so the list is never empty because of a bad connection.
-            final int request = ++caseListRequest;
-            contentRepo.loadCases(jurisdiction, new ContentRepository.CaseCallback() {
-                @Override
-                public void onLoaded(List<Case> remote) {
-                    if (isUiGone() || request != caseListRequest || remote.isEmpty()) return;
-                    List<Case> merged = new ArrayList<>(remote);
-                    Set<Integer> ids = new HashSet<>();
-                    for (Case c : remote) ids.add(c.getId());
-                    for (Case c : bundled) {
-                        if (ids.add(c.getId())) merged.add(c);
-                    }
-                    showCaseList(merged);
-                }
-
-                @Override
-                public void onError() {
-                    // Keep the bundled list that is already on screen.
-                }
-            });
+            loadCaseList(jurisdiction);
         }
 
         View cvExamBanner = findViewById(R.id.cvExamBanner);
@@ -770,10 +748,34 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
     }
 
-    private void showCaseList(List<Case> cases) {
+    /**
+     * Cases are published by tools/quizgen to Firestore (English only for now) and nothing is bundled in the app.
+     * Firestore's local cache serves cases that were loaded before when there is no connection.
+     */
+    private void loadCaseList(String jurisdiction) {
+        showList(R.id.rvCases, new CasesAdapter(new ArrayList<>(), c -> { }), 0, R.string.cases_loading);
+        final int request = ++caseListRequest;
+        contentRepo.loadCases(jurisdiction, new ContentRepository.CaseCallback() {
+            @Override
+            public void onLoaded(List<Case> cases) {
+                if (isUiGone() || request != caseListRequest) return;
+                showCaseList(cases, R.string.case_list_empty);
+            }
+
+            @Override
+            public void onError() {
+                if (isUiGone() || request != caseListRequest) return;
+                showCaseList(new ArrayList<>(), R.string.cases_load_failed);
+                TextView empty = findViewById(R.id.tvEmptyState);
+                if (empty != null) empty.setOnClickListener(v -> loadCaseList(jurisdiction));
+            }
+        });
+    }
+
+    private void showCaseList(List<Case> cases, int emptyMessage) {
         showList(R.id.rvCases, new CasesAdapter(cases,
                 selectedCase -> store.dispatch(AppEvent.selectCase(selectedCase))),
-                cases.size(), R.string.case_list_empty);
+                cases.size(), emptyMessage);
     }
 
     private void setupCaseDetailViews(Case c) {

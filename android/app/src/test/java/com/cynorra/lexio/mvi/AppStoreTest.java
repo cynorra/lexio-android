@@ -8,7 +8,6 @@ import static org.junit.Assert.assertTrue;
 import com.cynorra.lexio.data.DateKeys;
 import com.cynorra.lexio.data.UserProgress;
 import com.cynorra.lexio.model.Case;
-import com.cynorra.lexio.model.CasesData;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +19,24 @@ public class AppStoreTest {
     @Before
     public void setUp() {
         store = new AppStore();
-        trCase = CasesData.getCasesForJurisdiction("TR").get(0);
+        trCase = fixtureCase();
+    }
+
+    private static Case.Choice choice(String text, int score) {
+        return new Case.Choice(text, "Reply to " + text, score);
+    }
+
+    /** Three steps, each with a strong (25), middling (15) and weak (5) choice per side. */
+    private static Case fixtureCase() {
+        java.util.List<Case.TrialStep> steps = new java.util.ArrayList<>();
+        for (int i = 1; i <= 3; i++) {
+            steps.add(new Case.TrialStep("Step " + i, "Prompt " + i,
+                    java.util.Arrays.asList(choice("d" + i + "a", 25), choice("d" + i + "b", 15), choice("d" + i + "c", 5)),
+                    java.util.Arrays.asList(choice("p" + i + "a", 25), choice("p" + i + "b", 15), choice("p" + i + "c", 5))));
+        }
+        return new Case(1_000_001, "criminal-law", "Criminal Law", "A Fictional Dispute", "Preview", "Medium", "~6 min",
+                "Ref", "Facts of the case.", java.util.Arrays.asList("Exhibit A"), steps,
+                "COURT RULING: defense wins.", "COURT RULING: prosecution wins.", "US", true);
     }
 
     private void startSimulation(String role) {

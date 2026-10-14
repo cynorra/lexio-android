@@ -208,6 +208,8 @@
     <string name="study_reference">Kaynak: %1$s</string>
     <string name="study_quiz_header">Kendini Test Et</string>
     <string name="case_list_empty">Bu ülke için henüz dava simülasyonu yok. Günlük test ve hukuk kütüphanesi seni bekliyor!</string>
+    <string name="cases_loading">Vakalar yükleniyor…</string>
+    <string name="cases_load_failed">Vakalar yüklenemedi. Bağlantını kontrol edip buraya dokun.</string>
 
     <!-- Account deletion, privacy, legal notice -->
     <string name="btn_delete_account">Hesabımı ve verilerimi sil</string>
