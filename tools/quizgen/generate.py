@@ -74,7 +74,7 @@ MAX_ATTEMPTS = 4         # write/check/repair rounds per set of questions
 LESSON_REVISIONS = 2     # targeted lesson rewrites before falling back to a conservative lesson
 STUDY_TOPIC_FALLBACKS = 3  # how many different topics to try for one study slot
 NOTES_TTL_DAYS = 30
-CALL_ATTEMPTS = 5
+CALL_ATTEMPTS = 7
 # Minimum seconds between model calls across all threads. Free-tier keys have per-minute limits
 # (a few requests/minute), so calls are paced instead of fired in bursts. Set 0 on a paid key.
 MIN_INTERVAL = float(os.environ.get("QUIZGEN_MIN_INTERVAL") or 4)
@@ -142,7 +142,8 @@ def _call(system, user, *, schema=None, tools=None, thinking="medium", max_token
             message = str(e)
             if re.search(r"per day|PerDay", message, re.IGNORECASE):
                 raise QuotaExhausted(message[:300]) from e
-            delay = min(2 ** attempt * 3 + random.uniform(0, 2), 90)
+            overloaded = re.search(r"503|UNAVAILABLE|high demand|overloaded|disconnected|timed out", message, re.IGNORECASE)
+            delay = min(2 ** attempt * (10 if overloaded else 3) + random.uniform(0, 2), 90)
             hint = re.search(r"retry in (\d+(?:\.\d+)?)s", message)  # the API says how long to wait
             if hint:
                 delay = min(float(hint.group(1)) + 2, 120)
@@ -544,13 +545,12 @@ def gemini_translate_multi(texts, is_html, langs):
 
 
 def translate_many(translator, texts, is_html=False, langs=None):
-    """{lang: translations} for every target language. Turkish is required; another language that fails
-    for a non-quota reason is skipped (the app falls back to English and a later run backfills it)."""
+    """{lang: translations} for every target language. A language that fails for a non-quota reason is skipped
+    (the app falls back to English and the next run backfills it): a translation hiccup must never cost a day's
+    content."""
     langs = list(langs if langs is not None else LANGS)
     if hasattr(translator, "translate_multi"):
         out = translator.translate_multi(texts, is_html, langs)
-        if "tr" in langs and "tr" not in out:
-            raise ValueError("Turkish translation missing")
         for lang in langs:
             if lang not in out:
                 log(f"  translation to {lang} missing; skipping it for now")
@@ -562,8 +562,6 @@ def translate_many(translator, texts, is_html=False, langs=None):
         except QuotaExhausted:
             raise
         except Exception as e:
-            if lang == "tr":
-                raise
             log(f"  translation to {lang} failed ({type(e).__name__}: {e}); skipping it for now")
     return out
 
@@ -1070,7 +1068,7 @@ def _valid_localized_question(q):
     try:
         if not isinstance(q["correct_index"], (int, float)) or not 0 <= int(q["correct_index"]) <= 3:
             return False
-        for lang in ("en", "tr"):
+        for lang in ("en",) + tuple(l for l in ("tr",) if l in q):
             loc = q[lang]
             if not (isinstance(loc["question"], str) and loc["question"].strip()):
                 return False
@@ -1112,7 +1110,7 @@ def check_content(store, countries, today):
         for s in sets:
             d = s.to_dict()
             try:
-                ok = (all(d[k]["en"].strip() and d[k]["tr"].strip() for k in ("title", "lesson", "category", "summary"))
+                ok = (all(d[k]["en"].strip() for k in ("title", "lesson", "category", "summary"))
                       and isinstance(d["minutes"], (int, float)) and isinstance(d["publishedAt"], (int, float))
                       and len(d["questions"]) >= MIN_QUESTIONS and all(_valid_localized_question(q) for q in d["questions"]))
             except (KeyError, TypeError, AttributeError):
@@ -1180,13 +1178,29 @@ def main():
     log(f"model={MODEL} verify_model={VERIFY_MODEL} research={'on' if RESEARCH_ENABLED else 'OFF'} translator={translator.name} jobs={len(jobs)} today(UTC)={today}")
     started = time.time()
     failures, quota_hit = 0, False
+    retry = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
-        futures = [pool.submit(run_job, k, c, d, store, research, translator, today.isoformat(), args.force) for k, c, d in jobs]
+        futures = {pool.submit(run_job, k, c, d, store, research, translator, today.isoformat(), args.force): (k, c, d)
+                   for k, c, d in jobs}
         for f in concurrent.futures.as_completed(futures):
             label, status = f.result()
             log(f"{label}: {status}")
+            if status.startswith("FAILED"):
+                retry.append(futures[f])
+            else:
+                failures += status.startswith("QUOTA")
+            quota_hit = quota_hit or status.startswith("QUOTA")
+
+    # One more attempt for jobs that failed (usually a model overload that has passed by now), one at a time.
+    if retry and not quota_hit:
+        log(f"retrying {len(retry)} failed job(s) once")
+        for k, c, d in retry:
+            label, status = run_job(k, c, d, store, research, translator, today.isoformat(), args.force)
+            log(f"{label} (retry): {status}")
             failures += status.startswith(("FAILED", "QUOTA"))
             quota_hit = quota_hit or status.startswith("QUOTA")
+    else:
+        failures += len(retry)
 
     ok_jobs = len(jobs) - failures
     log(f"done in {time.time() - started:.0f}s, {failures} job failure(s), research={'on' if research.grounding else 'OFF'}")

@@ -219,9 +219,10 @@ class LanguageTests(unittest.TestCase):
         self.assertNotIn("fr", out[0])
         self.assertIn("de", out[0])
 
-    def test_failing_turkish_is_fatal(self):
-        with self.assertRaises(RuntimeError):
-            g.translate_questions(self.FlakyTranslator({"tr"}), [make_question("t")])
+    def test_failing_turkish_does_not_cost_the_day(self):
+        out = g.translate_questions(self.FlakyTranslator({"tr"}), [make_question("t")])
+        self.assertNotIn("tr", out[0])
+        self.assertIn("en", out[0])
 
     def test_quota_is_never_swallowed_as_a_skipped_language(self):
         class Quota(FakeTranslator):
@@ -288,10 +289,10 @@ class MultiTranslateTests(unittest.TestCase):
         self.assertNotIn("fr", out)
         self.assertIn("es", out)
 
-    def test_missing_turkish_is_fatal(self):
+    def test_missing_turkish_is_skipped_not_fatal(self):
         multi = lambda texts, is_html, langs: {"de": ["x"] * len(texts)}
-        with self.assertRaises(ValueError):
-            g.translate_many(self.make(multi), ["a"])
+        out = g.translate_many(self.make(multi), ["a"])
+        self.assertEqual({"de"}, set(out))
 
     def test_failed_batch_falls_back_to_one_request_per_language(self):
         def multi(texts, is_html, langs):
