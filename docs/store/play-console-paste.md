@@ -19,7 +19,7 @@ Kutunun içindeki metni olduğu gibi kopyala. Sayılar Play'in karakter sınır�
 | Reklam içeriyor mu | **Evet** (AdMob) |
 | Gizlilik politikası | `https://cynorra.github.io/lexio/privacy-policy.html` |
 | Paket adı | `com.cynorra.lexio` |
-| Yüklenecek sürüm | `1.0.4` (versionCode 5), GitHub release `v1.0.4-build11` içindeki `.aab` |
+| Yüklenecek sürüm | `1.0.5` (versionCode 6), en son GitHub release içindeki `.aab` (`v1.0.5-build…`). Sürüm notu: `release-notes-1.0.5.md` |
 | Hesap silme | Uygulama içinde: Profil → Hesabı sil |
 
 Görseller (telefon 4–8, tablet 7" ve 10" en az 4'er, öne çıkan görsel 1024×500) için `gemini-screenshot-prompts.md` dosyasına bak.
