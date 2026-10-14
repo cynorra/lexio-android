@@ -14,6 +14,10 @@ Countries (product priority order): `US, UK, DE, FR, ES, IT, TR`. Topics live in
 and are walked round-robin, so every topic comes back (freshly rewritten) each cycle.
 Add topics or countries there; the app picks them up with no release.
 
+**Current focus (scheduled runs):** United States, United Kingdom and Turkey (plus their exams), translated to Turkish only.
+Widen later without code changes: set the repository variable `QUIZGEN_LANGS` to `tr,de,fr,es,it`, and run the workflow with
+`countries` = `US,UK,DE,FR,ES,IT,TR`. Existing DE/FR/ES/IT content stays in Firestore.
+
 ## Pipeline (per topic)
 
 1. **Research** - free, no billing: Wikipedia excerpts (the English article plus its German / French /

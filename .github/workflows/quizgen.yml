@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       countries:
-        description: 'Comma-separated country codes (empty = all)'
+        description: 'Comma-separated country codes (empty = US,UK,TR, the focus markets; add DE,FR,ES,IT when they grow)'
         required: false
         default: ''
       exams:
@@ -74,6 +74,8 @@ jobs:
           DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
           COUNTRIES: ${{ inputs.countries }}
           EXAMS: ${{ inputs.exams }}
+          # Translate into Turkish only for now (English is always the source); widen to tr,de,fr,es,it later.
+          QUIZGEN_LANGS: ${{ vars.QUIZGEN_LANGS || 'tr' }}
           QUIZGEN_MODEL: ${{ inputs.model }}
           QUIZGEN_VERIFY_MODEL: ${{ inputs.verify_model }}
           QUIZGEN_MIN_INTERVAL: ${{ inputs.min_interval }}
@@ -81,8 +83,13 @@ jobs:
           FORCE: ${{ inputs.force }}
         run: |
           ARGS=""
-          if [ -n "$COUNTRIES" ]; then ARGS="$ARGS --countries $COUNTRIES"; fi
-          if [ -n "$EXAMS" ]; then ARGS="$ARGS --exams $EXAMS"; fi
+          if [ -n "$COUNTRIES" ]; then
+            ARGS="$ARGS --countries $COUNTRIES"
+            if [ -n "$EXAMS" ]; then ARGS="$ARGS --exams $EXAMS"; fi
+          else
+            # Default focus: US, UK and Turkey, with the exams of those markets.
+            ARGS="$ARGS --countries US,UK,TR --exams ${EXAMS:-us-ube,us-mbe,us-mpre,us-calbar,uk-sqe1,tr-hmgs,tr-hakim-savci}"
+          fi
           if [ "$FORCE" = "true" ]; then ARGS="$ARGS --force"; fi
           if [ "$CHECK_ONLY" = "true" ]; then ARGS="$ARGS --check"; fi
           python generate.py $ARGS
