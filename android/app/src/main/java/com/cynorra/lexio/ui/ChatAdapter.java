@@ -5,7 +5,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -65,26 +64,32 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private final List<ChatItem> items = new ArrayList<>();
+    private int lastAnimatedPosition = -1;
 
     public void setItems(AppState state) {
-        List<AppState.Message> messages = state.getChatMessages();
+        List<AppState.Message> messages = state.getChatMessages() != null ? state.getChatMessages() : new ArrayList<>();
         Case selectedCase = state.getSelectedCase();
         String systemLabel = selectedCase != null && !"TR".equals(selectedCase.getJurisdiction()) ? "SYSTEM" : "SİSTEM";
+        if (messages.size() < items.size()) lastAnimatedPosition = -1;
         items.clear();
         for (AppState.Message m : messages) {
             if ("system".equalsIgnoreCase(m.getSender())) {
-                items.add(new ChatItem("system", systemLabel, m.getContent()));
-            } else if (m.getSender().startsWith("⚖️")) {
-                items.add(new ChatItem("verdict", m.getSender(), m.getContent(), computeMetricScores(state)));
+                items.add(new ChatItem("system", systemLabel, safe(m.getContent())));
+            } else if (m.getSender() != null && m.getSender().startsWith("⚖️")) {
+                items.add(new ChatItem("verdict", m.getSender(), safe(m.getContent()), computeMetricScores(state)));
             } else {
                 items.add(new ChatItem(
                     "user".equalsIgnoreCase(m.getSender()) ? "user" : "ai",
-                    m.getSender(),
-                    m.getContent()
+                    safe(m.getSender()),
+                    safe(m.getContent())
                 ));
             }
         }
         notifyDataSetChanged();
+    }
+
+    private static String safe(String s) {
+        return s == null ? "" : s;
     }
 
     /**
@@ -94,7 +99,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     private static List<MetricScore> computeMetricScores(AppState state) {
         Case selectedCase = state.getSelectedCase();
-        List<Integer> stepScores = state.getStepScores();
+        List<Integer> stepScores = state.getStepScores() != null ? state.getStepScores() : new ArrayList<>();
         boolean isTrCase = selectedCase == null || "TR".equals(selectedCase.getJurisdiction());
         String[] labels = isTrCase
             ? new String[]{"Argüman Gücü", "Delil Kullanımı", "Hukuki Analiz"}
@@ -192,28 +197,28 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             h.tvText.setText(item.getContent());
 
             boolean isUser = "user".equalsIgnoreCase(item.getType());
-            LinearLayout.LayoutParams containerParams = (LinearLayout.LayoutParams) h.container.getLayoutParams();
-            // cardParams is not used, so I'll omit it to keep it clean.
-
             if (isUser) {
-                containerParams.gravity = Gravity.END;
+                h.container.setGravity(Gravity.END);
                 h.tvSender.setVisibility(View.GONE); // Hide sender label for user's own chat bubbles
                 h.cardView.setCardBackgroundColor(ContextCompat.getColor(h.itemView.getContext(), R.color.accent_primary));
                 h.tvText.setTextColor(ContextCompat.getColor(h.itemView.getContext(), R.color.bg_dark));
                 h.cardView.setStrokeColor(ContextCompat.getColorStateList(h.itemView.getContext(), R.color.accent_primary));
             } else {
-                containerParams.gravity = Gravity.START;
+                h.container.setGravity(Gravity.START);
                 h.tvSender.setVisibility(View.VISIBLE);
                 h.tvSender.setText(item.getSender());
                 h.cardView.setCardBackgroundColor(ContextCompat.getColor(h.itemView.getContext(), R.color.card_bg));
                 h.tvText.setTextColor(ContextCompat.getColor(h.itemView.getContext(), R.color.text_primary));
                 h.cardView.setStrokeColor(ContextCompat.getColorStateList(h.itemView.getContext(), R.color.card_border));
             }
-            h.container.setLayoutParams(containerParams);
         }
 
-        Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_scale_up);
-        holder.itemView.startAnimation(animation);
+        if (position > lastAnimatedPosition) {
+            lastAnimatedPosition = position;
+            holder.itemView.startAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_scale_up));
+        } else {
+            holder.itemView.clearAnimation();
+        }
     }
 
     @Override

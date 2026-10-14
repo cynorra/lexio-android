@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { getLeaderboard } from '../lib/leaderboard';
 import styles from '../styles/Liderlik.module.css';
 
 export default function Liderlik() {
   const [period, setPeriod] = useState('daily');
-  const leaderboard = getLeaderboard(period);
+  // Rankings live in the mobile app (Firestore); the website has no data source, so nothing is faked here.
+  const leaderboard = [];
 
   return (
     <div className={styles.container}>
@@ -47,6 +47,12 @@ export default function Liderlik() {
           <span style={{ width: '100px', textAlign: 'center' }}>Dava</span>
           <span style={{ width: '100px', textAlign: 'right' }}>Puan</span>
         </div>
+
+        {leaderboard.length === 0 && (
+          <p className={styles.subtitle} style={{ textAlign: 'center', padding: '32px 16px' }}>
+            Canlı sıralama Lexio mobil uygulamasında tutulur. Puan kazanmak ve sıralamaya girmek için uygulamayı indirin.
+          </p>
+        )}
 
         <div className={styles.userList}>
           {leaderboard.map(user => (

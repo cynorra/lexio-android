@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -33,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Kasten Adam Öldürmeye Teşebbüs"
+            tools:text="Kasten Adam Öldürmeye Teşebbüs"
             android:textColor="@color/text_primary"
             android:textSize="26sp"
             android:textStyle="bold" />
@@ -43,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Yargıtay Emsal Kararı — TCK m.81"
+            tools:text="Yargıtay Emsal Kararı — TCK m.81"
             android:textColor="@color/accent_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
@@ -78,7 +79,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Sanık A.K., komşusu B.T. ile çıkan arazi anlaşmazlığı nedeniyle tartışmış..."
+                    tools:text="Sanık A.K., komşusu B.T. ile çıkan arazi anlaşmazlığı nedeniyle tartışmış..."
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:lineSpacingMultiplier="1.2" />

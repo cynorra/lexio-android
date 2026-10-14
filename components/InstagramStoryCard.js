@@ -57,7 +57,7 @@ export default function InstagramStoryCard({ user, caseTitle, score, streak, ran
             </div>
 
             <div className={styles.userInfo}>
-              <div className={styles.userName}>{user?.name || 'Av. Mehmet Yılmaz'}</div>
+              <div className={styles.userName}>{user?.name || ''}</div>
               {instagramHandle && (
                 <div className={styles.instaTag}>📸 @{instagramHandle.replace('@', '')}</div>
               )}

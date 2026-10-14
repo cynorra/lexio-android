@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -41,7 +42,7 @@
             android:background="@drawable/bg_pill_accent"
             android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
-            android:text="🔥 3 Gün"
+            tools:text="🔥 3 Gün"
             android:textColor="@color/accent_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
@@ -100,7 +101,7 @@
                         android:id="@+id/tvQuizQuestionNum"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Soru 1 / 3"
+                        tools:text="Soru 1 / 3"
                         android:textColor="@color/accent_primary"
                         android:textSize="12sp"
                         android:textStyle="bold" />
@@ -110,7 +111,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="Soru içeriği buraya yüklenecek..."
+                        tools:text="Soru içeriği buraya yüklenecek..."
                         android:textColor="@color/text_primary"
                         android:textSize="16sp"
                         android:lineSpacingExtra="4dp"
@@ -157,7 +158,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Açıklama metni..."
+                        tools:text="Açıklama metni..."
                         android:textColor="@color/text_primary"
                         android:textSize="13sp" />
 
