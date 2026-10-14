@@ -4,6 +4,8 @@ Run:  python -m unittest test_generate -v
 The model and the translation engine are replaced by scripted fakes, so these tests pin down the
 control flow: repair instead of reject, topic swapping, fallbacks, and what gets stored.
 """
+import os as _os
+_os.environ.setdefault("QUIZGEN_LANGS", "tr,de,fr,es,it")  # tests exercise the multi-language paths
 import datetime as dt
 import os
 import sys

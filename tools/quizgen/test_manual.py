@@ -1,3 +1,5 @@
+import os as _os
+_os.environ.setdefault("QUIZGEN_LANGS", "tr,de,fr,es,it")  # tests exercise the multi-language paths
 import datetime as dt
 import json
 import os

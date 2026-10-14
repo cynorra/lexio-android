@@ -63,9 +63,9 @@ VERIFY_MODEL = os.environ.get("QUIZGEN_VERIFY_MODEL") or MODEL
 RESEARCH_ENABLED = (os.environ.get("QUIZGEN_RESEARCH") or "on").lower() != "off"
 
 # Languages every question/lesson is translated into (English is always the source). Turkish is required,
-# the others are best effort. Override with e.g. QUIZGEN_LANGS=tr,de to save translation quota.
+# the others are best effort and off by default (the app falls back to English). Widen with QUIZGEN_LANGS=tr,de,fr,es,it.
 LANG_NAMES = {"tr": "Turkish", "de": "German", "fr": "French", "es": "Spanish", "it": "Italian"}
-LANGS = tuple(l for l in (os.environ.get("QUIZGEN_LANGS") or "tr,de,fr,es,it").replace(" ", "").split(",")
+LANGS = tuple(l for l in (os.environ.get("QUIZGEN_LANGS") or "tr").replace(" ", "").split(",")
               if l in LANG_NAMES) or ("tr",)
 QUESTIONS_PER_QUIZ = 5
 QUESTIONS_PER_STUDY_SET = 5

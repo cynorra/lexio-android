@@ -475,7 +475,7 @@ def main():
     bp = sub.add_parser("bundle-prompt", help="ONE prompt for every country and exam")
     bp.add_argument("--date", help="first day, yyyy-mm-dd (default: tomorrow, UTC)")
     bp.add_argument("--days", type=int, default=1, help="how many days per target (default 1)")
-    bp.add_argument("--langs", default=",".join(ALL_LANGS), help="languages, en and tr required (default: all 6)")
+    bp.add_argument("--langs", default=",".join(ALL_LANGS), help="languages, en and tr required (default: every language quizgen is configured for)")
     bp.add_argument("--study", action="store_true", help="also ask for one study lesson per country")
     bp.add_argument("--general", action="store_true",
                     help="reusable prompt without a date: paste it once, then send 'Date: yyyy-mm-dd' each day")
