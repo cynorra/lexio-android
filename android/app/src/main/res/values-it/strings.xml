@@ -186,6 +186,7 @@
     <string name="delete_account_failed">Impossibile eliminare l\'account. Verifica la connessione e riprova.</string>
     <string name="delete_account_partial">I tuoi dati sono stati eliminati, ma l\'account di accesso non è stato rimosso. Contatta il supporto.</string>
     <string name="btn_privacy_policy">Informativa sulla privacy</string>
+    <string name="btn_ad_privacy">Impostazioni privacy degli annunci</string>
     <string name="legal_disclaimer">Lexio è un\'app formativa. I contenuti hanno finalità meramente informative e didattiche; non costituiscono parere legale e non sostituiscono un avvocato. Alcuni contenuti sono elaborati con l\'ausilio dell\'IA e possono presentare imprecisioni.</string>
     <string name="exam_banner_title">Preparazione esami di diritto</string>
     <string name="exam_banner_subtitle">Allenamento quotidiano per UBE, MBE, SQE, Staatsexamen, esame da avvocato, HMGS e altro.</string>

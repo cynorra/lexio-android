@@ -186,6 +186,7 @@
     <string name="delete_account_failed">Konto konnte nicht gelöscht werden. Verbindung prüfen und erneut versuchen.</string>
     <string name="delete_account_partial">Deine Daten wurden gelöscht, das Anmeldekonto konnte jedoch nicht entfernt werden. Kontaktiere den Support.</string>
     <string name="btn_privacy_policy">Datenschutzerklärung</string>
+    <string name="btn_ad_privacy">Datenschutzeinstellungen für Werbung</string>
     <string name="legal_disclaimer">Lexio ist eine Bildungs-App. Die Inhalte dienen ausschließlich der allgemeinen Information und Weiterbildung; sie stellen keine Rechtsberatung dar und ersetzen keinen Rechtsanwalt. Einige Inhalte werden KI-gestützt erstellt und können Fehler enthalten.</string>
     <string name="exam_banner_title">Jura-Examensvorbereitung</string>
     <string name="exam_banner_subtitle">Tägliche Übungen für UBE, MBE, SQE, Staatsexamen, HMGS und mehr.</string>

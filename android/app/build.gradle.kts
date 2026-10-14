@@ -58,7 +58,7 @@ dependencies {
 
   // Google Sign-In and AdMob
   implementation("com.google.android.gms:play-services-auth:21.2.0")
-  implementation("com.google.android.gms:play-services-ads:23.1.0")
+  implementation("com.google.android.gms:play-services-ads:24.4.0")
 
   // WorkManager for scheduled background notifications
   implementation("androidx.work:work-runtime:2.9.1")
@@ -68,6 +68,8 @@ dependencies {
   implementation("com.google.firebase:firebase-auth")
   implementation("com.google.firebase:firebase-firestore")
   implementation("com.google.firebase:firebase-analytics")
+  // User consent (GDPR/UK) before any ad request; required for EEA and UK users.
+  implementation("com.google.android.ump:user-messaging-platform:3.1.0")
 
   // Local testing
   testImplementation("junit:junit:4.13.2")

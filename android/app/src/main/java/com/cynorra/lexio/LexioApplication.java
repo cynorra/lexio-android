@@ -7,7 +7,6 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import com.cynorra.lexio.service.DailyQuizReminderWorker;
-import com.google.android.gms.ads.MobileAds;
 
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
@@ -22,8 +21,7 @@ public class LexioApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        // Initialize AdMob SDK
-        MobileAds.initialize(this, initializationStatus -> {});
+        // The AdMob SDK starts after the consent flow (see AdsConsent), not here.
 
         scheduleDailyQuizReminder();
     }

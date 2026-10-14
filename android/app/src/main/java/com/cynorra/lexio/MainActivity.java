@@ -64,6 +64,7 @@ import com.cynorra.lexio.ui.LeaderboardAdapter;
 import com.cynorra.lexio.ui.StudyAdapter;
 import com.cynorra.lexio.ui.WorkspaceAdapter;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -167,6 +168,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (savedInstanceState == null) {
             captureLaunchIntent(getIntent());
         }
+
+        AdsConsent.gather(this, this::loadBannerAd);
 
         store.subscribe(this);
     }
@@ -678,11 +681,32 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
     }
 
+    /**
+     * Replaces the layout's fixed-size banner with an adaptive one sized to the screen width (adaptive banners
+     * earn more than the 320x50 default). Does nothing until the consent flow allows ad requests;
+     * {@link AdsConsent} calls this again as soon as it does.
+     */
     private void loadBannerAd() {
-        AdView adView = findViewById(R.id.adView);
-        if (adView != null) {
-            adView.loadAd(new AdRequest.Builder().build());
-        }
+        if (!AdsConsent.canRequestAds() || isUiGone()) return;
+        AdView placeholder = findViewById(R.id.adView);
+        if (placeholder == null || !(placeholder.getParent() instanceof ViewGroup)) return;
+
+        ViewGroup parent = (ViewGroup) placeholder.getParent();
+        int index = parent.indexOfChild(placeholder);
+        ViewGroup.LayoutParams params = placeholder.getLayoutParams();
+        String unitId = placeholder.getAdUnitId();
+        if (unitId == null) return;
+
+        int widthDp = (int) (getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().density);
+        AdView adaptive = new AdView(this);
+        adaptive.setId(R.id.adView);
+        adaptive.setAdUnitId(unitId);
+        adaptive.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, widthDp));
+
+        parent.removeViewAt(index);
+        placeholder.destroy();
+        parent.addView(adaptive, index, params);
+        adaptive.loadAd(new AdRequest.Builder().build());
     }
 
     /** Swaps a list in, or shows {@code emptyMessage} in its place when there is nothing to show. */
@@ -1265,6 +1289,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (btnPrivacyPolicy != null && !getString(R.string.privacy_policy_url).isEmpty()) {
             btnPrivacyPolicy.setVisibility(View.VISIBLE);
             btnPrivacyPolicy.setOnClickListener(v -> openPrivacyPolicy());
+        }
+
+        View btnAdPrivacy = findViewById(R.id.btnAdPrivacy);
+        if (btnAdPrivacy != null && AdsConsent.privacyOptionsRequired(this)) {
+            btnAdPrivacy.setVisibility(View.VISIBLE);
+            btnAdPrivacy.setOnClickListener(v -> AdsConsent.showPrivacyOptions(this));
         }
 
         TextView tvInstagramHandle = findViewById(R.id.tvInstagramHandle);

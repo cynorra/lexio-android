@@ -218,6 +218,7 @@
     <string name="delete_account_failed">Couldn\'t delete the account. Check your connection and try again.</string>
     <string name="delete_account_partial">Your data was deleted but the sign-in account could not be removed. Contact us for help.</string>
     <string name="btn_privacy_policy">Privacy Policy</string>
+    <string name="btn_ad_privacy">Ad privacy settings</string>
     <string name="privacy_policy_url" translatable="false">https://cynorra.github.io/lexio/privacy-policy.html</string>
     <string name="legal_disclaimer">Lexio is an educational app. Content is for general information and learning only; it is not legal advice and does not replace a lawyer. Some content is prepared with AI assistance and may contain errors.</string>
 
