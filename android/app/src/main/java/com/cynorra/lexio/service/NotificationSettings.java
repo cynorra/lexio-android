@@ -58,13 +58,16 @@ public final class NotificationSettings {
 
     /** Hour of day (local time) the reminder should fire at. */
     public static int reminderHour(Context c) {
-        int manual = manualHour(c);
+        return chooseHour(manualHour(c), quizHours(c));
+    }
+
+    /** The reminder hour for a manual choice (or -1) and the hours the user recently completed quizzes at. */
+    static int chooseHour(int manual, List<Integer> recentQuizHours) {
         if (manual >= 0) return clamp(manual);
-        List<Integer> hours = quizHours(c);
-        if (hours.size() < MIN_SAMPLES_FOR_AUTO) return DEFAULT_HOUR;
+        if (recentQuizHours.size() < MIN_SAMPLES_FOR_AUTO) return DEFAULT_HOUR;
         int sum = 0;
-        for (int h : hours) sum += h;
-        return clamp(Math.round(sum / (float) hours.size()));
+        for (int h : recentQuizHours) sum += h;
+        return clamp(Math.round(sum / (float) recentQuizHours.size()));
     }
 
     public static boolean isAutomatic(Context c) {
@@ -126,9 +129,13 @@ public final class NotificationSettings {
 
     /** True if another reminder is allowed: not already sent today and under the weekly cap. */
     public static boolean canSendReminder(Context c) {
-        long today = today();
+        return withinCap(recentSentDays(c), today());
+    }
+
+    /** One reminder per day at most, and fewer than {@link #WEEKLY_CAP} in the last seven days. */
+    static boolean withinCap(List<Long> sentDays, long today) {
         int inLastWeek = 0;
-        for (long day : recentSentDays(c)) {
+        for (long day : sentDays) {
             if (day == today) return false;
             if (day > today - 7) inLastWeek++;
         }
