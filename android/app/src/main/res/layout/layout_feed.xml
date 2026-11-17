@@ -100,7 +100,7 @@
                     android:textAllCaps="false"
                     app:cornerRadius="18dp"
                     app:backgroundTint="@color/accent_primary"
-                    android:textColor="@color/bg_dark" />
+                    android:textColor="@color/white" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>

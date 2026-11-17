@@ -59,11 +59,11 @@
             android:layout_weight="1"
             android:text="@string/tab_daily"
             android:textSize="12sp"
-            android:textColor="@color/bg_dark"
-            android:backgroundTint="@color/text_primary"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/accent_primary"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            app:cornerRadius="6dp" />
+            app:cornerRadius="14dp" />
 
         <Button
             android:id="@+id/btnTabWeekly"
@@ -79,7 +79,7 @@
             app:strokeWidth="1dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            app:cornerRadius="6dp" />
+            app:cornerRadius="14dp" />
 
         <Button
             android:id="@+id/btnTabMonthly"
@@ -95,7 +95,7 @@
             app:strokeWidth="1dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            app:cornerRadius="6dp" />
+            app:cornerRadius="14dp" />
     </LinearLayout>
 
     <!-- Leaderboard RecyclerView -->

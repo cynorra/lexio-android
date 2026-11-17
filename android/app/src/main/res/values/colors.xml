@@ -31,4 +31,5 @@
     <!-- Ripple highlight overlay -->
     <color name="ripple_overlay">#1a000000</color>
     <color name="chip_bg">#EEF1F7</color>
+    <color name="hero_edge">#0C1A38</color>
 </resources>

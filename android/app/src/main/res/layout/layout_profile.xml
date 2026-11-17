@@ -36,17 +36,23 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_hero"
                 android:orientation="vertical"
                 android:gravity="center"
                 android:padding="24dp">
 
                 <ImageView
                     android:id="@+id/ivProfileAvatar"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:background="@drawable/bg_pill_accent"
-                    android:src="@android:drawable/ic_menu_myplaces"
-                    android:padding="16dp" />
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:background="@drawable/bg_avatar_ring"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_nav_profile"
+                    app:tint="@color/white"
+                    android:padding="22dp" />
 
                 <TextView
                     android:id="@+id/tvProfileName"
@@ -54,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     tools:text="Kullanıcı Adı"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />
                     
@@ -64,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     tools:text="email@example.com"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="#B6C4E0"
                     android:textSize="14sp" />
 
                 <TextView

@@ -129,7 +129,7 @@
                         android:layout_marginTop="16dp"
                         android:backgroundTint="@color/accent_primary"
                         android:text="@string/exam_start_btn"
-                        android:textColor="@color/bg_dark" />
+                        android:textColor="@color/white" />
 
                     <Button
                         android:id="@+id/btnChangeExam"

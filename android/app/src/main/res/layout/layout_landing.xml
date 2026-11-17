@@ -3,184 +3,174 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
-    android:background="@color/bg_dark">
+    android:fillViewport="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:orientation="vertical"
+        android:padding="28dp">
 
-        <!-- Brand Mark -->
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="24dp"
+            android:background="@drawable/bg_logo_tile"
+            android:importantForAccessibility="no"
+            android:padding="10dp"
+            android:src="@drawable/ic_launcher_foreground"
+            android:scaleType="fitCenter" />
+
         <TextView
             android:id="@+id/brandMark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/landing_brand_mark"
-            android:textColor="@color/accent_primary"
-            android:textSize="14sp"
-            android:textStyle="bold"
+            android:layout_marginTop="28dp"
             android:fontFamily="sans-serif-medium"
-            android:letterSpacing="0.05"
-            android:layout_marginTop="32dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:letterSpacing="0.12"
+            android:text="@string/landing_brand_mark"
+            android:textColor="#FDBA74"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
-        <!-- Hero Title -->
         <TextView
             android:id="@+id/heroTitle"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="sans-serif-black"
+            android:lineSpacingMultiplier="0.95"
             android:text="@string/landing_title"
-            android:textColor="@color/text_primary"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            android:lineSpacingMultiplier="0.9"
-            android:layout_marginTop="24dp"
-            app:layout_constraintTop_toBottomOf="@id/brandMark"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:textColor="@color/white"
+            android:textSize="42sp" />
 
-        <!-- Subtitle -->
         <TextView
             android:id="@+id/subtitle"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/landing_subtitle"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
-            android:lineSpacingMultiplier="1.2"
             android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/heroTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:lineSpacingMultiplier="1.25"
+            android:text="@string/landing_subtitle"
+            android:textColor="#B6C4E0"
+            android:textSize="16sp" />
 
-        <!-- Action Group -->
         <LinearLayout
             android:id="@+id/ctaGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="40dp"
-            app:layout_constraintTop_toBottomOf="@id/subtitle"
-            app:layout_constraintStart_toStartOf="parent">
+            android:layout_marginTop="36dp"
+            android:orientation="vertical">
 
             <Button
                 android:id="@+id/btnStart"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="@string/btn_start_simulation"
-                android:textColor="@color/bg_dark"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:backgroundTint="@color/text_primary"
+                android:layout_height="58dp"
+                android:backgroundTint="@color/accent_primary"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                app:cornerRadius="8dp" />
+                android:text="@string/btn_start_simulation"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:cornerRadius="18dp" />
 
             <Button
                 android:id="@+id/btnBrowse"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="58dp"
                 android:layout_marginTop="12dp"
-                android:text="@string/btn_browse_cases"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
                 android:backgroundTint="@color/transparent"
-                app:strokeColor="@color/card_border"
-                app:strokeWidth="1dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                app:cornerRadius="8dp" />
+                android:text="@string/btn_browse_cases"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                app:cornerRadius="18dp"
+                app:strokeColor="#55FFFFFF"
+                app:strokeWidth="1dp" />
         </LinearLayout>
 
-        <!-- Stats Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_glass"
             android:orientation="horizontal"
-            android:layout_marginTop="48dp"
-            android:weightSum="3"
-            app:layout_constraintTop_toBottomOf="@id/ctaGroup"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="32dp">
+            android:paddingVertical="18dp"
+            android:weightSum="3">
 
-            <!-- Stat 1 -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvStatCasesCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/landing_stat_cases_label"
-                    android:textColor="@color/text_muted"
-                    android:textSize="12sp"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="#B6C4E0"
+                    android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Stat 2 -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/landing_stat_ai_value"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/landing_stat_ai_label"
-                    android:textColor="@color/text_muted"
-                    android:textSize="12sp"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="#B6C4E0"
+                    android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Stat 3 -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/tvStatJurisdictionCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/white"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:text="@string/landing_stat_jurisdiction_label"
-                    android:textColor="@color/text_muted"
-                    android:textSize="12sp"
-                    android:layout_marginTop="4dp" />
+                    android:textColor="#B6C4E0"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </ScrollView>

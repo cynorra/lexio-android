@@ -5,108 +5,110 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="@color/bg_dark"
-    android:padding="24dp">
+    android:padding="28dp">
 
-    <!-- Brand Header -->
+    <ImageView
+        android:layout_width="84dp"
+        android:layout_height="84dp"
+        android:background="@drawable/bg_logo_tile"
+        android:importantForAccessibility="no"
+        android:padding="12dp"
+        android:src="@drawable/ic_launcher_foreground"
+        android:scaleType="fitCenter" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
         android:gravity="center_vertical"
-        android:layout_marginBottom="12dp">
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
             android:text="Lexio"
-            android:textColor="@color/text_primary"
-            android:textSize="38sp"
-            android:textStyle="bold" />
+            android:textColor="@color/white"
+            android:textSize="40sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
             android:text="."
             android:textColor="@color/accent_primary"
-            android:textSize="38sp"
-            android:textStyle="bold" />
+            android:textSize="40sp" />
     </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/login_tagline"
-        android:textColor="@color/text_secondary"
-        android:textSize="14sp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="36dp"
         android:gravity="center"
-        android:layout_marginBottom="40dp" />
+        android:text="@string/login_tagline"
+        android:textColor="#B6C4E0"
+        android:textSize="14sp" />
 
-    <!-- Login Card (Shadcn style) -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="@color/card_bg"
-        app:cardCornerRadius="18dp"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/card_border"
-        app:strokeWidth="1dp">
+        app:cardCornerRadius="26dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="vertical"
-            android:padding="24dp"
-            android:gravity="center">
+            android:padding="24dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/login_heading"
                 android:textColor="@color/text_primary"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="@string/login_subheading"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp"
                 android:gravity="center"
-                android:lineSpacingMultiplier="1.2" />
+                android:lineSpacingMultiplier="1.2"
+                android:text="@string/login_subheading"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
 
-            <!-- Google Sign-In Button -->
             <Button
                 android:id="@+id/btnGoogleSignIn"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="28dp"
-                android:text="@string/btn_google_signin"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:backgroundTint="@color/transparent"
-                app:strokeColor="@color/card_border"
-                app:strokeWidth="1dp"
+                android:layout_height="56dp"
+                android:layout_marginTop="26dp"
+                android:backgroundTint="@color/accent_primary"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                app:cornerRadius="8dp"
-                app:icon="@android:drawable/ic_menu_myplaces"
-                app:iconTint="@color/accent_primary"
+                android:text="@string/btn_google_signin"
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_nav_profile"
                 app:iconGravity="textStart"
-                app:iconPadding="8dp" />
+                app:iconPadding="10dp"
+                app:iconTint="@color/white" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="18dp"
+                android:gravity="center"
                 android:text="@string/login_terms_notice"
                 android:textColor="@color/text_muted"
-                android:textSize="10sp"
-                android:gravity="center" />
-
+                android:textSize="11sp" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

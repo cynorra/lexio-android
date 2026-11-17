@@ -51,7 +51,7 @@
             android:layout_marginStart="8dp"
             android:layout_centerVertical="true"
             android:text="@string/leaderboard_you_badge"
-            android:textColor="@color/bg_dark"
+            android:textColor="@color/white"
             android:textSize="10sp"
             android:textStyle="bold"
             android:background="@drawable/bg_pill_accent"

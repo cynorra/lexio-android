@@ -578,6 +578,18 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 return insets;
             });
             ViewCompat.requestApplyInsets(root);
+            // The insets padding exposes the window behind the layout: paint it like the screen so the
+            // gradient hero screens have no stray strip under the status bar.
+            boolean hero = screen == AppState.Screen.LANDING || screen == AppState.Screen.LOGIN;
+            root.setBackgroundResource(hero ? R.drawable.bg_hero_full : R.color.bg_dark);
+            boolean night = (getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+            androidx.core.view.WindowInsetsControllerCompat bars =
+                    ViewCompat.getWindowInsetsController(getWindow().getDecorView());
+            if (bars != null) {
+                bars.setAppearanceLightStatusBars(!hero && !night);
+                bars.setAppearanceLightNavigationBars(!hero && !night);
+            }
             Animation fadeAnim = AnimationUtils.loadAnimation(this, R.anim.screen_fade_in);
             root.startAnimation(fadeAnim);
         }
@@ -1280,8 +1292,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private void styleTab(int viewId, boolean selected) {
         MaterialButton tab = findViewById(viewId);
         if (tab == null) return;
-        tab.setBackgroundTintList(ContextCompat.getColorStateList(this, selected ? R.color.text_primary : R.color.transparent));
-        tab.setTextColor(ContextCompat.getColor(this, selected ? R.color.bg_dark : R.color.text_primary));
+        tab.setBackgroundTintList(ContextCompat.getColorStateList(this, selected ? R.color.accent_primary : R.color.transparent));
+        tab.setTextColor(ContextCompat.getColor(this, selected ? R.color.white : R.color.text_primary));
         tab.setStrokeWidth(selected ? 0 : 1);
     }
 
