@@ -272,12 +272,70 @@ def _notes_block(notes):
             "out rather than repeat it):\n" + notes)
 
 
-def questions_prompt(country, slots, notes_by_slot, feedback):
-    """slots: list of (label, topic). One question per slot, in order."""
+# Every topic comes back every ~10 days. Without memory the writer produces the same question again, so each
+# slot gets (a) the questions already asked on that topic and (b) a different angle to approach it from.
+ANGLES = [
+    "the black-letter rule or definition",
+    "applying the rule to a short, concrete fact scenario",
+    "an exception, limit or defence to the rule",
+    "the holding of a landmark case (name it)",
+    "telling two easily confused concepts apart",
+    "procedure: who decides, which court, which standard or time limit",
+    "the purpose or historical origin of the rule",
+    "a common misconception (ask which statement is FALSE or which answer is NOT correct)",
+]
+DUP_RATIO = 0.6  # similarity of "question || correct answer" above which a question counts as a repeat
+
+
+def topic_key(topic_title):
+    """'Impeachment (anchor: U.S. Const. art. II)' and 'Impeachment' are the same topic."""
+    return re.sub(r"\s*\(anchor:.*\)\s*$", "", topic_title or "").strip().lower()
+
+
+def _norm(text):
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]+", " ", (text or "").lower())).strip()
+
+
+def fingerprint(q):
+    """Normalised 'question || correct option' of a stored or freshly written question (English side)."""
+    en = q.get("en") or q  # stored questions nest the English text under "en"; freshly written ones are flat
+    options = en.get("options") or []
+    idx = q.get("correct_index")
+    correct = options[idx] if isinstance(idx, int) and 0 <= idx < len(options) else ""
+    return f"{_norm(en.get('question'))} || {_norm(correct)}"
+
+
+def similarity(a, b):
+    import difflib
+    m = difflib.SequenceMatcher(None, a, b)
+    if m.real_quick_ratio() < DUP_RATIO or m.quick_ratio() < DUP_RATIO:
+        return 0.0
+    return m.ratio()
+
+
+def find_repeat(q, history):
+    """The earlier question this one repeats (a history entry), or None. history: [{'topic','stem','fp'}]."""
+    fp = fingerprint(q)
+    best, best_r = None, DUP_RATIO
+    for h in history:
+        r = similarity(fp, h["fp"])
+        if r >= best_r:
+            best, best_r = h, r
+    return best
+
+
+def questions_prompt(country, slots, notes_by_slot, feedback, previous=None):
+    """slots: list of (label, topic). One question per slot, in order.
+    previous: per slot, the stems of questions already asked on that topic (newest first)."""
     lines = []
     for i, (label, topic) in enumerate(slots):
         lines.append(f"{i + 1}. {label}\n   Topic: {topic[1]} (anchor: {topic[2]})\n"
                      f"   {_notes_block(notes_by_slot[i])}")
+        asked = (previous[i] if previous and i < len(previous) else [])[:12]
+        if asked:
+            lines.append("   Angle for this question: " + ANGLES[len(asked) % len(ANGLES)] + ".\n"
+                         "   ALREADY ASKED on this topic (do NOT repeat, rephrase or reuse the same answer; "
+                         "test a different point):\n" + "\n".join(f"   - {a}" for a in asked))
         if feedback.get(i):
             lines.append("   A previous attempt at this slot was rejected by the fact-checker for: "
                          + " | ".join(feedback[i]) + "\n   Write a completely NEW question that avoids these problems.")
@@ -438,7 +496,7 @@ def check_questions(country, questions, notes_by_index):
     return failed
 
 
-def gather_questions(country, slots, notes_for, alternatives):
+def gather_questions(country, slots, notes_for, alternatives, history=None):
     """Fills every slot with a verified question.
 
     slots        list of (label, topic)
@@ -450,6 +508,7 @@ def gather_questions(country, slots, notes_for, alternatives):
     slots = list(slots)
     result = [None] * len(slots)
     feedback = {}
+    history = history if history is not None else []
     for attempt in range(1, MAX_ATTEMPTS + 1):
         pending = [i for i, q in enumerate(result) if q is None]
         if not pending:
@@ -463,8 +522,9 @@ def gather_questions(country, slots, notes_for, alternatives):
         sub = [slots[i] for i in pending]
         sub_notes = [notes_for(t) for _, t in sub]
         sub_feedback = {k: feedback.get(i, []) for k, i in enumerate(pending)}
-        data = call_json(WRITER_RULES, questions_prompt(country, sub, sub_notes, sub_feedback), QUESTIONS_SCHEMA,
-                         thinking="medium", max_tokens=16000)
+        sub_previous = [[h["stem"] for h in history if h["topic"] == topic_key(t[1])] for _, t in sub]
+        data = call_json(WRITER_RULES, questions_prompt(country, sub, sub_notes, sub_feedback, sub_previous),
+                         QUESTIONS_SCHEMA, thinking="medium", max_tokens=16000)
         candidates = data["questions"]
         if len(candidates) != len(sub):  # misaligned output: try again rather than guessing which is which
             log(f"  [{country}] attempt {attempt}: model returned {len(candidates)} questions for {len(sub)} slots")
@@ -473,6 +533,19 @@ def gather_questions(country, slots, notes_for, alternatives):
         for k in range(len(sub)):
             if k not in valid:
                 feedback.setdefault(pending[k], []).append("malformed output; follow the format exactly")
+        # Repeats of an earlier question are rejected before the (paid) fact-check.
+        fresh = []
+        for k in valid:
+            repeat = find_repeat(candidates[k], history)
+            if repeat is None:
+                fresh.append(k)
+            else:
+                feedback.setdefault(pending[k], []).append(
+                    "this repeats an earlier question (\"" + repeat["stem"][:120] + "\"); ask about a different "
+                    "rule, provision, case or scenario with a different correct answer")
+        if len(fresh) < len(valid):
+            log(f"  [{country}] attempt {attempt}: {len(valid) - len(fresh)} repeated question(s) sent back")
+        valid = fresh
         if not valid:
             continue
         failed = check_questions(country, [candidates[k] for k in valid], [sub_notes[k] for k in valid])
@@ -482,6 +555,9 @@ def gather_questions(country, slots, notes_for, alternatives):
                 feedback.setdefault(slot_index, []).append(failed[n])
             else:
                 result[slot_index] = candidates[k]
+                history.append({"topic": topic_key(candidates[k].get("topic") or slots[slot_index][1][1]),
+                                "stem": (candidates[k].get("en") or candidates[k]).get("question", ""),
+                                "fp": fingerprint(candidates[k])})
         if failed:
             log(f"  [{country}] attempt {attempt}: {len(failed)} question(s) sent back for repair")
     return [q for q in result if q is not None]
@@ -683,7 +759,9 @@ def build_daily_quiz(country, date, research, today, translator):
     topics = topics_for_day(country, date, QUESTIONS_PER_QUIZ)
     slots = [(f"Difficulty: {DIFFICULTY[i % len(DIFFICULTY)]}", t) for i, t in enumerate(topics)]
     pick = _alternative_picker(country, [t[0] for t in topics])
-    questions = gather_questions(country, slots, lambda t: research.notes(country, t, today), pick)
+    store = getattr(research, "store", None)
+    history = list(store.recent_questions(country)) if store is not None and hasattr(store, "recent_questions") else []
+    questions = gather_questions(country, slots, lambda t: research.notes(country, t, today), pick, history)
     if len(questions) < MIN_QUESTIONS:
         raise Rejected(f"only {len(questions)} verified question(s) for {country} {date}")
     doc = {
@@ -937,6 +1015,24 @@ class Store:
             return self.db.collection("examQuizzes").document(exam_id_of(country)).collection("days").document(date.isoformat())
         return self.db.collection("dailyQuizzes").document(country).collection("days").document(date.isoformat())
 
+    def recent_questions(self, country, days=400):
+        """Every question asked in the last `days` days for this country/exam: [{'topic','stem','fp'}] newest first."""
+        if self.dry_run or self.db is None:
+            return []
+        cache = self.__dict__.setdefault("_recent_cache", {})
+        if country not in cache:
+            days_ref = self.quiz_ref(country, dt.date.today()).parent
+            docs = days_ref.order_by("__name__", direction="DESCENDING").limit(days).get()
+            items = []
+            for d in docs:
+                for q in (d.to_dict() or {}).get("questions", []):
+                    try:
+                        items.append({"topic": topic_key(q.get("topic")), "stem": q["en"]["question"], "fp": fingerprint(q)})
+                    except (KeyError, TypeError):
+                        continue
+            cache[country] = items
+        return cache[country]
+
     def sets_ref(self, country):
         return self.db.collection("studySets").document(country).collection("sets")
 
@@ -1132,7 +1228,7 @@ def main():
                          "--countries is given, then none)")
     ap.add_argument("--exam-days-ahead", type=int, default=2, help="exam quizzes are made for today and the next N days")
     ap.add_argument("--days-ahead", type=int, default=2, help="also generate quizzes for the next N days")
-    ap.add_argument("--days-back", type=int, default=1, help="backfill quizzes/study sets for the last N days")
+    ap.add_argument("--days-back", type=int, default=3, help="backfill quizzes/study sets for the last N days")
     ap.add_argument("--cases", type=int, default=1,
                     help="new trial-simulation cases to publish per country per run (0 = none; English only)")
     ap.add_argument("--force", action="store_true", help="regenerate even if content exists")

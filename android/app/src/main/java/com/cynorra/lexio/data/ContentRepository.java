@@ -82,8 +82,17 @@ public class ContentRepository {
                         callback.onError();
                         return;
                     }
+                    // Older days can contain a near-identical question on the same topic: show each only once.
                     java.util.Collections.shuffle(pool);
-                    callback.onLoaded(new ArrayList<>(pool.subList(0, Math.min(PRACTICE_SIZE, pool.size()))));
+                    List<DailyQuizQuestion> unique = new ArrayList<>();
+                    java.util.Set<String> seen = new java.util.HashSet<>();
+                    for (DailyQuizQuestion q : pool) {
+                        String key = q.getQuestion().toLowerCase(java.util.Locale.ROOT).replaceAll("[^\p{L}\p{N}]+", " ").trim();
+                        if (key.length() > 60) key = key.substring(0, 60);
+                        if (seen.add(key)) unique.add(q);
+                        if (unique.size() == PRACTICE_SIZE) break;
+                    }
+                    callback.onLoaded(unique);
                 })
                 .addOnFailureListener(e -> callback.onError());
     }

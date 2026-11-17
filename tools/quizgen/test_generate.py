@@ -32,8 +32,11 @@ DAY = dt.date(2026, 9, 25)
 
 
 def make_question(topic, tag="a"):
-    return {"topic": topic, "correct_index": 2, "question": f"Q about {topic} ({tag})?",
-            "options": [f"{tag}1", f"{tag}2", f"{tag}3", f"{tag}4"], "explanation": f"Because {topic}."}
+    # Distinct per topic, like real questions; otherwise the repeat filter would (rightly) see them as one question.
+    import hashlib
+    salt = hashlib.sha256(topic.encode()).hexdigest()
+    return {"topic": topic, "correct_index": 2, "question": f"Q{tag} {salt[:30]} about {topic}?",
+            "options": [f"{salt[i * 9:(i + 1) * 9]} {topic} {tag}" for i in range(4)], "explanation": f"Because {topic}."}
 
 
 class FakeTranslator:
@@ -411,3 +414,40 @@ class ExamTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OriginalityTests(unittest.TestCase):
+    def q(self, stem, answer, other=("x", "y", "z")):
+        return {"topic": "T", "correct_index": 0, "question": stem, "options": [answer, *other], "explanation": "e"}
+
+    def history_of(self, *qs):
+        return [{"topic": "t", "stem": q["question"], "fp": g.fingerprint(q)} for q in qs]
+
+    def test_paraphrase_of_an_earlier_question_is_a_repeat(self):
+        old = self.q("In Griswold v. Connecticut (1965), on what primary constitutional grounds did the Court strike down the law?",
+                     "The right to marital privacy")
+        new = self.q("In the landmark Supreme Court decision Griswold v. Connecticut (1965), on what primary constitutional grounds did the Court strike down the statute?",
+                     "The right to marital privacy")
+        self.assertIsNotNone(g.find_repeat(new, self.history_of(old)))
+
+    def test_different_point_on_the_same_topic_is_fine(self):
+        old = self.q("In Griswold v. Connecticut (1965), on what primary constitutional grounds did the Court strike down the law?",
+                     "The right to marital privacy")
+        new = self.q("Which justice wrote the majority opinion in Griswold, and which clause did a concurrence prefer?",
+                     "Douglas wrote it; Goldberg relied on the Ninth Amendment")
+        self.assertIsNone(g.find_repeat(new, self.history_of(old)))
+
+    def test_stored_and_fresh_questions_fingerprint_alike(self):
+        flat = self.q("Which body decides?", "The court")
+        stored = {"id": "x", "topic": "T", "correct_index": 0, "en": {"question": "Which body decides?", "options": ["The court", "x", "y", "z"]}}
+        self.assertEqual(g.fingerprint(flat), g.fingerprint(stored))
+
+    def test_topic_key_ignores_the_anchor(self):
+        self.assertEqual(g.topic_key("Impeachment (anchor: U.S. Const. art. II)"), g.topic_key("Impeachment"))
+
+    def test_prompt_lists_earlier_questions_and_a_new_angle(self):
+        topic = ("t1", "Impeachment", "art II")
+        prompt = g.questions_prompt("US", [("Difficulty: easy", topic)], ["notes"], {}, [["Who tries impeachments?", "What majority convicts?"]])
+        self.assertIn("ALREADY ASKED", prompt)
+        self.assertIn("Who tries impeachments?", prompt)
+        self.assertIn(g.ANGLES[2 % len(g.ANGLES)], prompt)
