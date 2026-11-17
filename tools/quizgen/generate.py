@@ -1130,7 +1130,7 @@ def main():
     ap.add_argument("--exams", default=None,
                     help="comma-separated exam ids for exam prep quizzes, or 'none' (default: all exams, unless "
                          "--countries is given, then none)")
-    ap.add_argument("--exam-days-ahead", type=int, default=1, help="exam quizzes are made for today and the next N days")
+    ap.add_argument("--exam-days-ahead", type=int, default=2, help="exam quizzes are made for today and the next N days")
     ap.add_argument("--days-ahead", type=int, default=2, help="also generate quizzes for the next N days")
     ap.add_argument("--days-back", type=int, default=1, help="backfill quizzes/study sets for the last N days")
     ap.add_argument("--cases", type=int, default=1,
@@ -1179,8 +1179,17 @@ def main():
     started = time.time()
     failures, quota_hit = 0, False
     retry = []
+    # A model overload (503s with 90s back-offs) once kept a run busy until the 2h workflow timeout killed it, which also
+    # skipped the retry pass and the coverage check. Past the budget no NEW job starts; the rest is left to the next run.
+    budget = float(os.environ.get("QUIZGEN_BUDGET_MIN") or 95) * 60
+
+    def budgeted_job(kind, country, date, *rest):
+        if time.time() - started > budget:
+            return f"{kind} {country} {date if kind != 'case' else date[0]}", "skipped (time budget)"
+        return run_job(kind, country, date, *rest)
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
-        futures = {pool.submit(run_job, k, c, d, store, research, translator, today.isoformat(), args.force): (k, c, d)
+        futures = {pool.submit(budgeted_job, k, c, d, store, research, translator, today.isoformat(), args.force): (k, c, d)
                    for k, c, d in jobs}
         for f in concurrent.futures.as_completed(futures):
             label, status = f.result()
@@ -1192,7 +1201,7 @@ def main():
             quota_hit = quota_hit or status.startswith("QUOTA")
 
     # One more attempt for jobs that failed (usually a model overload that has passed by now), one at a time.
-    if retry and not quota_hit:
+    if retry and not quota_hit and time.time() - started < budget:
         log(f"retrying {len(retry)} failed job(s) once")
         for k, c, d in retry:
             label, status = run_job(k, c, d, store, research, translator, today.isoformat(), args.force)

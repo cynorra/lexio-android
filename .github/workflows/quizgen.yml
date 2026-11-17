@@ -5,6 +5,8 @@ on:
     # 09:15 UTC = 02:15 Pacific: after Gemini's daily free quota resets (midnight Pacific), so a run never
     # starts on yesterday's exhausted quota.
     - cron: '15 9 * * *'
+    # Second chance: GitHub often starts scheduled runs hours late or drops them; the job skips content that exists.
+    - cron: '45 17 * * *'
   workflow_dispatch:
     inputs:
       countries:
