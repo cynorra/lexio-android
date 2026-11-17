@@ -1022,7 +1022,8 @@ class Store:
         cache = self.__dict__.setdefault("_recent_cache", {})
         if country not in cache:
             days_ref = self.quiz_ref(country, dt.date.today()).parent
-            docs = days_ref.order_by("__name__", direction="DESCENDING").limit(days).get()
+            # No server-side ordering: sorting by document id would need a composite index.
+            docs = sorted(days_ref.stream(), key=lambda d: d.id, reverse=True)[:days]
             items = []
             for d in docs:
                 for q in (d.to_dict() or {}).get("questions", []):
