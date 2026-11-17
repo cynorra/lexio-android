@@ -255,4 +255,16 @@
     <string name="exam_load_failed">Sınav testi yüklenemedi. Bağlantını kontrol et, tekrar denemek için dokun.</string>
     <string name="exam_done_toast">Sınav testi tamamlandı: %1$d/%2$d doğru</string>
     <string name="exam_result_today">✅ Bugünkü sonucun: %1$d/%2$d doğru</string>
+
+    <!-- Home hero / extra practice -->
+    <string name="hero_daily_new">Bugün yeni</string>
+    <string name="hero_daily_done">Bugün tamamlandı</string>
+    <string name="hero_sub_new">5 yeni soru · seriyi yakala, puan kazan</string>
+    <string name="hero_sub_done">Yeni test %1$s sonra</string>
+    <string name="hero_countdown">%1$d sa %2$d dk</string>
+    <string name="hero_streak">Seri: %1$d gün</string>
+    <string name="hero_cta_start">Başla</string>
+    <string name="hero_cta_practice">Ek alıştırma</string>
+    <string name="practice_title">Ek Alıştırma</string>
+    <string name="practice_done_toast">Alıştırma bitti: %1$d / %2$d doğru</string>
 </resources>

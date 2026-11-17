@@ -212,4 +212,16 @@
     <string name="exam_load_failed">Impossibile caricare il quiz d\'esame. Controlla la connessione e tocca per riprovare.</string>
     <string name="exam_done_toast">Quiz d\'esame terminato: %1$d/%2$d corrette</string>
     <string name="exam_result_today">✅ Risultato di oggi: %1$d/%2$d corrette</string>
+
+    <!-- Home hero / extra practice -->
+    <string name="hero_daily_new">Nuovo oggi</string>
+    <string name="hero_daily_done">Completato per oggi</string>
+    <string name="hero_sub_new">5 domande nuove · mantieni la serie, guadagna punti</string>
+    <string name="hero_sub_done">Prossimo test tra %1$s</string>
+    <string name="hero_countdown">%1$d h %2$d min</string>
+    <string name="hero_streak">Serie: %1$d giorni</string>
+    <string name="hero_cta_start">Inizia</string>
+    <string name="hero_cta_practice">Pratica extra</string>
+    <string name="practice_title">Pratica extra</string>
+    <string name="practice_done_toast">Pratica finita: %1$d / %2$d corrette</string>
 </resources>

@@ -251,4 +251,16 @@
     <string name="exam_load_failed">Couldn\'t load the exam quiz. Check your connection and tap to retry.</string>
     <string name="exam_done_toast">Exam quiz finished: %1$d/%2$d correct</string>
     <string name="exam_result_today">✅ Today\'s result: %1$d/%2$d correct</string>
+
+    <!-- Home hero / extra practice -->
+    <string name="hero_daily_new">New today</string>
+    <string name="hero_daily_done">Done for today</string>
+    <string name="hero_sub_new">5 fresh questions · keep your streak, earn points</string>
+    <string name="hero_sub_done">Next test in %1$s</string>
+    <string name="hero_countdown">%1$dh %2$dm</string>
+    <string name="hero_streak">Streak: %1$d days</string>
+    <string name="hero_cta_start">Start</string>
+    <string name="hero_cta_practice">Extra practice</string>
+    <string name="practice_title">Extra Practice</string>
+    <string name="practice_done_toast">Practice finished: %1$d / %2$d correct</string>
 </resources>

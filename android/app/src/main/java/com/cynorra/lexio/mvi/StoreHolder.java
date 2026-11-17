@@ -34,4 +34,6 @@ public class StoreHolder extends ViewModel {
     public boolean quizLoading = false;
     public String quizLoadingKey = null; // key of the request in flight; a reply for another key is stale
     public boolean quizFailed = false;
+    /** Extra practice (random questions from past days, no reward) instead of today's daily quiz. */
+    public boolean practice = false;
 }

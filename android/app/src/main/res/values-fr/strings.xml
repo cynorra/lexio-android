@@ -212,4 +212,16 @@
     <string name="exam_load_failed">Impossible de charger le quiz d\'examen. Vérifiez votre connexion et touchez pour réessayer.</string>
     <string name="exam_done_toast">Quiz d\'examen terminé : %1$d/%2$d bonnes réponses</string>
     <string name="exam_result_today">✅ Résultat du jour : %1$d/%2$d bonnes réponses</string>
+
+    <!-- Home hero / extra practice -->
+    <string name="hero_daily_new">Nouveau aujourd\'hui</string>
+    <string name="hero_daily_done">Terminé pour aujourd\'hui</string>
+    <string name="hero_sub_new">5 nouvelles questions · gardez votre série, gagnez des points</string>
+    <string name="hero_sub_done">Prochain test dans %1$s</string>
+    <string name="hero_countdown">%1$d h %2$d min</string>
+    <string name="hero_streak">Série : %1$d jours</string>
+    <string name="hero_cta_start">Commencer</string>
+    <string name="hero_cta_practice">Entraînement bonus</string>
+    <string name="practice_title">Entraînement bonus</string>
+    <string name="practice_done_toast">Entraînement terminé : %1$d / %2$d correctes</string>
 </resources>

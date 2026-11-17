@@ -212,4 +212,16 @@
     <string name="exam_load_failed">Das Prüfungsquiz konnte nicht geladen werden. Prüfe deine Verbindung und tippe zum Wiederholen.</string>
     <string name="exam_done_toast">Prüfungsquiz beendet: %1$d/%2$d richtig</string>
     <string name="exam_result_today">✅ Heutiges Ergebnis: %1$d/%2$d richtig</string>
+
+    <!-- Home hero / extra practice -->
+    <string name="hero_daily_new">Heute neu</string>
+    <string name="hero_daily_done">Heute erledigt</string>
+    <string name="hero_sub_new">5 neue Fragen · Serie halten, Punkte sammeln</string>
+    <string name="hero_sub_done">Neuer Test in %1$s</string>
+    <string name="hero_countdown">%1$d Std %2$d Min</string>
+    <string name="hero_streak">Serie: %1$d Tage</string>
+    <string name="hero_cta_start">Start</string>
+    <string name="hero_cta_practice">Extra-Übung</string>
+    <string name="practice_title">Extra-Übung</string>
+    <string name="practice_done_toast">Übung beendet: %1$d / %2$d richtig</string>
 </resources>

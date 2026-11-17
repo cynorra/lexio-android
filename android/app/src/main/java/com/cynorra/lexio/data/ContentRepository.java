@@ -61,6 +61,33 @@ public class ContentRepository {
                 .addOnFailureListener(e -> callback.onError());
     }
 
+    private static final int PRACTICE_DAYS = 21;
+    private static final int PRACTICE_SIZE = 10;
+
+    /**
+     * Unlimited extra practice: a random mix of questions from the country's recent daily quizzes
+     * ({@code dailyQuizzes/{CC}/days}, newest {@value #PRACTICE_DAYS} days). Nothing is rewarded.
+     */
+    public void loadPracticeQuestions(String country, String language, QuizCallback callback) {
+        db.collection("dailyQuizzes").document(country).collection("days")
+                .orderBy(FieldPath.documentId(), Query.Direction.DESCENDING)
+                .limit(PRACTICE_DAYS)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    List<DailyQuizQuestion> pool = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        pool.addAll(parseQuestions(doc.get("questions"), language, country));
+                    }
+                    if (pool.isEmpty()) {
+                        callback.onError();
+                        return;
+                    }
+                    java.util.Collections.shuffle(pool);
+                    callback.onLoaded(new ArrayList<>(pool.subList(0, Math.min(PRACTICE_SIZE, pool.size()))));
+                })
+                .addOnFailureListener(e -> callback.onError());
+    }
+
     private void loadLatestQuiz(CollectionReference days, String country, String language, QuizCallback callback) {
         days.orderBy(FieldPath.documentId(), Query.Direction.DESCENDING).limit(1).get()
                 .addOnSuccessListener(snapshot -> {

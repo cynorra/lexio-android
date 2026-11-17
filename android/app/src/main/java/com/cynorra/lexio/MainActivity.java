@@ -29,6 +29,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -264,6 +267,14 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 .putString(PREF_COUNTRY, state.getCountry())
                 .putString(PREF_EXAM, state.getExam())
                 .apply();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (store != null && store.getState().getActiveScreen() == AppState.Screen.CASE_LIST) {
+            bindDailyHero(store.getState());
+        }
     }
 
     private void registerBackHandler() {
@@ -558,6 +569,15 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         View root = findViewById(android.R.id.content);
         if (root != null) {
+            // targetSdk 36 forces edge-to-edge: without this the bottom nav and ad sit under the system
+            // navigation bar and look "cut off" (worst on gesture/3-button bars).
+            ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+                Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+                int bottom = Math.max(bars.bottom, insets.getInsets(WindowInsetsCompat.Type.ime()).bottom);
+                v.setPadding(bars.left, bars.top, bars.right, bottom);
+                return insets;
+            });
+            ViewCompat.requestApplyInsets(root);
             Animation fadeAnim = AnimationUtils.loadAnimation(this, R.anim.screen_fade_in);
             root.startAnimation(fadeAnim);
         }
@@ -744,6 +764,37 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             }
         }
         bindNav(R.id.navProfile, AppEvent.Type.NAVIGATE_TO_PROFILE);
+        highlightActiveNav();
+    }
+
+    /** Tints the bottom-nav entry of the screen on display with the brand colour. */
+    private void highlightActiveNav() {
+        int active;
+        switch (store.getState().getActiveScreen()) {
+            case CASE_LIST: case EXAM_PREP: active = R.id.navCases; break;
+            case FEED: active = R.id.navFeed; break;
+            case WORKSPACE: active = R.id.navWorkspace; break;
+            case STUDY_PORTAL: active = R.id.navStudy; break;
+            case LEADERBOARD: active = R.id.navLeaderboard; break;
+            case PROFILE: active = R.id.navProfile; break;
+            default: active = 0;
+        }
+        int[][] ids = {{R.id.navCases, R.id.navCasesIcon, R.id.navCasesLabel},
+                {R.id.navFeed, R.id.navFeedIcon, R.id.navFeedLabel},
+                {R.id.navWorkspace, R.id.navWorkspaceIcon, R.id.navWorkspaceLabel},
+                {R.id.navStudy, R.id.navStudyIcon, R.id.navStudyLabel},
+                {R.id.navLeaderboard, R.id.navLeaderboardIcon, R.id.navLeaderboardLabel},
+                {R.id.navProfile, R.id.navProfileIcon, R.id.navProfileLabel}};
+        for (int[] e : ids) {
+            int color = ContextCompat.getColor(this, e[0] == active ? R.color.accent_primary : R.color.text_secondary);
+            android.widget.ImageView icon = findViewById(e[1]);
+            TextView label = findViewById(e[2]);
+            if (icon != null) icon.setColorFilter(color);
+            if (label != null) {
+                label.setTextColor(color);
+                label.setTypeface(null, e[0] == active ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+            }
+        }
     }
 
     private void bindNav(int viewId, AppEvent.Type type) {
@@ -838,13 +889,47 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             });
         }
 
+        holder.practice = false;
         View cvDailyQuizBanner = findViewById(R.id.cvDailyQuizBanner);
         if (cvDailyQuizBanner != null) {
             cvDailyQuizBanner.setOnClickListener(v -> {
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                // Already collected today's reward: the card becomes unlimited practice instead of a dead end.
+                holder.practice = DateKeys.today().equals(store.getState().getLastQuizDate());
                 store.dispatch(AppEvent.of(AppEvent.Type.NAVIGATE_TO_DAILY_QUIZ));
             });
         }
+        bindDailyHero(store.getState());
+    }
+
+    /** Fills the home hero card: new / done state, today's date, streak and the countdown to the next test. */
+    private void bindDailyHero(AppState state) {
+        TextView chip = findViewById(R.id.tvDailyChip);
+        if (chip == null) return;
+        boolean done = DateKeys.today().equals(state.getLastQuizDate());
+        TextView date = findViewById(R.id.tvDailyDate);
+        TextView sub = findViewById(R.id.tvDailyQuizSub);
+        TextView streak = findViewById(R.id.tvDailyStreakInfo);
+        TextView cta = findViewById(R.id.tvDailyQuizCta);
+
+        chip.setText(done ? R.string.hero_daily_done : R.string.hero_daily_new);
+        chip.setBackgroundResource(done ? R.drawable.bg_chip_done : R.drawable.bg_chip_live);
+        chip.setTextColor(ContextCompat.getColor(this, done ? R.color.defense_green : R.color.white));
+        if (date != null) {
+            date.setText(java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new java.util.Date()));
+        }
+        java.util.Calendar midnight = java.util.Calendar.getInstance();
+        midnight.add(java.util.Calendar.DAY_OF_MONTH, 1);
+        midnight.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        midnight.set(java.util.Calendar.MINUTE, 0);
+        midnight.set(java.util.Calendar.SECOND, 0);
+        long minutes = Math.max(1, (midnight.getTimeInMillis() - System.currentTimeMillis()) / 60000);
+        String left = getString(R.string.hero_countdown, (int) (minutes / 60), (int) (minutes % 60));
+        if (sub != null) {
+            sub.setText(done ? getString(R.string.hero_sub_done, left) : getString(R.string.hero_sub_new));
+        }
+        if (streak != null) streak.setText(getString(R.string.hero_streak, state.getDailyStreak()));
+        if (cta != null) cta.setText(done ? R.string.hero_cta_practice : R.string.hero_cta_start);
     }
 
     /**
@@ -1035,19 +1120,26 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     /** A full-width outlined button, used for simulation choices and quiz options. */
     private MaterialButton newOptionButton(String text) {
         MaterialButton btn = new MaterialButton(this);
+        float d = getResources().getDisplayMetrics().density;
         btn.setText(text);
         btn.setAllCaps(false);
-        btn.setTextSize(13);
+        btn.setTextSize(15);
+        btn.setGravity(android.view.Gravity.START | android.view.Gravity.CENTER_VERTICAL);
+        btn.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         btn.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
         btn.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.card_bg));
         btn.setStrokeColor(ContextCompat.getColorStateList(this, R.color.card_border));
-        btn.setStrokeWidth(1);
+        btn.setStrokeWidth((int) (1.5f * d));
+        btn.setCornerRadius((int) (14 * d));
+        btn.setMinHeight((int) (56 * d));
+        btn.setInsetTop(0);
+        btn.setInsetBottom(0);
+        btn.setPadding((int) (16 * d), (int) (12 * d), (int) (16 * d), (int) (12 * d));
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, 8, 0, 8);
+        params.setMargins(0, (int) (6 * d), 0, (int) (6 * d));
         btn.setLayoutParams(params);
-        btn.setPadding(16, 12, 16, 12);
         return btn;
     }
 
@@ -1148,6 +1240,11 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     private void markOption(MaterialButton btn, boolean correct) {
         btn.setBackgroundTintList(ContextCompat.getColorStateList(this, correct ? R.color.defense_green_bg : R.color.prosecution_red_bg));
         btn.setStrokeColor(ContextCompat.getColorStateList(this, correct ? R.color.defense_green : R.color.prosecution_red));
+        // A small pop so the verdict on the answer is felt, not just seen.
+        btn.setScaleX(0.96f);
+        btn.setScaleY(0.96f);
+        btn.animate().scaleX(1f).scaleY(1f).setDuration(220)
+                .setInterpolator(new android.view.animation.OvershootInterpolator(2f)).start();
     }
 
     // ---------------------------------------------------------------- leaderboard
@@ -1530,9 +1627,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
         boolean examMode = store.getState().getActiveScreen() == AppState.Screen.EXAM_QUIZ;
         TextView title = findViewById(R.id.tvQuizScreenTitle);
-        if (title != null) title.setText(examMode ? R.string.exam_quiz_title : R.string.daily_quiz_screen_title);
+        if (title != null) {
+            title.setText(examMode ? R.string.exam_quiz_title
+                    : holder.practice ? R.string.practice_title : R.string.daily_quiz_screen_title);
+        }
         View streak = findViewById(R.id.tvQuizStreakBadge);
-        if (streak != null) streak.setVisibility(examMode ? View.GONE : View.VISIBLE);
+        if (streak != null) streak.setVisibility(examMode || holder.practice ? View.GONE : View.VISIBLE);
         // A fresh visit gets a fresh attempt at loading, even if the last one failed.
         holder.quizFailed = false;
 
@@ -1552,9 +1652,10 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     /** What the quiz on screen is: the exam's quiz on the exam screen, else the country's daily quiz. */
     private String quizKeyFor(AppState state) {
         String date = DateKeys.today();
-        return state.getActiveScreen() == AppState.Screen.EXAM_QUIZ
-                ? "exam:" + state.getExam() + "|" + date + "|" + state.getLanguage()
-                : state.getCountry() + "|" + date + "|" + state.getLanguage();
+        if (state.getActiveScreen() == AppState.Screen.EXAM_QUIZ) {
+            return "exam:" + state.getExam() + "|" + date + "|" + state.getLanguage();
+        }
+        return (holder.practice ? "practice:" : "") + state.getCountry() + "|" + date + "|" + state.getLanguage();
     }
 
     /** Fetches the quiz for the current country (or exam)/date/language unless it is loaded or loading. */
@@ -1586,6 +1687,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         };
         if (state.getActiveScreen() == AppState.Screen.EXAM_QUIZ) {
             contentRepo.loadExamQuiz(state.getExam(), DateKeys.today(), state.getLanguage(), callback);
+        } else if (holder.practice) {
+            contentRepo.loadPracticeQuestions(state.getCountry(), state.getLanguage(), callback);
         } else {
             contentRepo.loadDailyQuiz(state.getCountry(), DateKeys.today(), state.getLanguage(), callback);
         }
@@ -1642,12 +1745,14 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             List<String> options = q.getOptions();
             for (int i = 0; i < options.size(); i++) {
                 final int optionIndex = i;
-                MaterialButton btn = newOptionButton(options.get(i));
+                MaterialButton btn = newOptionButton((char) ('A' + i) + "    " + options.get(i));
 
                 if (answered && i == q.getCorrectIndex()) {
                     markOption(btn, true);
                 } else if (answered && i == selected) {
                     markOption(btn, false);
+                } else if (answered) {
+                    btn.setAlpha(0.55f);
                 }
 
                 btn.setOnClickListener(v -> {
@@ -1670,6 +1775,18 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
                 if (examMode) {
                     finishExamStep(questions.size());
+                    return;
+                }
+                if (holder.practice) {
+                    int correct = store.getState().getQuizCorrect();
+                    // The daily reward was already collected (practice is only offered then), so this earns nothing.
+                    store.dispatch(AppEvent.quizNext(questions.size(), DateKeys.today()));
+                    if (store.getState().getActiveScreen() != AppState.Screen.DAILY_QUIZ) {
+                        holder.practice = false;
+                        Telemetry.event("practice_completed", "correct", correct);
+                        Toast.makeText(this, getString(R.string.practice_done_toast, correct, questions.size()),
+                                Toast.LENGTH_LONG).show();
+                    }
                     return;
                 }
                 AppState before = store.getState();

@@ -52,7 +52,7 @@
         android:id="@+id/pbQuizProgress"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="4dp"
+        android:layout_height="6dp"
         android:max="3"
         android:progress="1"
         android:progressTint="@color/accent_primary" />
