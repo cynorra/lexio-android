@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/bottomNavigationContainer"
     android:layout_width="match_parent"
-    android:layout_height="60dp"
+    android:layout_height="64dp"
     android:orientation="horizontal"
     android:background="@color/card_bg"
-    android:elevation="8dp">
+    android:elevation="12dp">
 
     <LinearLayout
         android:id="@+id/navCases"
@@ -19,8 +19,10 @@
         android:focusable="true">
         <ImageView
             android:id="@+id/navCasesIcon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="56dp"
+            android:layout_height="30dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="3dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_nav_cases"
             app:tint="@color/text_secondary"
@@ -32,7 +34,7 @@
             android:layout_marginTop="2dp"
             android:text="@string/nav_cases"
             android:textColor="@color/text_secondary"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -47,8 +49,10 @@
         android:focusable="true">
         <ImageView
             android:id="@+id/navFeedIcon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="56dp"
+            android:layout_height="30dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="3dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_nav_feed"
             app:tint="@color/text_secondary"
@@ -60,7 +64,7 @@
             android:layout_marginTop="2dp"
             android:text="@string/nav_feed"
             android:textColor="@color/text_secondary"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -75,8 +79,10 @@
         android:focusable="true">
         <ImageView
             android:id="@+id/navWorkspaceIcon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="56dp"
+            android:layout_height="30dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="3dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_nav_workspace"
             app:tint="@color/text_secondary"
@@ -88,7 +94,7 @@
             android:layout_marginTop="2dp"
             android:text="@string/nav_workspace"
             android:textColor="@color/text_secondary"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -103,8 +109,10 @@
         android:focusable="true">
         <ImageView
             android:id="@+id/navStudyIcon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="56dp"
+            android:layout_height="30dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="3dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_nav_study"
             app:tint="@color/text_secondary"
@@ -116,7 +124,7 @@
             android:layout_marginTop="2dp"
             android:text="@string/nav_study"
             android:textColor="@color/text_secondary"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -131,8 +139,10 @@
         android:focusable="true">
         <ImageView
             android:id="@+id/navLeaderboardIcon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="56dp"
+            android:layout_height="30dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="3dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_nav_leaderboard"
             app:tint="@color/text_secondary"
@@ -144,7 +154,7 @@
             android:layout_marginTop="2dp"
             android:text="@string/nav_leaderboard"
             android:textColor="@color/text_secondary"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -159,8 +169,10 @@
         android:focusable="true">
         <ImageView
             android:id="@+id/navProfileIcon"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="56dp"
+            android:layout_height="30dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="3dp"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_nav_profile"
             app:tint="@color/text_secondary"
@@ -172,6 +184,6 @@
             android:layout_marginTop="2dp"
             android:text="@string/nav_profile"
             android:textColor="@color/text_secondary"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 </LinearLayout>

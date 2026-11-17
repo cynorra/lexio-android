@@ -38,9 +38,9 @@ public class CasesAdapter extends RecyclerView.Adapter<CasesAdapter.ViewHolder> 
         holder.tvTag.setText(c.getTagLabel());
         holder.tvTitle.setText(c.getTitle());
         holder.tvPreview.setText(c.getPreview());
-        holder.tvRef.setText("📋 " + c.getRef());
-        holder.tvDuration.setText("⏱ " + c.getDuration());
-        holder.tvDifficulty.setText("📊 " + c.getDifficulty());
+        holder.tvRef.setText(c.getRef());
+        holder.tvDuration.setText(c.getDuration());
+        holder.tvDifficulty.setText(c.getDifficulty());
         
         Animation animation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_slide_up);
         holder.itemView.startAnimation(animation);

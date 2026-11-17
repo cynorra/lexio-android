@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Light Mode Theme Colors (shadcn UI inspired) -->
-    <color name="bg_dark">#ffffff</color>
-    <color name="card_bg">#f4f4f5</color>
-    <color name="card_border">#e4e4e7</color>
-    <color name="text_primary">#18181b</color>
-    <color name="text_secondary">#52525b</color>
-    <color name="text_muted">#71717a</color>
+    <color name="bg_dark">#F6F7FB</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="card_border">#E3E7F0</color>
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#475569</color>
+    <color name="text_muted">#64748B</color>
 
     <!-- Accent Colors (brand color stays the same across themes) -->
     <color name="accent_primary">#f97316</color>
@@ -26,8 +26,9 @@
     <color name="transparent">#00000000</color>
 
     <!-- Input Background -->
-    <color name="input_bg">#f4f4f5</color>
+    <color name="input_bg">#EEF1F7</color>
 
     <!-- Ripple highlight overlay -->
     <color name="ripple_overlay">#1a000000</color>
+    <color name="chip_bg">#EEF1F7</color>
 </resources>

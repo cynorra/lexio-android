@@ -789,7 +789,10 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             int color = ContextCompat.getColor(this, e[0] == active ? R.color.accent_primary : R.color.text_secondary);
             android.widget.ImageView icon = findViewById(e[1]);
             TextView label = findViewById(e[2]);
-            if (icon != null) icon.setColorFilter(color);
+            if (icon != null) {
+                icon.setColorFilter(color);
+                icon.setBackgroundResource(e[0] == active ? R.drawable.bg_nav_pill : 0);
+            }
             if (label != null) {
                 label.setTextColor(color);
                 label.setTypeface(null, e[0] == active ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);

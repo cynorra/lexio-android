@@ -109,7 +109,7 @@
     <string name="study_portal_heading">Perfectionnez vos connaissances juridiques</string>
     <string name="study_portal_subheading">Une nouvelle leçon chaque jour sur la constitution et les règles fondamentales du pays choisi. Testez-vous à la fin de chaque leçon.</string>
     <string name="study_card_read_more">Lire →</string>
-    <string name="study_card_read_time">⏱ %1$d min de lecture</string>
+    <string name="study_card_read_time">%1$d min de lecture</string>
     <string name="study_detail_back">← Retour aux leçons</string>
     <string name="workspace_header_label">Espaces de travail</string>
     <string name="workspace_eyebrow">Groupes thématiques</string>

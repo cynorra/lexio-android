@@ -1,107 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="8dp"
+    android:layout_marginVertical="7dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     app:cardBackgroundColor="@color/card_bg"
-    app:cardCornerRadius="12dp"
+    app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
     app:strokeColor="@color/card_border"
     app:strokeWidth="1dp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Tag Pill -->
-        <TextView
-            android:id="@+id/tvCardTag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="Ceza Hukuku"
-            android:textColor="@color/accent_primary"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:background="@drawable/bg_pill_accent"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp" />
-
-        <!-- Title -->
-        <TextView
-            android:id="@+id/tvCardTitle"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvCardTag"
-            android:layout_marginTop="8dp"
-            tools:text="Kasten Adam Öldürmeye Teşebbüs"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <!-- Preview Text -->
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_icon_tile"
+                android:importantForAccessibility="no"
+                android:padding="10dp"
+                android:src="@drawable/ic_nav_cases"
+                app:tint="@color/accent_primary" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvCardTag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/accent_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    tools:text="Ceza Hukuku" />
+
+                <TextView
+                    android:id="@+id/tvCardTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/text_primary"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    tools:text="Kasten Adam Öldürmeye Teşebbüs" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron"
+                app:tint="@color/text_muted" />
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tvCardPreview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvCardTitle"
-            android:layout_marginTop="6dp"
-            tools:text="Sanık, tartışma sonrasında katılanı bıçakla yaralamıştır..."
+            android:layout_marginTop="12dp"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.15"
+            android:maxLines="3"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp"
-            android:lineSpacingMultiplier="1.1" />
+            android:textSize="14sp"
+            tools:text="Sanık, tartışma sonrasında katılanı bıçakla yaralamıştır..." />
 
-        <!-- Metadata row -->
         <LinearLayout
             android:id="@+id/metaRow"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvCardPreview"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="14dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <!-- Ref -->
-            <TextView
-                android:id="@+id/tvCardRef"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="📋 TCK m.81"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp"
-                android:layout_marginEnd="16dp" />
+                android:background="@drawable/bg_chip_neutral"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:layout_marginEnd="8dp">
 
-            <!-- Duration -->
-            <TextView
-                android:id="@+id/tvCardDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="⏱ ~15 dk"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp"
-                android:layout_marginEnd="16dp" />
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_doc"
+                    app:tint="@color/text_muted" />
 
-            <!-- Difficulty -->
-            <TextView
-                android:id="@+id/tvCardDifficulty"
+                <TextView
+                    android:id="@+id/tvCardRef"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:maxWidth="150dp"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    tools:text="TCK m.81" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="📊 Orta"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp" />
+                android:background="@drawable/bg_chip_neutral"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:layout_marginEnd="8dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_schedule"
+                    app:tint="@color/text_muted" />
+
+                <TextView
+                    android:id="@+id/tvCardDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    tools:text="~15 dk" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_chip_neutral"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_bars"
+                    app:tint="@color/text_muted" />
+
+                <TextView
+                    android:id="@+id/tvCardDifficulty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    tools:text="Orta" />
+            </LinearLayout>
         </LinearLayout>
-
-        <!-- Arrow icon -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignBottom="@id/metaRow"
-            android:text="→"
-            android:textColor="@color/text_muted"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-    </RelativeLayout>
-</androidx.cardview.widget.CardView>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

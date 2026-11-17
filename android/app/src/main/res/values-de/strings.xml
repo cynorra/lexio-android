@@ -109,7 +109,7 @@
     <string name="study_portal_heading">Vertiefe dein Rechtswissen</string>
     <string name="study_portal_subheading">Jeden Tag eine neue Lektion zur Verfassung und den Rechtsgrundsätzen deines gewählten Landes. Teste dich am Ende jeder Einheit.</string>
     <string name="study_card_read_more">Lesen →</string>
-    <string name="study_card_read_time">⏱ %1$d Min. Lesezeit</string>
+    <string name="study_card_read_time">%1$d Min. Lesezeit</string>
     <string name="study_detail_back">← Zurück zu den Lektionen</string>
     <string name="workspace_header_label">Arbeitsbereiche</string>
     <string name="workspace_eyebrow">Fokusgruppen</string>

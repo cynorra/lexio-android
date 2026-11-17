@@ -109,7 +109,7 @@
     <string name="study_portal_heading">Hukuk Bilgini Geliştir</string>
     <string name="study_portal_subheading">Seçtiğin ülkenin anayasasından ve temel hukuk kurallarından her gün yeni bir ders. Her dersin sonunda kendini test et.</string>
     <string name="study_card_read_more">Oku →</string>
-    <string name="study_card_read_time">⏱ %1$d dk okuma</string>
+    <string name="study_card_read_time">%1$d dk okuma</string>
     <string name="study_detail_back">← Derslere Dön</string>
 
     <!-- Workspace -->
