@@ -518,3 +518,31 @@ class TopicPoolTests(unittest.TestCase):
         g.CURRICULUM["ZZ"] = [(f"dyn-zz-{i}", f"T{i}", "a") for i in range(g.MAX_DYNAMIC_TOPICS)]
         g.call_json = lambda *a, **k: self.fail("must not ask the model when the pool is full")
         self.assertEqual([], g.discover_topics("ZZ", None, None, "2026-01-01", 2))
+
+
+class StudyPlanTests(unittest.TestCase):
+    def setUp(self):
+        self._saved = dict(g.CURRICULUM)
+
+    def tearDown(self):
+        g.CURRICULUM.clear()
+        g.CURRICULUM.update(self._saved)
+
+    def test_every_topic_is_reached_even_when_the_pool_size_is_a_multiple_of_three(self):
+        g.CURRICULUM["ZZ"] = [(f"zz-{i}", f"T{i}", "a") for i in range(33)]
+        catalog, seen = {}, set()
+        for day in range(33):
+            date = dt.date(2026, 1, 1) + dt.timedelta(days=day)
+            first = g.plan_study_topics("ZZ", [date], catalog)[date][0]
+            seen.add(first[0])
+            catalog[first[0]] = day  # published that day
+        self.assertEqual(33, len(seen))  # the old day*3 rule reached only 11
+
+    def test_missing_lessons_come_first_then_the_oldest(self):
+        g.CURRICULUM["ZZ"] = [(f"zz-{i}", f"T{i}", "a") for i in range(6)]
+        catalog = {"zz-0": 50, "zz-1": 10, "zz-2": 30, "zz-3": 20, "zz-4": 40}  # zz-5 has no lesson yet
+        plan = g.plan_study_topics("ZZ", [dt.date(2026, 1, 1), dt.date(2026, 1, 2)], catalog, fallbacks=2)
+        first_two = [plan[dt.date(2026, 1, 1)][0][0], plan[dt.date(2026, 1, 2)][0][0]]
+        self.assertEqual(["zz-5", "zz-1"], first_two)
+        all_picks = [t[0] for cands in plan.values() for t in cands]
+        self.assertEqual(len(all_picks), len(set(all_picks)))  # days and fallbacks never share a topic

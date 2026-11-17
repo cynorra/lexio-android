@@ -29,6 +29,10 @@ on:
         description: 'Only audit the stored content (read-only): does the app get valid quizzes and study sets?'
         type: boolean
         default: false
+      days_back:
+        description: 'Days to backfill (empty = 3). A larger value (e.g. 12) fills the study library with new lessons; costs Gemini quota'
+        required: false
+        default: ''
       min_interval:
         description: 'Seconds between model calls (empty = 4; use 0 on a paid key)'
         required: false
@@ -81,6 +85,7 @@ jobs:
           QUIZGEN_MODEL: ${{ inputs.model }}
           QUIZGEN_VERIFY_MODEL: ${{ inputs.verify_model }}
           QUIZGEN_MIN_INTERVAL: ${{ inputs.min_interval }}
+          DAYS_BACK: ${{ inputs.days_back }}
           CHECK_ONLY: ${{ inputs.check_only }}
           FORCE: ${{ inputs.force }}
         run: |
@@ -92,6 +97,7 @@ jobs:
             # Default focus: US, UK and Turkey, with the exams of those markets.
             ARGS="$ARGS --countries US,UK,TR --exams ${EXAMS:-us-ube,us-mbe,us-mpre,us-calbar,uk-sqe1,tr-hmgs,tr-hakim-savci}"
           fi
+          if [ -n "$DAYS_BACK" ]; then ARGS="$ARGS --days-back $DAYS_BACK"; fi
           if [ "$FORCE" = "true" ]; then ARGS="$ARGS --force"; fi
           if [ "$CHECK_ONLY" = "true" ]; then ARGS="$ARGS --check"; fi
           python generate.py $ARGS

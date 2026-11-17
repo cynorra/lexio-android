@@ -847,8 +847,27 @@ def topics_for_day(country, date, count):
     return [topics[(base + k) % len(topics)] for k in range(count)]
 
 
+STUDY_PLAN = {}  # (country, date) -> candidate topics for that day's study set (see plan_study_topics)
+
+
+def plan_study_topics(key, dates, catalog, fallbacks=STUDY_TOPIC_FALLBACKS):
+    """Study sets are stored per topic, so a topic that is picked again overwrites its older lesson. Old rule: topic
+    index = day*3 + 1 (mod pool size); with a pool size divisible by 3 that only ever reached a third of the topics
+    (US: 11 lessons in total). Now each day gets the topic whose lesson is missing, else the oldest one; the days of one
+    run get different topics. catalog: {slug: publishedAt}. Returns {date: [candidate topics]}, best first."""
+    ranked = sorted(CURRICULUM[key], key=lambda t: (catalog.get(t[0], -1), _variety(t[0], "study")))
+    days = sorted(dates)
+    plan = {}
+    for i, date in enumerate(days):
+        plan[date] = [ranked[(i + k * len(days)) % len(ranked)] for k in range(fallbacks)]
+    return plan
+
+
 def study_topic_candidates(country, date):
     """The day's study topic first, then the next ones in the curriculum as fallbacks."""
+    planned = STUDY_PLAN.get((country, date))
+    if planned:
+        return planned
     topics = CURRICULUM[country]
     start = (day_number(date) * 3 + 1) % len(topics)
     return [topics[(start + k) % len(topics)] for k in range(STUDY_TOPIC_FALLBACKS)]
@@ -1155,6 +1174,12 @@ class Store:
             cache[country] = items
         return cache[country]
 
+    def study_catalog(self, country):
+        """{slug: publishedAt} of every stored study set of the country."""
+        if self.dry_run or self.db is None:
+            return {}
+        return {d.id: (d.to_dict() or {}).get("publishedAt", 0) for d in self.sets_ref(country).select(["publishedAt"]).stream()}
+
     def dynamic_topics(self, key):
         """Topics the generator added itself (topicPool/{key}/topics), oldest first: [(slug, title, anchor)]."""
         if self.dry_run or self.db is None:
@@ -1421,6 +1446,13 @@ def main():
         if missing:
             for d, chosen in plan_quiz_topics(key, missing, store.recent_questions(key)).items():
                 QUIZ_PLAN[(key, d)] = chosen
+
+    for country in countries:
+        dates = [today + dt.timedelta(days=o) for o in range(-args.days_back, 1)]
+        missing = [d for d in dates if args.force or store.get_study_for(country, d) is None]
+        if missing:
+            for d, candidates in plan_study_topics(country, missing, store.study_catalog(country)).items():
+                STUDY_PLAN[(country, d)] = candidates
 
     jobs = []
     for country in countries:
