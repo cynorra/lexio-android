@@ -48,24 +48,24 @@
     <string name="case_evidence_header">Case Evidence</string>
     <string name="case_detail_role_header">Choose Your Role in the Trial</string>
     <string name="case_detail_role_prompt">Which side will you argue? AI will represent the other party.</string>
-    <string name="case_detail_defense_title">⚖️ Defense Counsel (Advocate)</string>
+    <string name="case_detail_defense_title">Defense Counsel (Advocate)</string>
     <string name="case_detail_defense_desc">Defend your client, raise reasonable doubt, and argue for acquittal or favorable statutes.</string>
-    <string name="case_detail_prosecution_title">🔍 Prosecutor (Public Prosecution)</string>
+    <string name="case_detail_prosecution_title">Prosecutor (Public Prosecution)</string>
     <string name="case_detail_prosecution_desc">Represent the public, prove the elements of the offense, and seek the harshest applicable sentence.</string>
-    <string name="role_defense">⚖️ Defense Counsel</string>
-    <string name="role_prosecution">🔍 Prosecutor</string>
-    <string name="btn_choose_defense">⚖️ Start as Defense Counsel</string>
-    <string name="btn_choose_prosecution">🔍 Start as Prosecutor</string>
+    <string name="role_defense">Defense Counsel</string>
+    <string name="role_prosecution">Prosecutor</string>
+    <string name="btn_choose_defense">Start as Defense Counsel</string>
+    <string name="btn_choose_prosecution">Start as Prosecutor</string>
     <string name="btn_back">Back</string>
     <string name="btn_exit_simulation">↩ Exit</string>
     <string name="verdict_declared">Verdict Announced</string>
     <string name="trial_completed">Trial completed. The court has rendered its final verdict.</string>
-    <string name="judge_verdict_header">⚖️ Judge\'s Verdict</string>
+    <string name="judge_verdict_header">Judge\'s Verdict</string>
     <string name="sim_step_suffix">. Stage: </string>
     <string name="sim_typing_text">Opposing party is preparing a response…</string>
     <string name="sim_input_label">Stage Title</string>
-    <string name="sim_hint_text">💡 Choose the option with the strongest legal reasoning to win the case.</string>
-    <string name="verdict_card_header">⚖️ COURT VERDICT</string>
+    <string name="sim_hint_text">Choose the option with the strongest legal reasoning to win the case.</string>
+    <string name="verdict_card_header">COURT VERDICT</string>
     <string name="verdict_card_subheader">VERDICT AND RATIONALE</string>
     <string name="verdict_performance_header">Your Performance Evaluation</string>
     <string name="metric_legal_analysis">Legal Analysis</string>
@@ -89,15 +89,15 @@
     <string name="feed_time_hours">%1$d h ago</string>
     <string name="feed_time_days">%1$d d ago</string>
     <string name="feed_time_weeks">%1$d w ago</string>
-    <string name="feed_likes_count">❤️ %1$d Likes</string>
-    <string name="feed_comments_count">💬 %1$d Comments</string>
+    <string name="feed_likes_count">%1$d Likes</string>
+    <string name="feed_comments_count">%1$d Comments</string>
 
     <!-- Daily Quiz -->
     <string name="daily_quiz_screen_title">Daily Law Quiz</string>
     <string name="quiz_back_btn">← Back</string>
-    <string name="quiz_explanation_header">💡 Legal Explanation</string>
+    <string name="quiz_explanation_header">Legal Explanation</string>
     <string name="btn_next_question">Next Question →</string>
-    <string name="quiz_streak_badge">🔥 %1$d Day Streak</string>
+    <string name="quiz_streak_badge">%1$d Day Streak</string>
     <string name="quiz_question_num">Question %1$d / %2$d</string>
     <string name="quiz_completed_toast">Congratulations! Daily quiz completed (+%1$d points)</string>
     <string name="quiz_correct_prefix">✅ Correct! </string>
@@ -135,15 +135,15 @@
     <string name="profile_score_label">Total Score</string>
     <string name="profile_cases_label">Solved Cases</string>
     <string name="profile_jurisdiction_label">Legal System / Jurisdiction</string>
-    <string name="profile_badges_header">🏆 Achievements &amp; Badges</string>
+    <string name="profile_badges_header">Achievements &amp; Badges</string>
     <string name="dark_theme_label">Dark Theme</string>
     <string name="language_label">App Language / Dil</string>
     <string name="language_turkish">Türkçe 🇹🇷</string>
     <string name="language_english">English 🇬🇧</string>
     <string name="btn_sign_out">Sign Out</string>
-    <string name="btn_share_instagram">📸 Share on Instagram Story</string>
-    <string name="instagram_handle_placeholder">📸 Add Instagram</string>
-    <string name="instagram_handle_prefix">📸 @%1$s</string>
+    <string name="btn_share_instagram">Share on Instagram Story</string>
+    <string name="instagram_handle_placeholder">Add Instagram</string>
+    <string name="instagram_handle_prefix">@%1$s</string>
     <string name="instagram_handle_dialog_title">Instagram Handle</string>
     <string name="instagram_handle_dialog_message">Enter the Instagram handle to show on your profile and shares:</string>
     <string name="instagram_handle_hint">@username</string>
@@ -158,11 +158,11 @@
     <string name="jurisdiction_us">🇺🇸 USA (US Code)</string>
     <string name="jurisdiction_uk">🇬🇧 UK (Common Law)</string>
     <string name="jurisdiction_de">🇩🇪 Germany (BGB/StGB)</string>
-    <string name="rank_supreme_justice">👑 Supreme Justice</string>
-    <string name="rank_senior_judge">⚖️ Senior Judge</string>
-    <string name="rank_specialist_attorney">🥇 Specialist Attorney</string>
-    <string name="rank_legal_intern">🥈 Legal Intern</string>
-    <string name="rank_law_student">🥉 Law Student</string>
+    <string name="rank_supreme_justice">Supreme Justice</string>
+    <string name="rank_senior_judge">Senior Judge</string>
+    <string name="rank_specialist_attorney">Specialist Attorney</string>
+    <string name="rank_legal_intern">Legal Intern</string>
+    <string name="rank_law_student">Law Student</string>
 
     <!-- Opponent / trial roles (used regardless of case jurisdiction) -->
     <string name="opponent_prosecutor">Prosecutor</string>
@@ -250,7 +250,7 @@
     <string name="exam_loading">Loading the exam quiz…</string>
     <string name="exam_load_failed">Couldn\'t load the exam quiz. Check your connection and tap to retry.</string>
     <string name="exam_done_toast">Exam quiz finished: %1$d/%2$d correct</string>
-    <string name="exam_result_today">✅ Today\'s result: %1$d/%2$d correct</string>
+    <string name="exam_result_today">Today\'s result: %1$d/%2$d correct</string>
 
     <!-- Home hero / extra practice -->
     <string name="hero_daily_new">New today</string>

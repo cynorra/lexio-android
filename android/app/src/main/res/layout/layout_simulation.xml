@@ -62,8 +62,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="none"
-        android:background="@color/card_bg"
-        android:paddingVertical="10dp"
+        android:background="@color/bg_dark"
+        android:paddingVertical="8dp"
         android:paddingHorizontal="12dp">
 
         <LinearLayout
@@ -127,9 +127,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/card_bg"
-        android:padding="16dp"
-        android:elevation="4dp">
+        android:background="@drawable/bg_sheet_top"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="12dp"
+        android:elevation="8dp">
 
         <TextView
             android:id="@+id/tvInputLabel"

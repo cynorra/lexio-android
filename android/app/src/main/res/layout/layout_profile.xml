@@ -115,7 +115,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="14dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -145,22 +148,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="24dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
                 android:gravity="center">
                 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="4dp"
+                    android:background="@drawable/bg_card_round"
+                    android:paddingVertical="18dp"
                     android:orientation="vertical"
-                    android:gravity="center"
-                    android:layout_marginEnd="32dp">
+                    android:gravity="center">
                     <TextView
                         android:id="@+id/tvTotalScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/accent_primary"
-                        android:textSize="24sp"
+                        android:textSize="28sp"
                         android:textStyle="bold"/>
                     <TextView
                         android:layout_width="wrap_content"
@@ -171,8 +178,12 @@
                 </LinearLayout>
                 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="4dp"
+                    android:background="@drawable/bg_card_round"
+                    android:paddingVertical="18dp"
                     android:orientation="vertical"
                     android:gravity="center">
                     <TextView
@@ -181,7 +192,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/accent_primary"
-                        android:textSize="24sp"
+                        android:textSize="28sp"
                         android:textStyle="bold"/>
                     <TextView
                         android:layout_width="wrap_content"
@@ -216,18 +227,16 @@
                     android:nestedScrollingEnabled="false" />
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/card_border"
-                android:layout_marginHorizontal="24dp"
-                android:layout_marginTop="16dp"/>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="16dp">
                 
                 <TextView
@@ -250,7 +259,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="16dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -282,7 +294,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="16dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -301,7 +316,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="16dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -321,7 +339,10 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="12dp">
 
                 <TextView
@@ -344,7 +365,10 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="16dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -371,7 +395,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="16dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -391,7 +418,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_card_round"
+                android:paddingHorizontal="18dp"
                 android:paddingVertical="16dp"
                 android:clickable="true"
                 android:focusable="true"

@@ -86,22 +86,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                app:cardBackgroundColor="@color/card_bg"
-                app:cardCornerRadius="18dp"
-                app:strokeColor="@color/accent_primary"
-                app:strokeWidth="1dp">
+                app:cardBackgroundColor="@color/transparent"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/bg_hero"
                     android:orientation="vertical"
-                    android:padding="18dp">
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:background="@drawable/bg_glass"
+                        android:importantForAccessibility="no"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_school"
+                        app:tint="#FDBA74" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
                         android:text="@string/exam_selected_label"
-                        android:textColor="@color/text_muted"
+                        android:textColor="#B6C4E0"
                         android:textSize="12sp" />
 
                     <TextView
@@ -109,36 +120,48 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:textColor="@color/text_primary"
-                        android:textSize="18sp"
+                        android:textColor="@color/white"
+                        android:textSize="22sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvExamResult"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textColor="@color/defense_green"
-                        android:textSize="13sp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/bg_chip_done"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:textColor="#34D399"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
                         android:visibility="gone" />
 
                     <Button
                         android:id="@+id/btnStartExamQuiz"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="18dp"
                         android:backgroundTint="@color/accent_primary"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
                         android:text="@string/exam_start_btn"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        app:cornerRadius="16dp" />
 
                     <Button
                         android:id="@+id/btnChangeExam"
                         style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="52dp"
                         android:layout_marginTop="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
                         android:text="@string/exam_change_btn"
-                        android:textColor="@color/text_primary" />
+                        android:textColor="@color/white"
+                        app:cornerRadius="16dp"
+                        app:strokeColor="#55FFFFFF" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

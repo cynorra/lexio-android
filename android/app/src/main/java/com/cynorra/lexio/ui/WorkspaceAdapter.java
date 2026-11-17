@@ -34,7 +34,6 @@ public class WorkspaceAdapter extends RecyclerView.Adapter<WorkspaceAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Workspace ws = workspaces.get(position);
-        holder.tvWorkspaceIcon.setText(ws.getIconEmoji());
         holder.tvWorkspaceName.setText(ws.getName());
         holder.tvWorkspaceDesc.setText(ws.getDescription());
         holder.tvMemberCount.setText(holder.itemView.getContext().getString(R.string.workspace_member_count, ws.getMemberCount()));
@@ -52,7 +51,8 @@ public class WorkspaceAdapter extends RecyclerView.Adapter<WorkspaceAdapter.View
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvWorkspaceIcon, tvWorkspaceName, tvWorkspaceDesc, tvMemberCount;
+        android.widget.ImageView tvWorkspaceIcon;
+        TextView tvWorkspaceName, tvWorkspaceDesc, tvMemberCount;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

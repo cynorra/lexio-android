@@ -48,24 +48,24 @@
     <string name="case_evidence_header">Dosyadaki Deliller</string>
     <string name="case_detail_role_header">Duruşmadaki Rolünüzü Seçin</string>
     <string name="case_detail_role_prompt">Hangi tarafın savunmasını üstleneceksiniz? AI diğer tarafı temsil edecektir.</string>
-    <string name="case_detail_defense_title">⚖️ Savunma Avukatı (Müdafi)</string>
+    <string name="case_detail_defense_title">Savunma Avukatı (Müdafi)</string>
     <string name="case_detail_defense_desc">Müvekkilinizi savunun, şüpheleri ortaya koyun ve beraat veya lehe kanun maddeleri talep edin.</string>
-    <string name="case_detail_prosecution_title">🔍 Savcı (İddia Makamı)</string>
+    <string name="case_detail_prosecution_title">Savcı (İddia Makamı)</string>
     <string name="case_detail_prosecution_desc">Kamuyu savunun, suçun unsurlarını ispat edin ve sanığın en ağır cezayla cezalandırılmasını isteyin.</string>
-    <string name="role_defense">⚖️ Savunma Avukatı</string>
-    <string name="role_prosecution">🔍 Savcı</string>
-    <string name="btn_choose_defense">⚖️ Savunma Avukatı Olarak Başla</string>
-    <string name="btn_choose_prosecution">🔍 Savcı Olarak Başla</string>
+    <string name="role_defense">Savunma Avukatı</string>
+    <string name="role_prosecution">Savcı</string>
+    <string name="btn_choose_defense">Savunma Avukatı Olarak Başla</string>
+    <string name="btn_choose_prosecution">Savcı Olarak Başla</string>
     <string name="btn_back">Geri</string>
     <string name="btn_exit_simulation">↩ Çıkış</string>
     <string name="verdict_declared">Karar Açıklandı</string>
     <string name="trial_completed">Duruşma tamamlandı. Mahkeme nihai hükmünü vermiştir.</string>
-    <string name="judge_verdict_header">⚖️ Hakim Kararı</string>
+    <string name="judge_verdict_header">Hakim Kararı</string>
     <string name="sim_step_suffix">. Aşama: </string>
     <string name="sim_typing_text">Karşı taraf yanıt hazırlıyor…</string>
     <string name="sim_input_label">Aşama Başlığı</string>
-    <string name="sim_hint_text">💡 Davayı kazanmak için en doğru hukuki gerekçeleri barındıran seçeneği belirleyin.</string>
-    <string name="verdict_card_header">⚖️ MAHKEME KARARI</string>
+    <string name="sim_hint_text">Davayı kazanmak için en doğru hukuki gerekçeleri barındıran seçeneği belirleyin.</string>
+    <string name="verdict_card_header">MAHKEME KARARI</string>
     <string name="verdict_card_subheader">KARAR VE GEREKÇESİ</string>
     <string name="verdict_performance_header">Performans Değerlendirmeniz</string>
     <string name="metric_legal_analysis">Hukuki Analiz</string>
@@ -89,15 +89,15 @@
     <string name="feed_time_hours">%1$d sa önce</string>
     <string name="feed_time_days">%1$d gün önce</string>
     <string name="feed_time_weeks">%1$d hafta önce</string>
-    <string name="feed_likes_count">❤️ %1$d Beğeni</string>
-    <string name="feed_comments_count">💬 %1$d Yorum</string>
+    <string name="feed_likes_count">%1$d Beğeni</string>
+    <string name="feed_comments_count">%1$d Yorum</string>
 
     <!-- Daily Quiz -->
     <string name="daily_quiz_screen_title">Günlük Hukuk Testi</string>
     <string name="quiz_back_btn">← Geri</string>
-    <string name="quiz_explanation_header">💡 Hukuki Açıklama</string>
+    <string name="quiz_explanation_header">Hukuki Açıklama</string>
     <string name="btn_next_question">Sonraki Soru →</string>
-    <string name="quiz_streak_badge">🔥 %1$d Gün Seri</string>
+    <string name="quiz_streak_badge">%1$d Gün Seri</string>
     <string name="quiz_question_num">Soru %1$d / %2$d</string>
     <string name="quiz_completed_toast">Tebrikler! Günlük test tamamlandı (+%1$d Puan)</string>
     <string name="quiz_correct_prefix">✅ Doğru! </string>
@@ -135,7 +135,7 @@
     <string name="profile_score_label">Toplam Puan</string>
     <string name="profile_cases_label">Çözülen Dava</string>
     <string name="profile_jurisdiction_label">Hukuk Sistemi / Jurisdiction</string>
-    <string name="profile_badges_header">🏆 Başarımlar &amp; Rozetler</string>
+    <string name="profile_badges_header">Başarımlar &amp; Rozetler</string>
     <string name="dark_theme_label">Karanlık Tema</string>
     <string name="language_label">Uygulama Dili / Language</string>
     <string name="language_turkish">Türkçe 🇹🇷</string>
@@ -145,9 +145,9 @@
     <string name="language_spanish" translatable="false">Español 🇪🇸</string>
     <string name="language_italian" translatable="false">Italiano 🇮🇹</string>
     <string name="btn_sign_out">Çıkış Yap</string>
-    <string name="btn_share_instagram">📸 Instagram Hikayede Paylaş</string>
-    <string name="instagram_handle_placeholder">📸 Instagram Ekleyin</string>
-    <string name="instagram_handle_prefix">📸 @%1$s</string>
+    <string name="btn_share_instagram">Instagram Hikayede Paylaş</string>
+    <string name="instagram_handle_placeholder">Instagram Ekleyin</string>
+    <string name="instagram_handle_prefix">@%1$s</string>
     <string name="instagram_handle_dialog_title">Instagram Kullanıcı Adı</string>
     <string name="instagram_handle_dialog_message">Profilinizde ve paylaşımlarınızda görünecek Instagram kullanıcı adınızı girin:</string>
     <string name="instagram_handle_hint">@kullaniciadi</string>
@@ -162,11 +162,11 @@
     <string name="jurisdiction_us">🇺🇸 ABD (US Code)</string>
     <string name="jurisdiction_uk">🇬🇧 İngiltere (Common Law)</string>
     <string name="jurisdiction_de">🇩🇪 Almanya (BGB/StGB)</string>
-    <string name="rank_supreme_justice">👑 Yargıtay Hakimi</string>
-    <string name="rank_senior_judge">⚖️ Ağır Ceza Reisi</string>
-    <string name="rank_specialist_attorney">🥇 Uzman Avukat</string>
-    <string name="rank_legal_intern">🥈 Stajyer Avukat</string>
-    <string name="rank_law_student">🥉 Hukuk Öğrencisi</string>
+    <string name="rank_supreme_justice">Yargıtay Hakimi</string>
+    <string name="rank_senior_judge">Ağır Ceza Reisi</string>
+    <string name="rank_specialist_attorney">Uzman Avukat</string>
+    <string name="rank_legal_intern">Stajyer Avukat</string>
+    <string name="rank_law_student">Hukuk Öğrencisi</string>
 
     <!-- Opponent / trial roles (used regardless of case jurisdiction) -->
     <string name="opponent_prosecutor">Savcı</string>
@@ -254,7 +254,7 @@
     <string name="exam_loading">Sınav testi yükleniyor…</string>
     <string name="exam_load_failed">Sınav testi yüklenemedi. Bağlantını kontrol et, tekrar denemek için dokun.</string>
     <string name="exam_done_toast">Sınav testi tamamlandı: %1$d/%2$d doğru</string>
-    <string name="exam_result_today">✅ Bugünkü sonucun: %1$d/%2$d doğru</string>
+    <string name="exam_result_today">Bugünkü sonucun: %1$d/%2$d doğru</string>
 
     <!-- Home hero / extra practice -->
     <string name="hero_daily_new">Bugün yeni</string>

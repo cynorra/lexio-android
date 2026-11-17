@@ -201,8 +201,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 h.container.setGravity(Gravity.END);
                 h.tvSender.setVisibility(View.GONE); // Hide sender label for user's own chat bubbles
                 h.cardView.setCardBackgroundColor(ContextCompat.getColor(h.itemView.getContext(), R.color.accent_primary));
-                h.tvText.setTextColor(ContextCompat.getColor(h.itemView.getContext(), R.color.bg_dark));
+                h.tvText.setTextColor(ContextCompat.getColor(h.itemView.getContext(), R.color.white));
                 h.cardView.setStrokeColor(ContextCompat.getColorStateList(h.itemView.getContext(), R.color.accent_primary));
+                bubbleShape(h.cardView, true);
             } else {
                 h.container.setGravity(Gravity.START);
                 h.tvSender.setVisibility(View.VISIBLE);
@@ -210,6 +211,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 h.cardView.setCardBackgroundColor(ContextCompat.getColor(h.itemView.getContext(), R.color.card_bg));
                 h.tvText.setTextColor(ContextCompat.getColor(h.itemView.getContext(), R.color.text_primary));
                 h.cardView.setStrokeColor(ContextCompat.getColorStateList(h.itemView.getContext(), R.color.card_border));
+                bubbleShape(h.cardView, false);
             }
         }
 
@@ -219,6 +221,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else {
             holder.itemView.clearAnimation();
         }
+    }
+
+    /** Chat-style bubble: all corners round except the one pointing at the speaker. */
+    private static void bubbleShape(MaterialCardView card, boolean user) {
+        float r = 20 * card.getResources().getDisplayMetrics().density;
+        float tail = 5 * card.getResources().getDisplayMetrics().density;
+        com.google.android.material.shape.ShapeAppearanceModel.Builder b = card.getShapeAppearanceModel().toBuilder()
+                .setAllCornerSizes(r);
+        if (user) b.setBottomRightCornerSize(tail); else b.setBottomLeftCornerSize(tail);
+        card.setShapeAppearanceModel(b.build());
     }
 
     @Override

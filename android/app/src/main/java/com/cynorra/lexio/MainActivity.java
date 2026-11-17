@@ -1083,15 +1083,25 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 View v = llSteps.getChildAt(i);
                 if (!(v instanceof TextView)) continue;
                 TextView tv = (TextView) v;
-                if (tv.getText().toString().equals(" → ")) continue;
+                if (tv.getText().toString().equals(" → ")) {
+                    tv.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
+                    continue;
+                }
 
+                float d = getResources().getDisplayMetrics().density;
+                tv.setPadding((int) (12 * d), (int) (5 * d), (int) (12 * d), (int) (5 * d));
+                tv.setTextSize(12);
                 if (stepNumber == activeIndex) {
-                    tv.setTextColor(ContextCompat.getColor(this, R.color.accent_primary));
+                    tv.setBackgroundResource(R.drawable.bg_step_active);
+                    tv.setTextColor(ContextCompat.getColor(this, R.color.white));
+                    tv.setTypeface(null, android.graphics.Typeface.BOLD);
                 } else if (stepNumber < activeIndex) {
+                    tv.setBackgroundResource(R.drawable.bg_chip_done);
                     tv.setTextColor(ContextCompat.getColor(this, R.color.defense_green));
                     String plain = tv.getText().toString().replaceAll("^[✓0-9.]+\\s*", "");
                     tv.setText("✓ " + plain);
                 } else {
+                    tv.setBackgroundResource(R.drawable.bg_chip_neutral);
                     tv.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
                 }
                 stepNumber++;
