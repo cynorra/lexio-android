@@ -224,4 +224,36 @@
     <string name="hero_cta_practice">Práctica extra</string>
     <string name="practice_title">Práctica extra</string>
     <string name="practice_done_toast">Práctica terminada: %1$d / %2$d correctas</string>
+
+    <!-- Hardcoded text moved out of code / viral sharing -->
+    <string name="badge_first_win_title">Primera victoria</string>
+    <string name="badge_first_win_desc">Completa tu primera simulación judicial.</string>
+    <string name="badge_streak_3_title">Maestro de rachas</string>
+    <string name="badge_streak_3_desc">Completa el test diario 3 días seguidos.</string>
+    <string name="badge_score_500_title">Abogado impecable</string>
+    <string name="badge_score_500_desc">Alcanza 500 puntos de carrera.</string>
+    <string name="badge_supreme_title">Magistrado supremo</string>
+    <string name="badge_supreme_desc">Supera los 1000 puntos y asciende al máximo tribunal.</string>
+    <string name="result_title_daily">Test diario completado</string>
+    <string name="result_title_practice">Práctica completada</string>
+    <string name="result_title_exam">Test de examen completado</string>
+    <string name="result_score">%1$d / %2$d correctas</string>
+    <string name="result_points">+%1$d puntos</string>
+    <string name="result_streak">Racha de %1$d días</string>
+    <string name="result_cta">¿Te superarán tus amigos? Comparte tu resultado y rétalos.</string>
+    <string name="btn_share_result">Compartir resultado</string>
+    <string name="btn_invite_friends">Invitar a un amigo</string>
+    <string name="btn_close">Cerrar</string>
+    <string name="share_card_cta">Pruébalo tú</string>
+    <string name="share_card_store">Lexio en Google Play</string>
+    <string name="share_card_subtitle">Test jurídico diario</string>
+    <string name="share_result_text">¡Saqué %1$d/%2$d en el test jurídico de hoy en Lexio!
+%3$s
+¿Puedes superarme? %4$s</string>
+    <string name="invite_text">La forma más divertida de aprender derecho: Lexio. Un test nuevo cada día, simulaciones judiciales y clasificaciones. Únete: %1$s</string>
+    <string name="invite_chooser">Invitar</string>
+    <string name="invite_leaderboard">Invita amigos y compitan en la clasificación</string>
+    <string name="settings_invite">Invitar amigos</string>
+    <string name="settings_rate">Valorar Lexio</string>
+    <string name="settings_version">Lexio %1$s</string>
 </resources>

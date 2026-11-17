@@ -267,4 +267,53 @@
     <string name="hero_cta_practice">Ek alıştırma</string>
     <string name="practice_title">Ek Alıştırma</string>
     <string name="practice_done_toast">Alıştırma bitti: %1$d / %2$d doğru</string>
+
+    <!-- Hardcoded text moved out of code / viral sharing -->
+    <string name="sim_case_summary">Vaka Özeti:</string>
+    <string name="sim_case_evidence">Dosyadaki Deliller:</string>
+    <string name="sim_verdict_title">Hakim Kararı</string>
+    <string name="sim_role_prosecutor">Savcı</string>
+    <string name="sim_role_defense">Savunma Avukatı</string>
+    <string name="sim_legal_basis">İlgili Mevzuat</string>
+    <string name="sim_stage_label">%1$d. Aşama: %2$s</string>
+    <string name="sim_step_verdict">Karar</string>
+    <string name="sim_verdict_announced">Karar Açıklandı</string>
+    <string name="sim_trial_completed">Duruşma tamamlandı. Mahkeme nihai hükmünü vermiştir.</string>
+    <string name="sim_metric_argument">Argüman Gücü</string>
+    <string name="sim_metric_evidence">Delil Kullanımı</string>
+    <string name="sim_metric_analysis">Hukuki Analiz</string>
+    <string name="sim_metric_statutory">Mevzuat Hakimiyeti</string>
+    <string name="sim_system_label">SİSTEM</string>
+    <string name="badge_first_win_title">İlk Zafer</string>
+    <string name="badge_first_win_desc">İlk mahkeme simülasyonunu başarıyla tamamla.</string>
+    <string name="badge_streak_3_title">Seri Üstadı</string>
+    <string name="badge_streak_3_desc">3 gün üst üste günlük testleri tamamla.</string>
+    <string name="badge_score_500_title">Kusursuz Müdafi</string>
+    <string name="badge_score_500_desc">Toplam 500 kariyer puanına ulaş.</string>
+    <string name="badge_supreme_title">Yargıtay Hakimi</string>
+    <string name="badge_supreme_desc">1000 puan barajını aşarak en üst makama yüksel.</string>
+    <string name="result_title_daily">Günlük test tamamlandı</string>
+    <string name="result_title_practice">Alıştırma tamamlandı</string>
+    <string name="result_title_exam">Sınav testi tamamlandı</string>
+    <string name="result_score">%1$d / %2$d doğru</string>
+    <string name="result_points">+%1$d puan</string>
+    <string name="result_streak">%1$d gün seri</string>
+    <string name="result_cta">Arkadaşların seni geçebilir mi? Sonucunu paylaş, onları da yarışa çağır.</string>
+    <string name="btn_share_result">Sonucu paylaş</string>
+    <string name="btn_invite_friends">Arkadaşını davet et</string>
+    <string name="btn_close">Kapat</string>
+    <string name="share_card_cta">Sen de dene</string>
+    <string name="share_card_store">Google Play\'de Lexio</string>
+    <string name="share_card_subtitle">Günlük Hukuk Testi</string>
+    <string name="share_result_text">Lexio günlük hukuk testinde %1$d/%2$d yaptım!
+%3$s
+Beni geçebilir misin? %4$s</string>
+    <string name="invite_text">Hukuku öğrenmenin en eğlenceli yolu: Lexio. Her gün yeni test, mahkeme simülasyonu ve sıralama. Gel, birlikte yarışalım: %1$s</string>
+    <string name="invite_chooser">Davet et</string>
+    <string name="invite_leaderboard">Arkadaşlarını davet et, sıralamada yarışın</string>
+    <string name="settings_invite">Arkadaşlarını davet et</string>
+    <string name="settings_rate">Lexio\'yu puanla</string>
+    <string name="settings_version">Lexio %1$s</string>
+    <string name="share_link_result" translatable="false">https://play.google.com/store/apps/details?id=com.cynorra.lexio&amp;referrer=utm_source%3Dapp%26utm_medium%3Dshare%26utm_campaign%3Dresult</string>
+    <string name="share_link_invite" translatable="false">https://play.google.com/store/apps/details?id=com.cynorra.lexio&amp;referrer=utm_source%3Dapp%26utm_medium%3Dshare%26utm_campaign%3Dinvite</string>
 </resources>

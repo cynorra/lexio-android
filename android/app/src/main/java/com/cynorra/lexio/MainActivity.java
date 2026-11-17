@@ -1,6 +1,7 @@
 package com.cynorra.lexio;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -66,6 +67,7 @@ import com.cynorra.lexio.ui.CasesAdapter;
 import com.cynorra.lexio.ui.ChatAdapter;
 import com.cynorra.lexio.ui.FeedAdapter;
 import com.cynorra.lexio.ui.LeaderboardAdapter;
+import com.cynorra.lexio.ui.ShareCard;
 import com.cynorra.lexio.ui.StudyAdapter;
 import com.cynorra.lexio.ui.WorkspaceAdapter;
 import com.google.android.gms.ads.AdRequest;
@@ -77,6 +79,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
@@ -136,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        installSimTexts();
 
         holder = new ViewModelProvider(this).get(StoreHolder.class);
         store = holder.store;
@@ -275,6 +279,16 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (store != null && store.getState().getActiveScreen() == AppState.Screen.CASE_LIST) {
             bindDailyHero(store.getState());
         }
+    }
+
+    /** Trial labels follow the case's language, so resolve them against an explicit tr/en configuration. */
+    private void installSimTexts() {
+        final Context appContext = getApplicationContext();
+        SimTexts.install((resId, turkish) -> {
+            Configuration cfg = new Configuration(appContext.getResources().getConfiguration());
+            cfg.setLocale(new Locale(turkish ? "tr" : "en"));
+            return appContext.createConfigurationContext(cfg).getString(resId);
+        });
     }
 
     private void registerBackHandler() {
@@ -989,7 +1003,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         View btnProsecution = findViewById(R.id.btnChooseProsecution);
 
         tvTitle.setText(c.getTitle());
-        String refLabel = c.usesTurkishUi() ? "İlgili Mevzuat" : "Legal Basis";
+        String refLabel = SimTexts.get(R.string.sim_legal_basis, c.usesTurkishUi());
         tvRef.setText(refLabel + " — " + c.getRef());
         tvFullText.setText(c.getFull());
 
@@ -1030,9 +1044,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         boolean simScreenIsTrCase = c.usesTurkishUi();
         boolean isDefense = "savunma".equalsIgnoreCase(state.getSelectedRole());
-        tvRoleBadge.setText(isDefense
-                ? (simScreenIsTrCase ? "⚖️ Savunma Avukatı" : "⚖️ Defense Counsel")
-                : (simScreenIsTrCase ? "🔍 Savcı" : "🔍 Prosecutor"));
+        tvRoleBadge.setText(SimTexts.get(isDefense ? R.string.sim_role_defense : R.string.sim_role_prosecutor, simScreenIsTrCase));
         tvRoleBadge.setTextColor(ContextCompat.getColor(this, isDefense ? R.color.defense_green : R.color.prosecution_red));
         tvRoleBadge.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_pill_accent));
 
@@ -1046,7 +1058,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         List<Case.TrialStep> steps = c.getTrialSteps();
         for (int i = 0; i < steps.size() + 1; i++) {
             TextView stepView = new TextView(this);
-            String name = (i < steps.size()) ? steps.get(i).getStepName() : (simScreenIsTrCase ? "Karar" : "Verdict");
+            String name = (i < steps.size()) ? steps.get(i).getStepName() : SimTexts.get(R.string.sim_step_verdict, simScreenIsTrCase);
             stepView.setText((i + 1) + ". " + name);
             stepView.setTextSize(12);
             stepView.setPadding(12, 6, 12, 6);
@@ -1119,8 +1131,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         if (activeIndex < trialSteps.size()) {
             Case.TrialStep currentTrialStep = trialSteps.get(activeIndex);
-            String stageLabel = simIsTrCase ? ". Aşama: " : ". Stage: ";
-            tvInputLabel.setText((activeIndex + 1) + stageLabel + currentTrialStep.getStepName());
+            tvInputLabel.setText(SimTexts.get(R.string.sim_stage_label, simIsTrCase, activeIndex + 1, currentTrialStep.getStepName()));
 
             boolean isDefense = "savunma".equalsIgnoreCase(state.getSelectedRole());
             List<Case.Choice> choices = isDefense ? currentTrialStep.getDefenseChoices() : currentTrialStep.getProsecutionChoices();
@@ -1130,11 +1141,9 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                 llChoices.addView(choiceBtn);
             }
         } else {
-            tvInputLabel.setText(simIsTrCase ? "Karar Açıklandı" : "Verdict Announced");
+            tvInputLabel.setText(SimTexts.get(R.string.sim_verdict_announced, simIsTrCase));
             TextView completedText = new TextView(this);
-            completedText.setText(simIsTrCase
-                    ? "Duruşma tamamlandı. Mahkeme nihai hükmünü vermiştir."
-                    : "Trial completed. The court has rendered its final verdict.");
+            completedText.setText(SimTexts.get(R.string.sim_trial_completed, simIsTrCase));
             completedText.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             completedText.setTextSize(13);
             completedText.setPadding(0, 12, 0, 12);
@@ -1281,6 +1290,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         bindLeaderboardTab(R.id.btnTabDaily, "daily");
         bindLeaderboardTab(R.id.btnTabWeekly, "weekly");
         bindLeaderboardTab(R.id.btnTabMonthly, "monthly");
+        View invite = findViewById(R.id.btnInviteLeaderboard);
+        if (invite != null) invite.setOnClickListener(v -> inviteFriends("leaderboard"));
 
         // The freshly inflated screen has no data yet; updateScreenState() loads it once.
         leaderboardLoadedInterval = null;
@@ -1513,6 +1524,20 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             tvInstagramHandle.setOnClickListener(v -> showInstagramDialog());
         }
 
+        View btnInvite = findViewById(R.id.btnInviteFriends);
+        if (btnInvite != null) btnInvite.setOnClickListener(v -> inviteFriends("settings"));
+        View btnRate = findViewById(R.id.btnRateApp);
+        if (btnRate != null) btnRate.setOnClickListener(v -> rateApp());
+        TextView tvVersion = findViewById(R.id.tvAppVersion);
+        if (tvVersion != null) {
+            try {
+                tvVersion.setText(getString(R.string.settings_version,
+                        getPackageManager().getPackageInfo(getPackageName(), 0).versionName));
+            } catch (PackageManager.NameNotFoundException ignored) {
+                tvVersion.setVisibility(View.GONE);
+            }
+        }
+
         View btnShare = findViewById(R.id.btnShareInstagramStory);
         if (btnShare != null) {
             btnShare.setOnClickListener(v -> {
@@ -1549,7 +1574,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (tvCasesSolved != null) tvCasesSolved.setText(String.valueOf(casesSolved));
 
         if (rvBadges != null) {
-            rvBadges.setAdapter(new BadgeAdapter(BadgeData.getAllBadges(score, state.getDailyStreak(), casesSolved)));
+            rvBadges.setAdapter(new BadgeAdapter(BadgeData.getAllBadges(this, score, state.getDailyStreak(), casesSolved)));
         }
 
         if (tvInstagramHandle != null) {
@@ -1660,6 +1685,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         if (streak != null) streak.setVisibility(examMode || holder.practice ? View.GONE : View.VISIBLE);
         // A fresh visit gets a fresh attempt at loading, even if the last one failed.
         holder.quizFailed = false;
+        holder.quizAnswers.clear();
 
         TextView status = findViewById(R.id.tvQuizStatus);
         if (status != null) {
@@ -1782,6 +1808,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
                 btn.setOnClickListener(v -> {
                     v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                    if (!answered) holder.quizAnswers.put(index, optionIndex == q.getCorrectIndex());
                     store.dispatch(AppEvent.quizAnswer(optionIndex, optionIndex == q.getCorrectIndex()));
                 });
                 llOptions.addView(btn);
@@ -1809,8 +1836,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                     if (store.getState().getActiveScreen() != AppState.Screen.DAILY_QUIZ) {
                         holder.practice = false;
                         Telemetry.event("practice_completed", "correct", correct);
-                        Toast.makeText(this, getString(R.string.practice_done_toast, correct, questions.size()),
-                                Toast.LENGTH_LONG).show();
+                        showResultSheet(R.string.result_title_practice, correct, questions.size(), 0, 0);
                     }
                     return;
                 }
@@ -1824,15 +1850,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
                     if (alreadyRewarded) {
                         Toast.makeText(this, getString(R.string.quiz_already_done_toast), Toast.LENGTH_LONG).show();
                     } else {
-                        // Offer to share the result: the cheapest way to bring a friend in.
+                        // The result sheet is the viral moment: score, Wordle-style pattern, share + invite.
                         final int streakDays = after.getDailyStreak();
                         Telemetry.event("daily_quiz_completed", "points", earned);
                         NotificationSettings.recordQuizCompletion(this);
                         LexioApplication.refreshReminder(this);
-                        Snackbar.make(findViewById(android.R.id.content),
-                                        getString(R.string.quiz_completed_toast, earned), Snackbar.LENGTH_LONG)
-                                .setAction(R.string.share_action, view -> shareQuizResult(earned, streakDays))
-                                .show();
+                        showResultSheet(R.string.result_title_daily, before.getQuizCorrect(), questions.size(), earned, streakDays);
                     }
                     maybeAskNotificationPermission();
                 }
@@ -1840,16 +1863,81 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
     }
 
-    private void shareQuizResult(int earned, int streakDays) {
-        Telemetry.event("share_quiz_result", "streak", streakDays);
-        String link = "https://play.google.com/store/apps/details?id=" + getPackageName();
-        String text = streakDays >= 2
-                ? getString(R.string.share_quiz_streak_text, earned, streakDays, link)
-                : getString(R.string.share_quiz_text, earned, link);
+    private List<Boolean> answerPattern(int total) {
+        List<Boolean> list = new ArrayList<>();
+        for (int i = 0; i < total; i++) list.add(holder.quizAnswers.get(i));
+        return list;
+    }
+
+    /** Wordle-style row for chat apps that can't show the picture: green / red / white squares. */
+    private static String emojiPattern(List<Boolean> answers) {
+        StringBuilder sb = new StringBuilder();
+        for (Boolean ok : answers) sb.append(ok == null ? "\u2B1C" : ok ? "\uD83D\uDFE9" : "\uD83D\uDFE5");
+        return sb.toString();
+    }
+
+    /** Bottom sheet after a finished test: the moment a user is proud enough to share. */
+    private void showResultSheet(int titleRes, int correct, int total, int earned, int streakDays) {
+        if (isUiGone()) return;
+        final List<Boolean> answers = answerPattern(total);
+        final String title = getString(R.string.share_card_subtitle);
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        View v = getLayoutInflater().inflate(R.layout.layout_result_sheet, null);
+        ((TextView) v.findViewById(R.id.tvResultTitle)).setText(titleRes);
+        ((TextView) v.findViewById(R.id.tvResultScore)).setText(getString(R.string.result_score, correct, total));
+        ((TextView) v.findViewById(R.id.tvResultPattern)).setText(emojiPattern(answers));
+        TextView points = v.findViewById(R.id.tvResultPoints);
+        TextView streak = v.findViewById(R.id.tvResultStreak);
+        points.setVisibility(earned > 0 ? View.VISIBLE : View.GONE);
+        points.setText(getString(R.string.result_points, earned));
+        streak.setVisibility(streakDays > 0 ? View.VISIBLE : View.GONE);
+        streak.setText(getString(R.string.result_streak, streakDays));
+        v.findViewById(R.id.btnResultShare).setOnClickListener(b -> {
+            shareResult(title, correct, total, streakDays, answers);
+            dialog.dismiss();
+        });
+        v.findViewById(R.id.btnResultInvite).setOnClickListener(b -> {
+            inviteFriends("result_sheet");
+            dialog.dismiss();
+        });
+        v.findViewById(R.id.btnResultClose).setOnClickListener(b -> dialog.dismiss());
+        dialog.setContentView(v);
+        dialog.show();
+    }
+
+    private void shareResult(String title, int correct, int total, int streakDays, List<Boolean> answers) {
+        Telemetry.event("share_result", "score", correct);
+        String text = getString(R.string.share_result_text, correct, total, emojiPattern(answers),
+                getString(R.string.share_link_result));
+        Intent send = new Intent(Intent.ACTION_SEND);
+        Uri image = ShareCard.render(this, title, correct, total, streakDays, answers);
+        if (image != null) {
+            send.setType("image/png");
+            send.putExtra(Intent.EXTRA_STREAM, image);
+            send.setClipData(android.content.ClipData.newRawUri("", image));
+            send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } else {
+            send.setType("text/plain");
+        }
+        send.putExtra(Intent.EXTRA_TEXT, text);
+        startActivity(Intent.createChooser(send, getString(R.string.btn_share_result)));
+    }
+
+    private void inviteFriends(String source) {
+        Telemetry.event("invite_sent", "source", source);
         Intent send = new Intent(Intent.ACTION_SEND);
         send.setType("text/plain");
-        send.putExtra(Intent.EXTRA_TEXT, text);
-        startActivity(Intent.createChooser(send, getString(R.string.share_action)));
+        send.putExtra(Intent.EXTRA_TEXT, getString(R.string.invite_text, getString(R.string.share_link_invite)));
+        startActivity(Intent.createChooser(send, getString(R.string.invite_chooser)));
+    }
+
+    private void rateApp() {
+        Telemetry.event("rate_app_tapped", "source", "settings");
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
+        } catch (android.content.ActivityNotFoundException e) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.share_app_link))));
+        }
     }
 
     // ---------------------------------------------------------------- law-exam prep
@@ -1920,7 +2008,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
                     .putString(PREF_EXAM_RESULT + before.getExam(), DateKeys.today() + "|" + correct + "|" + total)
                     .apply();
-            Toast.makeText(this, getString(R.string.exam_done_toast, correct, total), Toast.LENGTH_LONG).show();
+            showResultSheet(R.string.result_title_exam, correct, total, 0, 0);
             bindExamPrep(after); // the hub is already inflated by the screen change; show the fresh score
         }
     }

@@ -36,4 +36,6 @@ public class StoreHolder extends ViewModel {
     public boolean quizFailed = false;
     /** Extra practice (random questions from past days, no reward) instead of today's daily quiz. */
     public boolean practice = false;
+    /** Question index -> answered correctly, for the Wordle-style result pattern. Reset per quiz run. */
+    public final java.util.Map<Integer, Boolean> quizAnswers = new java.util.HashMap<>();
 }

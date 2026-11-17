@@ -224,4 +224,36 @@
     <string name="hero_cta_practice">Pratica extra</string>
     <string name="practice_title">Pratica extra</string>
     <string name="practice_done_toast">Pratica finita: %1$d / %2$d corrette</string>
+
+    <!-- Hardcoded text moved out of code / viral sharing -->
+    <string name="badge_first_win_title">Prima vittoria</string>
+    <string name="badge_first_win_desc">Completa la tua prima simulazione di processo.</string>
+    <string name="badge_streak_3_title">Maestro delle serie</string>
+    <string name="badge_streak_3_desc">Completa il test giornaliero per 3 giorni di fila.</string>
+    <string name="badge_score_500_title">Difensore impeccabile</string>
+    <string name="badge_score_500_desc">Raggiungi 500 punti carriera.</string>
+    <string name="badge_supreme_title">Giudice supremo</string>
+    <string name="badge_supreme_desc">Supera i 1000 punti e sali al massimo grado.</string>
+    <string name="result_title_daily">Test giornaliero completato</string>
+    <string name="result_title_practice">Pratica completata</string>
+    <string name="result_title_exam">Test d\'esame completato</string>
+    <string name="result_score">%1$d / %2$d corrette</string>
+    <string name="result_points">+%1$d punti</string>
+    <string name="result_streak">Serie di %1$d giorni</string>
+    <string name="result_cta">I tuoi amici possono batterti? Condividi il risultato e sfidali.</string>
+    <string name="btn_share_result">Condividi il risultato</string>
+    <string name="btn_invite_friends">Invita un amico</string>
+    <string name="btn_close">Chiudi</string>
+    <string name="share_card_cta">Provaci anche tu</string>
+    <string name="share_card_store">Lexio su Google Play</string>
+    <string name="share_card_subtitle">Test di diritto del giorno</string>
+    <string name="share_result_text">Ho fatto %1$d/%2$d nel test di diritto di oggi su Lexio!
+%3$s
+Riesci a battermi? %4$s</string>
+    <string name="invite_text">Il modo più divertente di imparare il diritto: Lexio. Un nuovo test ogni giorno, simulazioni di processo e classifiche. Unisciti: %1$s</string>
+    <string name="invite_chooser">Invita</string>
+    <string name="invite_leaderboard">Invita gli amici e sfidatevi in classifica</string>
+    <string name="settings_invite">Invita amici</string>
+    <string name="settings_rate">Valuta Lexio</string>
+    <string name="settings_version">Lexio %1$s</string>
 </resources>

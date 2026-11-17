@@ -1,5 +1,8 @@
 package com.cynorra.lexio.mvi;
 
+import com.cynorra.lexio.R;
+import com.cynorra.lexio.SimTexts;
+
 import com.cynorra.lexio.data.DateKeys;
 import com.cynorra.lexio.data.UserProgress;
 import com.cynorra.lexio.model.Case;
@@ -192,26 +195,15 @@ public class AppStore {
         List<AppState.Message> intro = new ArrayList<>();
 
         intro.add(new AppState.Message("system", "<strong>" + selectedCase.getTitle() + "</strong> — " + selectedCase.getRef()));
-        String summaryHeader = isTrCase ? "Vaka Özeti:" : "Case Summary:";
+        String summaryHeader = SimTexts.get(R.string.sim_case_summary, isTrCase);
         intro.add(new AppState.Message("system", "<strong>" + summaryHeader + "</strong><br/>" + selectedCase.getFull()));
 
-        String evidenceHeader = isTrCase ? "Dosyadaki Deliller:" : "Case Evidence:";
+        String evidenceHeader = SimTexts.get(R.string.sim_case_evidence, isTrCase);
         StringBuilder evText = new StringBuilder("<strong>" + evidenceHeader + "</strong><br/>");
         for (String evidence : selectedCase.getEvidence()) {
             evText.append("• ").append(evidence).append("<br/>");
         }
         intro.add(new AppState.Message("system", evText.toString()));
-
-        boolean userIsDefense = "savunma".equalsIgnoreCase(current.getSelectedRole());
-        String opponentIntroRole = trialRoleLabel(!userIsDefense, isTrCase);
-        String opening = userIsDefense
-                ? (isTrCase
-                    ? "Sayın Mahkeme, Savcılık sıfatıyla bu duruşmada müttehem aleyhine yeterli delil olduğunu ispatlayacağız. Deliller incelendiğinde eylemin yasal unsurları tam olarak taşıdığı görülecektir. Savunmanın argümanlarını bekliyoruz."
-                    : "Your Honor, as the Prosecution, we will prove in this trial that there is sufficient evidence against the accused. Upon review of the evidence, it will be clear that the act meets every legal element of the offense. We await the defense's arguments.")
-                : (isTrCase
-                    ? "Sayın Mahkeme, müdafi olarak şunu belirtmeliyim: İddianame yüzeysel değerlendirmeye dayanmaktadır. Delillerin bütünlüklü değerlendirilmesi müvekkilimin iddia edilen suçu işlemediğini ortaya koyacaktır."
-                    : "Your Honor, as defense counsel, I must state: the indictment rests on a superficial assessment. A full review of the evidence will show my client did not commit the alleged offense.");
-        intro.add(new AppState.Message("ai", opponentIntroRole, opening));
 
         return current.toBuilder()
                 .screen(AppState.Screen.SIMULATION)
@@ -251,7 +243,7 @@ public class AppStore {
             // The verdict texts are written from the defense's point of view.
             boolean defenseWon = userIsDefense == userWon;
             String verdict = defenseWon ? activeCase.getFinalVerdictDefenseWin() : activeCase.getFinalVerdictDefenseLose();
-            String header = isTrCase ? "⚖️ Hakim Kararı" : "⚖️ Judge's Verdict";
+            String header = "⚖️ " + SimTexts.get(R.string.sim_verdict_title, isTrCase);
             messages.add(new AppState.Message(header, verdict));
 
             // Only an improvement over the user's best on this case earns career points, so
@@ -317,9 +309,6 @@ public class AppStore {
     /** Trial dialogue role labels follow the case's own jurisdiction language, not the
      *  app's UI language toggle, so a case's dialogue never mixes languages mid-trial. */
     private static String trialRoleLabel(boolean isProsecutor, boolean isTrCase) {
-        if (isTrCase) {
-            return isProsecutor ? "Savcı" : "Savunma Avukatı";
-        }
-        return isProsecutor ? "Prosecutor" : "Defense Counsel";
+        return SimTexts.get(isProsecutor ? R.string.sim_role_prosecutor : R.string.sim_role_defense, isTrCase);
     }
 }

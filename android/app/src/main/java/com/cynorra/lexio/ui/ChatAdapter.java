@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.card.MaterialCardView;
 import com.cynorra.lexio.R;
+import com.cynorra.lexio.SimTexts;
 import com.cynorra.lexio.model.Case;
 import com.cynorra.lexio.mvi.AppState;
 
@@ -69,7 +70,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void setItems(AppState state) {
         List<AppState.Message> messages = state.getChatMessages() != null ? state.getChatMessages() : new ArrayList<>();
         Case selectedCase = state.getSelectedCase();
-        String systemLabel = selectedCase != null && !selectedCase.usesTurkishUi() ? "SYSTEM" : "SİSTEM";
+        String systemLabel = SimTexts.get(R.string.sim_system_label, selectedCase == null || selectedCase.usesTurkishUi());
         if (messages.size() < items.size()) lastAnimatedPosition = -1;
         items.clear();
         for (AppState.Message m : messages) {
@@ -101,9 +102,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         Case selectedCase = state.getSelectedCase();
         List<Integer> stepScores = state.getStepScores() != null ? state.getStepScores() : new ArrayList<>();
         boolean isTrCase = selectedCase == null || selectedCase.usesTurkishUi();
-        String[] labels = isTrCase
-            ? new String[]{"Argüman Gücü", "Delil Kullanımı", "Hukuki Analiz"}
-            : new String[]{"Argument Strength", "Evidence Usage", "Legal Analysis"};
+        String[] labels = {
+            SimTexts.get(R.string.sim_metric_argument, isTrCase),
+            SimTexts.get(R.string.sim_metric_evidence, isTrCase),
+            SimTexts.get(R.string.sim_metric_analysis, isTrCase)};
         List<Integer> percentages = new ArrayList<>();
 
         if (selectedCase != null) {
@@ -129,7 +131,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             int value = i < percentages.size() ? percentages.get(i) : overall;
             result.add(new MetricScore(labels[i], value));
         }
-        result.add(new MetricScore(isTrCase ? "Mevzuat Hakimiyeti" : "Statutory Mastery", overall));
+        result.add(new MetricScore(SimTexts.get(R.string.sim_metric_statutory, isTrCase), overall));
         return result;
     }
 

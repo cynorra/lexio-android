@@ -1,5 +1,7 @@
 package com.cynorra.lexio.model;
 
+import com.cynorra.lexio.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,38 +28,38 @@ public class BadgeData {
         public boolean isUnlocked() { return isUnlocked; }
     }
 
-    public static List<Badge> getAllBadges(int userScore, int dailyStreak, int casesSolved) {
+    public static List<Badge> getAllBadges(android.content.Context ctx, int userScore, int dailyStreak, int casesSolved) {
         List<Badge> list = new ArrayList<>();
         
         list.add(new Badge(
             "b_first_win",
             "⚖️",
-            "İlk Zafer",
-            "İlk mahkeme simülasyonunu başarıyla tamamla.",
+            ctx.getString(R.string.badge_first_win_title),
+            ctx.getString(R.string.badge_first_win_desc),
             casesSolved >= 1
         ));
 
         list.add(new Badge(
             "b_streak_3",
             "🔥",
-            "Seri Üstadı",
-            "3 gün üst üste günlük testleri tamamla.",
+            ctx.getString(R.string.badge_streak_3_title),
+            ctx.getString(R.string.badge_streak_3_desc),
             dailyStreak >= 3
         ));
 
         list.add(new Badge(
             "b_score_500",
             "🛡️",
-            "Kusursuz Müdafi",
-            "Toplam 500 kariyer puanına ulaş.",
+            ctx.getString(R.string.badge_score_500_title),
+            ctx.getString(R.string.badge_score_500_desc),
             userScore >= 500
         ));
 
         list.add(new Badge(
             "b_supreme",
             "👑",
-            "Yargıtay Hakimi",
-            "1000 puan barajını aşarak en üst makama yüksel.",
+            ctx.getString(R.string.badge_supreme_title),
+            ctx.getString(R.string.badge_supreme_desc),
             userScore >= 1000
         ));
 

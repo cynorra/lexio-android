@@ -224,4 +224,36 @@
     <string name="hero_cta_practice">Entraînement bonus</string>
     <string name="practice_title">Entraînement bonus</string>
     <string name="practice_done_toast">Entraînement terminé : %1$d / %2$d correctes</string>
+
+    <!-- Hardcoded text moved out of code / viral sharing -->
+    <string name="badge_first_win_title">Première victoire</string>
+    <string name="badge_first_win_desc">Termine ta première simulation de procès.</string>
+    <string name="badge_streak_3_title">Maître des séries</string>
+    <string name="badge_streak_3_desc">Termine le test quotidien 3 jours de suite.</string>
+    <string name="badge_score_500_title">Avocat irréprochable</string>
+    <string name="badge_score_500_desc">Atteins 500 points de carrière.</string>
+    <string name="badge_supreme_title">Juge suprême</string>
+    <string name="badge_supreme_desc">Dépasse 1000 points et accède à la plus haute fonction.</string>
+    <string name="result_title_daily">Test quotidien terminé</string>
+    <string name="result_title_practice">Entraînement terminé</string>
+    <string name="result_title_exam">Test d\'examen terminé</string>
+    <string name="result_score">%1$d / %2$d correctes</string>
+    <string name="result_points">+%1$d points</string>
+    <string name="result_streak">Série de %1$d jours</string>
+    <string name="result_cta">Tes amis peuvent-ils te battre ? Partage ton résultat et défie-les.</string>
+    <string name="btn_share_result">Partager le résultat</string>
+    <string name="btn_invite_friends">Inviter un ami</string>
+    <string name="btn_close">Fermer</string>
+    <string name="share_card_cta">Essaie aussi</string>
+    <string name="share_card_store">Lexio sur Google Play</string>
+    <string name="share_card_subtitle">Test de droit du jour</string>
+    <string name="share_result_text">J\'ai fait %1$d/%2$d au test de droit Lexio du jour !
+%3$s
+Tu peux me battre ? %4$s</string>
+    <string name="invite_text">La façon la plus fun d\'apprendre le droit : Lexio. Un nouveau test chaque jour, simulations de procès et classements. Rejoins-moi : %1$s</string>
+    <string name="invite_chooser">Inviter</string>
+    <string name="invite_leaderboard">Invite des amis et défiez-vous au classement</string>
+    <string name="settings_invite">Inviter des amis</string>
+    <string name="settings_rate">Noter Lexio</string>
+    <string name="settings_version">Lexio %1$s</string>
 </resources>

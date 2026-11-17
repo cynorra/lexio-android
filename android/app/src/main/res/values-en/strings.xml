@@ -263,4 +263,51 @@
     <string name="hero_cta_practice">Extra practice</string>
     <string name="practice_title">Extra Practice</string>
     <string name="practice_done_toast">Practice finished: %1$d / %2$d correct</string>
+
+    <!-- Hardcoded text moved out of code / viral sharing -->
+    <string name="sim_case_summary">Case Summary:</string>
+    <string name="sim_case_evidence">Case Evidence:</string>
+    <string name="sim_verdict_title">Judge\'s Verdict</string>
+    <string name="sim_role_prosecutor">Prosecutor</string>
+    <string name="sim_role_defense">Defense Counsel</string>
+    <string name="sim_legal_basis">Legal Basis</string>
+    <string name="sim_stage_label">Stage %1$d: %2$s</string>
+    <string name="sim_step_verdict">Verdict</string>
+    <string name="sim_verdict_announced">Verdict Announced</string>
+    <string name="sim_trial_completed">Trial completed. The court has rendered its final verdict.</string>
+    <string name="sim_metric_argument">Argument Strength</string>
+    <string name="sim_metric_evidence">Evidence Usage</string>
+    <string name="sim_metric_analysis">Legal Analysis</string>
+    <string name="sim_metric_statutory">Statutory Mastery</string>
+    <string name="sim_system_label">SYSTEM</string>
+    <string name="badge_first_win_title">First Victory</string>
+    <string name="badge_first_win_desc">Complete your first court simulation.</string>
+    <string name="badge_streak_3_title">Streak Master</string>
+    <string name="badge_streak_3_desc">Finish the daily test 3 days in a row.</string>
+    <string name="badge_score_500_title">Flawless Counsel</string>
+    <string name="badge_score_500_desc">Reach 500 career points.</string>
+    <string name="badge_supreme_title">Supreme Court Justice</string>
+    <string name="badge_supreme_desc">Pass 1000 points and rise to the highest bench.</string>
+    <string name="result_title_daily">Daily test complete</string>
+    <string name="result_title_practice">Practice complete</string>
+    <string name="result_title_exam">Exam test complete</string>
+    <string name="result_score">%1$d / %2$d correct</string>
+    <string name="result_points">+%1$d points</string>
+    <string name="result_streak">%1$d-day streak</string>
+    <string name="result_cta">Can your friends beat you? Share your result and challenge them.</string>
+    <string name="btn_share_result">Share result</string>
+    <string name="btn_invite_friends">Invite a friend</string>
+    <string name="btn_close">Close</string>
+    <string name="share_card_cta">Try it yourself</string>
+    <string name="share_card_store">Lexio on Google Play</string>
+    <string name="share_card_subtitle">Daily Law Test</string>
+    <string name="share_result_text">I scored %1$d/%2$d on today\'s Lexio law test!
+%3$s
+Think you can beat me? %4$s</string>
+    <string name="invite_text">The most fun way to learn law: Lexio. A fresh test every day, court simulations and leaderboards. Join me: %1$s</string>
+    <string name="invite_chooser">Invite</string>
+    <string name="invite_leaderboard">Invite friends and compete on the leaderboard</string>
+    <string name="settings_invite">Invite friends</string>
+    <string name="settings_rate">Rate Lexio</string>
+    <string name="settings_version">Lexio %1$s</string>
 </resources>
