@@ -256,4 +256,13 @@ Riesci a battermi? %4$s</string>
     <string name="settings_invite">Invita amici</string>
     <string name="settings_rate">Valuta Lexio</string>
     <string name="settings_version">Lexio %1$s</string>
+
+    <!-- Stale-quiz state / feedback -->
+    <string name="hero_daily_soon">Test in preparazione</string>
+    <string name="hero_sub_soon">Il test di oggi non è ancora pronto, intanto puoi fare l\'ultimo</string>
+    <string name="hero_cta_last">Ultimo test</string>
+    <string name="quiz_stale_note">Il test di oggi non è ancora pronto. Mostro l\'ultimo (%1$s).</string>
+    <string name="settings_feedback">Invia feedback</string>
+    <string name="feedback_subject">Feedback su Lexio (%1$s)</string>
+    <string name="feedback_no_mail_app">Nessuna app email trovata</string>
 </resources>

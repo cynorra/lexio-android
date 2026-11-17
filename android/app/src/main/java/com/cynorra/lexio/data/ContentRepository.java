@@ -22,6 +22,20 @@ public class ContentRepository {
     public interface QuizCallback {
         void onLoaded(List<DailyQuizQuestion> questions);
         void onError();
+
+        /** Called just before onLoaded with the date of the quiz that was found (may be older than today). */
+        default void onQuizDate(String date) { }
+    }
+
+    public interface ExistsCallback {
+        void onResult(boolean exists);
+    }
+
+    /** Whether the generator has published this country's quiz for {@code date} (false = only older ones exist). */
+    public void quizExists(String country, String date, ExistsCallback callback) {
+        db.collection("dailyQuizzes").document(country).collection("days").document(date).get()
+                .addOnSuccessListener(doc -> callback.onResult(doc.exists()))
+                .addOnFailureListener(e -> callback.onResult(true)); // offline: don't claim the test is missing
     }
 
     public interface StudyCallback {
@@ -53,6 +67,7 @@ public class ContentRepository {
                     List<DailyQuizQuestion> questions = doc.exists()
                             ? parseQuestions(doc.get("questions"), language, country) : null;
                     if (questions != null && !questions.isEmpty()) {
+                        callback.onQuizDate(date);
                         callback.onLoaded(questions);
                     } else {
                         loadLatestQuiz(days, country, language, callback);
@@ -103,6 +118,7 @@ public class ContentRepository {
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
                         List<DailyQuizQuestion> questions = parseQuestions(doc.get("questions"), language, country);
                         if (!questions.isEmpty()) {
+                            callback.onQuizDate(doc.getId());
                             callback.onLoaded(questions);
                             return;
                         }

@@ -316,4 +316,14 @@ Beni geçebilir misin? %4$s</string>
     <string name="settings_version">Lexio %1$s</string>
     <string name="share_link_result" translatable="false">https://play.google.com/store/apps/details?id=com.cynorra.lexio&amp;referrer=utm_source%3Dapp%26utm_medium%3Dshare%26utm_campaign%3Dresult</string>
     <string name="share_link_invite" translatable="false">https://play.google.com/store/apps/details?id=com.cynorra.lexio&amp;referrer=utm_source%3Dapp%26utm_medium%3Dshare%26utm_campaign%3Dinvite</string>
+
+    <!-- Stale-quiz state / feedback -->
+    <string name="hero_daily_soon">Test hazırlanıyor</string>
+    <string name="hero_sub_soon">Bugünün testi henüz hazır değil, şimdilik son testi çözebilirsin</string>
+    <string name="hero_cta_last">Son testi çöz</string>
+    <string name="quiz_stale_note">Bugünün testi henüz hazır değil. %1$s tarihli son test gösteriliyor.</string>
+    <string name="settings_feedback">Geri bildirim gönder</string>
+    <string name="feedback_subject">Lexio geri bildirimi (%1$s)</string>
+    <string name="feedback_no_mail_app">E-posta uygulaması bulunamadı</string>
+    <string name="feedback_email" translatable="false">eren.gp54@gmail.com</string>
 </resources>

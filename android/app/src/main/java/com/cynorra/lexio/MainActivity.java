@@ -929,6 +929,16 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             });
         }
         bindDailyHero(store.getState());
+        final String availabilityKey = store.getState().getCountry() + "|" + DateKeys.today();
+        if (!availabilityKey.equals(holder.todayQuizKey)) {
+            contentRepo.quizExists(store.getState().getCountry(), DateKeys.today(), exists -> {
+                holder.todayQuizKey = availabilityKey;
+                holder.todayQuizAvailable = exists;
+                if (!isUiGone() && store.getState().getActiveScreen() == AppState.Screen.CASE_LIST) {
+                    bindDailyHero(store.getState());
+                }
+            });
+        }
     }
 
     /** Fills the home hero card: new / done state, today's date, streak and the countdown to the next test. */
@@ -936,13 +946,15 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         TextView chip = findViewById(R.id.tvDailyChip);
         if (chip == null) return;
         boolean done = DateKeys.today().equals(state.getLastQuizDate());
+        final String availabilityKey = state.getCountry() + "|" + DateKeys.today();
+        boolean notReady = !done && availabilityKey.equals(holder.todayQuizKey) && Boolean.FALSE.equals(holder.todayQuizAvailable);
         TextView date = findViewById(R.id.tvDailyDate);
         TextView sub = findViewById(R.id.tvDailyQuizSub);
         TextView streak = findViewById(R.id.tvDailyStreakInfo);
         TextView cta = findViewById(R.id.tvDailyQuizCta);
 
-        chip.setText(done ? R.string.hero_daily_done : R.string.hero_daily_new);
-        chip.setBackgroundResource(done ? R.drawable.bg_chip_done : R.drawable.bg_chip_live);
+        chip.setText(done ? R.string.hero_daily_done : notReady ? R.string.hero_daily_soon : R.string.hero_daily_new);
+        chip.setBackgroundResource(done ? R.drawable.bg_chip_done : notReady ? R.drawable.bg_glass : R.drawable.bg_chip_live);
         chip.setTextColor(ContextCompat.getColor(this, done ? R.color.defense_green : R.color.white));
         if (date != null) {
             date.setText(java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new java.util.Date()));
@@ -955,10 +967,11 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         long minutes = Math.max(1, (midnight.getTimeInMillis() - System.currentTimeMillis()) / 60000);
         String left = getString(R.string.hero_countdown, (int) (minutes / 60), (int) (minutes % 60));
         if (sub != null) {
-            sub.setText(done ? getString(R.string.hero_sub_done, left) : getString(R.string.hero_sub_new));
+            sub.setText(done ? getString(R.string.hero_sub_done, left)
+                    : notReady ? getString(R.string.hero_sub_soon) : getString(R.string.hero_sub_new));
         }
         if (streak != null) streak.setText(getString(R.string.hero_streak, state.getDailyStreak()));
-        if (cta != null) cta.setText(done ? R.string.hero_cta_practice : R.string.hero_cta_start);
+        if (cta != null) cta.setText(done ? R.string.hero_cta_practice : notReady ? R.string.hero_cta_last : R.string.hero_cta_start);
     }
 
     /**
@@ -1526,6 +1539,8 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
         View btnInvite = findViewById(R.id.btnInviteFriends);
         if (btnInvite != null) btnInvite.setOnClickListener(v -> inviteFriends("settings"));
+        View btnFeedback = findViewById(R.id.btnSendFeedback);
+        if (btnFeedback != null) btnFeedback.setOnClickListener(v -> sendFeedback());
         View btnRate = findViewById(R.id.btnRateApp);
         if (btnRate != null) btnRate.setOnClickListener(v -> rateApp());
         TextView tvVersion = findViewById(R.id.tvAppVersion);
@@ -1720,6 +1735,11 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         holder.quizKey = null;
         ContentRepository.QuizCallback callback = new ContentRepository.QuizCallback() {
             @Override
+            public void onQuizDate(String date) {
+                if (key.equals(holder.quizLoadingKey)) holder.quizDate = date;
+            }
+
+            @Override
             public void onLoaded(List<DailyQuizQuestion> questions) {
                 if (!key.equals(holder.quizLoadingKey)) return; // the user moved on to another quiz meanwhile
                 holder.quizLoading = false;
@@ -1769,6 +1789,12 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         }
         if (status != null) status.setVisibility(View.GONE);
         if (content != null) content.setVisibility(View.VISIBLE);
+        TextView stale = findViewById(R.id.tvQuizStale);
+        if (stale != null) {
+            boolean old = !holder.practice && holder.quizDate != null && !holder.quizDate.equals(DateKeys.today());
+            stale.setVisibility(old ? View.VISIBLE : View.GONE);
+            if (old) stale.setText(getString(R.string.quiz_stale_note, holder.quizDate));
+        }
 
         int index = Math.min(state.getQuizIndex(), questions.size() - 1);
         DailyQuizQuestion q = questions.get(index);
@@ -1929,6 +1955,25 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         send.setType("text/plain");
         send.putExtra(Intent.EXTRA_TEXT, getString(R.string.invite_text, getString(R.string.share_link_invite)));
         startActivity(Intent.createChooser(send, getString(R.string.invite_chooser)));
+    }
+
+    private void sendFeedback() {
+        Telemetry.event("feedback_tapped", "source", "settings");
+        String version = "";
+        try {
+            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            // the footer simply omits the version
+        }
+        Intent mail = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"));
+        mail.putExtra(Intent.EXTRA_EMAIL, new String[]{getString(R.string.feedback_email)});
+        mail.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback_subject, version));
+        mail.putExtra(Intent.EXTRA_TEXT, "\n\n---\nLexio " + version + " / Android " + Build.VERSION.RELEASE);
+        try {
+            startActivity(mail);
+        } catch (android.content.ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.feedback_no_mail_app, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void rateApp() {

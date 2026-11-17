@@ -7,41 +7,56 @@
     android:background="@color/bg_dark">
 
     <!-- Top Bar -->
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:paddingHorizontal="16dp"
-        android:background="@color/bg_dark">
+        android:layout_height="60dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_logo_tile_small"
+            android:importantForAccessibility="no"
+            android:padding="3dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_launcher_foreground" />
 
         <TextView
             android:id="@+id/logoText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:fontFamily="sans-serif-black"
             android:text="Lexio"
             android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textSize="20sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/logoText"
-            android:layout_centerVertical="true"
+            android:fontFamily="sans-serif-black"
             android:text="."
             android:textColor="@color/accent_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textSize="20sp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
+            android:background="@drawable/bg_chip_neutral"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="5dp"
             android:text="@string/exam_screen_title"
             android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
-    </RelativeLayout>
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"

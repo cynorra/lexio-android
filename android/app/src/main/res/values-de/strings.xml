@@ -256,4 +256,13 @@ Kannst du mich schlagen? %4$s</string>
     <string name="settings_invite">Freunde einladen</string>
     <string name="settings_rate">Lexio bewerten</string>
     <string name="settings_version">Lexio %1$s</string>
+
+    <!-- Stale-quiz state / feedback -->
+    <string name="hero_daily_soon">Test in Vorbereitung</string>
+    <string name="hero_sub_soon">Der heutige Test ist noch nicht fertig, löse vorerst den letzten</string>
+    <string name="hero_cta_last">Letzter Test</string>
+    <string name="quiz_stale_note">Der heutige Test ist noch nicht fertig. Zeige den letzten (%1$s).</string>
+    <string name="settings_feedback">Feedback senden</string>
+    <string name="feedback_subject">Lexio-Feedback (%1$s)</string>
+    <string name="feedback_no_mail_app">Keine E-Mail-App gefunden</string>
 </resources>

@@ -256,4 +256,13 @@
     <string name="settings_invite">Invitar amigos</string>
     <string name="settings_rate">Valorar Lexio</string>
     <string name="settings_version">Lexio %1$s</string>
+
+    <!-- Stale-quiz state / feedback -->
+    <string name="hero_daily_soon">Test en preparación</string>
+    <string name="hero_sub_soon">El test de hoy aún no está listo, puedes hacer el último</string>
+    <string name="hero_cta_last">Último test</string>
+    <string name="quiz_stale_note">El test de hoy aún no está listo. Mostrando el último (%1$s).</string>
+    <string name="settings_feedback">Enviar comentarios</string>
+    <string name="feedback_subject">Comentarios sobre Lexio (%1$s)</string>
+    <string name="feedback_no_mail_app">No se encontró ninguna app de correo</string>
 </resources>
