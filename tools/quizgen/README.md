@@ -129,3 +129,14 @@ One prompt covers all 7 countries and all 11 exams (18 daily quizzes). If the ch
   reduces but does not eliminate errors - spot-check new topics in Firestore before promoting the app.
 - Days are UTC; the app asks for the user's local date and falls back to the latest available
   quiz if that day is missing, so a delayed run never shows an empty quiz.
+
+## Topic pool, originality and daily discovery
+
+- **Curriculum** = `curriculum.py` + `exams.py` + `topics_extra.py` (hand-written, merged at import) + topics the generator
+  added itself (`topicPool/{key}/topics` in Firestore, slugs start with `dyn-`). US/UK/TR have 70-95 topics each.
+- **Daily discovery:** every run asks the model for up to `--new-topics` (default 2, env `QUIZGEN_NEW_TOPICS`, 0 = off) NEW topics per
+  country/exam. A proposal is kept only if it is not a rephrasing of an existing title and reference notes can be found for it
+  (otherwise questions would be unverifiable). The pool is capped at 150 model-proposed topics per key.
+- **Topic planning:** each day's quiz takes the least-asked topics (never-asked new ones first); days in one run are planned together.
+- **Originality:** the writer sees the questions already asked on a topic and a rotating angle; repeats are rejected before
+  the fact-check (see `find_repeat`, `DUP_RATIO`).

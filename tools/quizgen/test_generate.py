@@ -451,3 +451,70 @@ class OriginalityTests(unittest.TestCase):
         self.assertIn("ALREADY ASKED", prompt)
         self.assertIn("Who tries impeachments?", prompt)
         self.assertIn(g.ANGLES[2 % len(g.ANGLES)], prompt)
+
+
+class TopicPoolTests(unittest.TestCase):
+    def setUp(self):
+        self._orig = (g.call_json, g.log, dict(g.CURRICULUM))
+        g.log = lambda msg: None
+
+    def tearDown(self):
+        g.call_json, g.log = self._orig[0], self._orig[1]
+        g.CURRICULUM.clear()
+        g.CURRICULUM.update(self._orig[2])
+
+    def test_similar_titles_are_detected(self):
+        self.assertTrue(g.title_too_similar("Impeachment", ["Impeachment (anchor: art. II)"]))
+        self.assertTrue(g.title_too_similar("The Commerce Clause", ["Commerce Clause"]))
+        self.assertFalse(g.title_too_similar("Qualified Immunity", ["Impeachment", "The Commerce Clause"]))
+
+    def test_curriculum_is_long_enough_and_has_no_duplicate_slugs(self):
+        for key in ("US", "UK", "TR"):
+            slugs = [t[0] for t in g.CURRICULUM[key]]
+            self.assertGreaterEqual(len(slugs), 70, key)
+            self.assertEqual(len(slugs), len(set(slugs)), key)
+
+    def test_planner_asks_never_asked_topics_first_and_spreads_days(self):
+        g.CURRICULUM["ZZ"] = [(f"zz-{i}", f"Topic {i}", "a") for i in range(12)]
+        history = [{"topic": f"topic {i}", "stem": "s", "fp": "f"} for i in range(8)]  # topics 0-7 asked once
+        plan = g.plan_quiz_topics("ZZ", [dt.date(2026, 1, 1), dt.date(2026, 1, 2)], history)
+        day1, day2 = [t[1] for t in plan[dt.date(2026, 1, 1)]], [t[1] for t in plan[dt.date(2026, 1, 2)]]
+        unseen = {"Topic 8", "Topic 9", "Topic 10", "Topic 11"}
+        self.assertTrue(unseen <= set(day1))  # every never-asked topic comes first
+        self.assertEqual(5, len(set(day1)))
+        extra = (set(day1) - unseen).pop()  # the one already-asked topic that filled the day
+        self.assertNotIn(extra, day2)       # asked twice now, so it waits while others are behind
+
+    def test_discovery_keeps_only_new_and_researchable_topics(self):
+        g.CURRICULUM["ZZ"] = [("zz-impeachment", "Impeachment", "art II")]
+        g.COUNTRIES["ZZ"] = {"name": "Zedland", "system": "test law", "sources": "test sources"}
+        self.addCleanup(g.COUNTRIES.pop, "ZZ", None)
+
+        class R:
+            grounding = True
+
+            def notes(self, key, topic, today):
+                return "" if "ghost" in topic[0] else "notes"
+
+        class S:
+            saved = []
+
+            def save_topic(self, key, topic, today):
+                self.saved.append(topic)
+
+        g.call_json = lambda *a, **k: {"topics": [
+            {"slug": "impeachment-again", "title": "Impeachment", "anchor": "x"},      # repeat
+            {"slug": "ghost", "title": "Ghost Doctrine", "anchor": "x"},               # no notes
+            {"slug": "Qualified Immunity!", "title": "Qualified Immunity", "anchor": "Harlow v. Fitzgerald"},
+        ]}
+        store = S()
+        added = g.discover_topics("ZZ", R(), store, "2026-01-01", 2)
+        self.assertEqual(["Qualified Immunity"], [t[1] for t in added])
+        self.assertEqual("dyn-zz-qualified-immunity", added[0][0])
+        self.assertEqual(1, len(store.saved))
+        self.assertIn("dyn-zz-qualified-immunity", [t[0] for t in g.CURRICULUM["ZZ"]])
+
+    def test_discovery_respects_the_pool_cap(self):
+        g.CURRICULUM["ZZ"] = [(f"dyn-zz-{i}", f"T{i}", "a") for i in range(g.MAX_DYNAMIC_TOPICS)]
+        g.call_json = lambda *a, **k: self.fail("must not ask the model when the pool is full")
+        self.assertEqual([], g.discover_topics("ZZ", None, None, "2026-01-01", 2))

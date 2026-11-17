@@ -200,6 +200,18 @@ RELEVANCE_SCHEMA = {
     "additionalProperties": False,
 }
 
+TOPICS_SCHEMA = {
+    "type": "object",
+    "properties": {"topics": {"type": "array", "items": {
+        "type": "object",
+        "properties": {"slug": {"type": "string"}, "title": {"type": "string"}, "anchor": {"type": "string"}},
+        "required": ["slug", "title", "anchor"],
+        "additionalProperties": False,
+    }}},
+    "required": ["topics"],
+    "additionalProperties": False,
+}
+
 VERIFY_SCHEMA = {
     "type": "object",
     "properties": {
@@ -322,6 +334,115 @@ def find_repeat(q, history):
         if r >= best_r:
             best, best_r = h, r
     return best
+
+
+# --------------------------------------------------------------------------- topic discovery and planning
+
+MAX_DYNAMIC_TOPICS = 150  # per country / exam; the hand-written curriculum is not counted
+
+
+def title_too_similar(title, existing_titles):
+    """True if `title` is (almost) one of the existing titles, so a 'new' topic would just repeat an old one."""
+    import difflib
+    a = _norm(topic_key(title))
+    words_a = set(a.split())
+    for other in existing_titles:
+        b = _norm(topic_key(other))
+        if not a or not b:
+            continue
+        words_b = set(b.split())
+        jaccard = len(words_a & words_b) / max(len(words_a | words_b), 1)
+        if jaccard >= 0.7 or difflib.SequenceMatcher(None, a, b).ratio() >= 0.82:
+            return True
+    return False
+
+
+def discover_prompt(country, existing, count):
+    listing = "\n".join(f"- {t[1]} ({t[2]})" for t in existing)
+    exam = is_exam_key(country)
+    return (
+        f"{_meta(country)}\n\nWe teach this {'exam' if exam else 'subject'} with short daily quizzes and lessons. "
+        f"These topics already exist:\n{listing}\n\n"
+        f"Propose {count} NEW topics that a learner needs and that are NOT covered by, or a rephrasing of, any existing "
+        "topic: a different doctrine, provision, landmark case, procedure or area of law. Prefer settled, stable "
+        "law (statutes, constitutional provisions, leading cases) over fast-moving news or pending litigation. "
+        "Each topic: slug (lowercase, hyphenated, ASCII), title (English, at most 80 characters), anchor (the exact "
+        "provision(s), case(s) or doctrine to teach; for Turkish law cite article numbers such as 'TCK md. 81')."
+    )
+
+
+def merge_topics(key, topics):
+    """Appends topics (slug, title, anchor) to CURRICULUM[key] unless the slug exists. Returns how many were new."""
+    have = {t[0] for t in CURRICULUM.get(key, [])}
+    new = [tuple(t) for t in topics if t[0] not in have]
+    CURRICULUM[key] = list(CURRICULUM.get(key, [])) + new
+    return len(new)
+
+
+def discover_topics(key, research, store, today, count):
+    """Asks the model for new topics, keeps those that are really new AND can be researched, and saves them.
+
+    Returns the list of topics added. Topics that repeat an existing title, or for which no reference notes can be
+    found, are dropped (an ungrounded topic would produce unverifiable questions)."""
+    existing = CURRICULUM[key]
+    dynamic = [t for t in existing if t[0].startswith("dyn-")]
+    if count <= 0 or len(dynamic) >= MAX_DYNAMIC_TOPICS:
+        return []
+    data = call_json("You design law-study curricula. Be precise and conservative.", discover_prompt(key, existing, count),
+                     TOPICS_SCHEMA, thinking="medium", max_tokens=4000)
+    prefix = "ep-" if is_exam_key(key) else key.lower() + "-"
+    added = []
+    for raw in data.get("topics", [])[: count * 2]:
+        slug = re.sub(r"[^a-z0-9]+", "-", str(raw.get("slug", "")).lower()).strip("-")
+        title = str(raw.get("title", "")).strip()[:90]
+        anchor = str(raw.get("anchor", "")).strip()[:200]
+        if not slug or not title or not anchor:
+            continue
+        if not slug.startswith(prefix):
+            slug = prefix + slug
+        slug = "dyn-" + slug  # marks the model-proposed topics, so the pool can be capped and audited
+        known = CURRICULUM[key] + added
+        if any(t[0] == slug for t in known) or title_too_similar(title, [t[1] for t in known]):
+            log(f"  [{key}] topic '{title}' skipped: repeats an existing one")
+            continue
+        topic = (slug, title, anchor)
+        if research.grounding and not research.notes(key, topic, today):
+            log(f"  [{key}] topic '{title}' skipped: no reference notes found")
+            continue
+        store.save_topic(key, topic, today)
+        added.append(topic)
+        if len(added) >= count:
+            break
+    if added:
+        merge_topics(key, added)
+        log(f"[{key}] new topics: " + "; ".join(t[1] for t in added))
+    return added
+
+
+QUIZ_PLAN = {}  # (country, date) -> topics chosen for that day's quiz (see plan_quiz_topics)
+
+
+def _variety(slug, date):
+    import hashlib
+    return int(hashlib.md5(f"{slug}|{date}".encode()).hexdigest()[:8], 16)
+
+
+def plan_quiz_topics(key, dates, history, count=QUESTIONS_PER_QUIZ):
+    """Picks each date's topics as the least-asked ones so far (never-asked new topics first), spreading
+    coverage evenly however the pool grows. Deterministic for a given history; days in the same run are
+    planned one after another so they don't all grab the same topics. Returns {date: [topics]}."""
+    asked = {}
+    for h in history:
+        asked[h["topic"]] = asked.get(h["topic"], 0) + 1
+    topics = CURRICULUM[key]
+    plan = {}
+    for date in sorted(dates):
+        ranked = sorted(topics, key=lambda t: (asked.get(topic_key(t[1]), 0), _variety(t[0], date)))
+        chosen = ranked[:count]
+        for t in chosen:
+            asked[topic_key(t[1])] = asked.get(topic_key(t[1]), 0) + 1
+        plan[date] = chosen
+    return plan
 
 
 def questions_prompt(country, slots, notes_by_slot, feedback, previous=None):
@@ -756,7 +877,7 @@ def assign_ids(prefix, questions):
 
 
 def build_daily_quiz(country, date, research, today, translator):
-    topics = topics_for_day(country, date, QUESTIONS_PER_QUIZ)
+    topics = QUIZ_PLAN.get((country, date)) or topics_for_day(country, date, QUESTIONS_PER_QUIZ)
     slots = [(f"Difficulty: {DIFFICULTY[i % len(DIFFICULTY)]}", t) for i, t in enumerate(topics)]
     pick = _alternative_picker(country, [t[0] for t in topics])
     store = getattr(research, "store", None)
@@ -1034,6 +1155,21 @@ class Store:
             cache[country] = items
         return cache[country]
 
+    def dynamic_topics(self, key):
+        """Topics the generator added itself (topicPool/{key}/topics), oldest first: [(slug, title, anchor)]."""
+        if self.dry_run or self.db is None:
+            return []
+        docs = self.db.collection("topicPool").document(key).collection("topics").stream()
+        rows = sorted((d.to_dict() for d in docs), key=lambda r: r.get("addedAt", 0))
+        return [(r["slug"], r["title"], r["anchor"]) for r in rows if r.get("slug") and r.get("title") and r.get("anchor")]
+
+    def save_topic(self, key, topic, today):
+        if self.dry_run or self.db is None:
+            return
+        self.db.collection("topicPool").document(key).collection("topics").document(topic[0]).set(
+            {"slug": topic[0], "title": topic[1], "anchor": topic[2], "addedAt": int(time.time() * 1000),
+             "addedOn": str(today)})
+
     def sets_ref(self, country):
         return self.db.collection("studySets").document(country).collection("sets")
 
@@ -1230,6 +1366,8 @@ def main():
     ap.add_argument("--exam-days-ahead", type=int, default=2, help="exam quizzes are made for today and the next N days")
     ap.add_argument("--days-ahead", type=int, default=2, help="also generate quizzes for the next N days")
     ap.add_argument("--days-back", type=int, default=3, help="backfill quizzes/study sets for the last N days")
+    ap.add_argument("--new-topics", type=int, default=int(os.environ.get("QUIZGEN_NEW_TOPICS") or 2),
+                    help="new topics the model may add per country / exam per run (0 = none)")
     ap.add_argument("--cases", type=int, default=1,
                     help="new trial-simulation cases to publish per country per run (0 = none; English only)")
     ap.add_argument("--force", action="store_true", help="regenerate even if content exists")
@@ -1257,6 +1395,32 @@ def main():
     store = Store(args.dry_run)
     research = Research(store)
     translator = Translator(gemini_translate, log, gemini_translate_multi, fatal=(QuotaExhausted,))
+
+    # Topic pool: stored model-proposed topics join the curriculum, then each run may add a few more.
+    for key in countries + exam_keys:
+        merge_topics(key, store.dynamic_topics(key))
+    if args.new_topics > 0:
+        for key in countries + exam_keys:
+            try:
+                discover_topics(key, research, store, today, args.new_topics)
+            except QuotaExhausted:
+                raise
+            except Exception as e:  # a failed discovery must never block the daily quizzes
+                log(f"[{key}] topic discovery failed: {type(e).__name__}: {str(e)[:200]}")
+
+    # The days to write, planned together so the least-asked topics are spread across them.
+    quiz_dates = {}
+    for country in countries:
+        for offset in range(-args.days_back, args.days_ahead + 1):
+            quiz_dates.setdefault(country, []).append(today + dt.timedelta(days=offset))
+    for key in exam_keys:
+        for offset in range(0, args.exam_days_ahead + 1):
+            quiz_dates.setdefault(key, []).append(today + dt.timedelta(days=offset))
+    for key, dates in quiz_dates.items():
+        missing = [d for d in dates if args.force or not store.quiz_exists(key, d)]
+        if missing:
+            for d, chosen in plan_quiz_topics(key, missing, store.recent_questions(key)).items():
+                QUIZ_PLAN[(key, d)] = chosen
 
     jobs = []
     for country in countries:

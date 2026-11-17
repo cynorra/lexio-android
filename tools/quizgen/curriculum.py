@@ -263,3 +263,10 @@ COUNTRY_ORDER = ["US", "UK", "DE", "FR", "ES", "IT", "TR"]
 import exams as _exams  # noqa: E402
 
 _exams.register(COUNTRIES, CURRICULUM)
+
+# Hand-written additions (topics_extra.py): the rotation is long enough that a topic returns only every few weeks.
+from topics_extra import EXTRA as _EXTRA  # noqa: E402
+
+for _key, _topics in _EXTRA.items():
+    _have = {_t[0] for _t in CURRICULUM.get(_key, [])}
+    CURRICULUM[_key] = list(CURRICULUM.get(_key, [])) + [_t for _t in _topics if _t[0] not in _have]
