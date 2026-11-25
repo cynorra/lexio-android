@@ -99,7 +99,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="32dp" />
+            android:paddingBottom="16dp" />
+
+        <!-- AdMob Banner -->
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:adSize="BANNER"
+            app:adUnitId="ca-app-pub-4674211063760769/4886149685" />
 
     </LinearLayout>
 </ScrollView>

@@ -2,6 +2,8 @@ package com.cynorra.lexio;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.ump.ConsentInformation;
@@ -9,11 +11,11 @@ import com.google.android.ump.ConsentRequestParameters;
 import com.google.android.ump.UserMessagingPlatform;
 
 /**
- * Google's User Messaging Platform flow. Ads are initialised and requested only once consent allows it
- * (always the case outside the EEA/UK unless the user withdrew it). The consent form is configured in the
- * AdMob console under Privacy & messaging.
+ * Google's User Messaging Platform flow. Ads are initialised and requested once consent allows it
+ * or when UMP is not configured/times out outside the EEA/UK.
  */
 public final class AdsConsent {
+    private static final Handler MAIN_HANDLER = new Handler(Looper.getMainLooper());
     private static boolean sdkStarted;
     private static volatile boolean canRequestAds;
 
@@ -29,21 +31,30 @@ public final class AdsConsent {
         info.requestConsentInfoUpdate(
                 activity,
                 new ConsentRequestParameters.Builder().build(),
-                () -> UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity, formError -> proceed(activity, info, onReady)),
-                requestError -> proceed(activity, info, onReady));
+                () -> UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity, formError -> proceed(activity, onReady)),
+                requestError -> proceed(activity, onReady));
         // A previous session may already have consent: ads can start right away without waiting for the network.
-        if (info.canRequestAds()) proceed(activity, info, onReady);
+        if (info.canRequestAds()) {
+            proceed(activity, onReady);
+        } else {
+            // Fallback timeout in case UMP network request hangs
+            MAIN_HANDLER.postDelayed(() -> proceed(activity, onReady), 4000L);
+        }
     }
 
-    private static void proceed(Context context, ConsentInformation info, Runnable onReady) {
-        if (!info.canRequestAds()) return;
+    private static void proceed(Context context, Runnable onReady) {
         boolean first = !canRequestAds;
         canRequestAds = true;
         if (!sdkStarted) {
             sdkStarted = true;
-            MobileAds.initialize(context.getApplicationContext(), status -> { });
+            MobileAds.initialize(context.getApplicationContext(), status -> {
+                MAIN_HANDLER.post(onReady);
+            });
+            return;
         }
-        if (first) onReady.run();
+        if (first) {
+            MAIN_HANDLER.post(onReady);
+        }
     }
 
     /** True in regions where the user must be able to reopen the consent choices (EEA/UK). */

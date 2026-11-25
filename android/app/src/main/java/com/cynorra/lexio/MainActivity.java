@@ -529,6 +529,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             case CASE_DETAIL:
                 setContentView(R.layout.layout_case_detail);
                 setupCaseDetailViews(state.getSelectedCase());
+                loadBannerAd();
                 break;
             case SIMULATION:
                 setContentView(R.layout.layout_simulation);
@@ -543,6 +544,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             case STUDY_DETAIL:
                 setContentView(R.layout.layout_study_detail);
                 setupStudyDetailViews(state.getSelectedStudyTopic());
+                loadBannerAd();
                 break;
             case FEED:
                 setContentView(R.layout.layout_feed);
@@ -572,6 +574,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
             case EXAM_QUIZ:
                 setContentView(R.layout.layout_daily_quiz);
                 setupDailyQuizViews();
+                loadBannerAd();
                 break;
             case EXAM_PREP:
                 setContentView(R.layout.layout_exam_prep);
@@ -849,14 +852,41 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         ViewGroup parent = (ViewGroup) placeholder.getParent();
         int index = parent.indexOfChild(placeholder);
         ViewGroup.LayoutParams params = placeholder.getLayoutParams();
+        if (params != null) {
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        }
         String unitId = placeholder.getAdUnitId();
-        if (unitId == null) return;
+        if (unitId == null || unitId.isEmpty()) {
+            unitId = "ca-app-pub-4674211063760769/4886149685";
+        }
 
         int widthDp = (int) (getResources().getDisplayMetrics().widthPixels / getResources().getDisplayMetrics().density);
-        AdView adaptive = new AdView(this);
+        if (widthDp <= 0) widthDp = 320;
+        final AdView adaptive = new AdView(this);
         adaptive.setId(R.id.adView);
         adaptive.setAdUnitId(unitId);
         adaptive.setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(this, widthDp));
+        adaptive.setAlpha(0f);
+        adaptive.setAdListener(new com.google.android.gms.ads.AdListener() {
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                adaptive.setAlpha(1f);
+                adaptive.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAdFailedToLoad(com.google.android.gms.ads.LoadAdError error) {
+                super.onAdFailedToLoad(error);
+                adaptive.setAlpha(0f);
+                adaptive.postDelayed(() -> {
+                    if (!isUiGone() && adaptive.isAttachedToWindow()) {
+                        adaptive.loadAd(new AdRequest.Builder().build());
+                    }
+                }, 25_000L);
+            }
+        });
 
         parent.removeViewAt(index);
         placeholder.destroy();
