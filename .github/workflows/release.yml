@@ -20,6 +20,7 @@ jobs:
         working-directory: android
     steps:
       - name: Free Disk Space (Ubuntu)
+        working-directory: .
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android/sdk/ndk/*
