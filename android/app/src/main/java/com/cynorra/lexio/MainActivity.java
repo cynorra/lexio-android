@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
         accountRepo = new AccountRepository();
         // Creates the notification channels; the reminder itself is scheduled by LexioApplication.
         new LexioNotificationManager(this);
+        ReviewPromptHelper.maybePrompt(this);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("644546865365-r2j7da60f3tmcg46a6m6ts2hhcnudo7o.apps.googleusercontent.com")
@@ -2008,6 +2009,7 @@ public class MainActivity extends AppCompatActivity implements AppStore.Observer
 
     private void rateApp() {
         Telemetry.event("rate_app_tapped", "source", "settings");
+        ReviewPromptHelper.markRated(this);
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
         } catch (android.content.ActivityNotFoundException e) {

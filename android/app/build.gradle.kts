@@ -10,8 +10,8 @@ android {
         applicationId = "com.cynorra.lexio"
         minSdk = 24
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.0.7"
+        versionCode = 9
+        versionName = "1.0.8"
     }
 
     signingConfigs {
@@ -71,6 +71,7 @@ dependencies {
   implementation("com.google.firebase:firebase-messaging")
   // User consent (GDPR/UK) before any ad request; required for EEA and UK users.
   implementation("com.google.android.ump:user-messaging-platform:3.1.0")
+  implementation("com.google.android.play:review:2.0.2")
 
   // Local testing
   testImplementation("junit:junit:4.13.2")
